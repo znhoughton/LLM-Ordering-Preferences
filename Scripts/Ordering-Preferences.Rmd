@@ -9,17 +9,17 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-library(reticulate)
-library(tidyverse)
 
 #Sys.setenv(RETICULATE_PYTHON = "C:/Users/zacha/AppData/Local/Programs/Python/Python39/") 
 #RETICULATE_PYTHON="C:/Users/zacha/AppData/Local/Programs/Python/Python39/"
 
-use_python("C:/Users/zacha/AppData/Local/Programs/Python/Python39/python.exe")
+retciulate::use_python("C:/Users/zacha/AppData/Local/Programs/Python/Python39/python.exe")
 #py_config()
 
 #py_install(c('pytorch', 'pandas', 'numpy', 'transformers'))
 
+library(reticulate)
+library(tidyverse)
 
 ```
 
@@ -645,8 +645,6 @@ write_csv(df_pairs, "ordering_prefs_percentages_gpt4_alternate.csv")
 
 The API for gpt3.5-turbo is cheap enough that we can replicate above with 1000sims.
 
-
-
 ```{python}
 import pandas as pd
 from openai import OpenAI
@@ -781,5 +779,3 @@ df_pairs <- percentage_df %>%
 
 write_csv(df_pairs, "ordering_prefs_percentages_gpt3.5_alternate_1000sims.csv")
 ```
-
-
