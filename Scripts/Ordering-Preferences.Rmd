@@ -381,7 +381,7 @@ df_pairs <- percentage_df %>%
   pivot_longer(everything(), names_to = ".value", names_pattern = "(column_values|Freq)")
 ```
 
-### Alternate Instructions Wording
+## Alternate Instructions Wording
 
 This time let's give chat-gpt a forced-choice prompt and see if that changes anything.
 
@@ -640,3 +640,146 @@ df_pairs <- percentage_df %>%
 
 write_csv(df_pairs, "ordering_prefs_percentages_gpt4_alternate.csv")
 ```
+
+## Same as above but with 1000sims
+
+The API for gpt3.5-turbo is cheap enough that we can replicate above with 1000sims.
+
+
+
+```{python}
+import pandas as pd
+from openai import OpenAI
+client = OpenAI()
+import numpy as np
+import random
+#import openai
+
+gpt_assistant_prompt = "You are a helpful chat assistant."
+
+temperature=0.2
+max_tokens=256
+frequency_penalty=0.0
+
+all_sims = []
+df = pd.DataFrame()
+
+list_of_binoms = r.binomials_min_and_max
+
+for i in range(0,1000): #1000 sims since the gpt3.5 api isn't too bad
+  if i % 50 == 0:
+    print(i)
+  binoms_response = []
+  #for i in 30:
+  for i in range(0, len(list_of_binoms['WordA'])):
+    
+    counterbalance = random.randint(0, 1)
+    if counterbalance == 0:
+      order1 = list_of_binoms['WordA'][i] + ' and ' + list_of_binoms['WordB'][i]
+      order2 = list_of_binoms['WordB'][i] + ' and ' + list_of_binoms['WordA'][i]
+    else:
+      order1 = list_of_binoms['WordB'][i] + ' and ' + list_of_binoms['WordA'][i]
+      order2 = list_of_binoms['WordA'][i] + ' and ' + list_of_binoms['WordB'][i]
+    
+    instructions = "I'm gonna give you two orderings of a pair of words, and I want you to choose whichever one is more natural to you.  Only include the ordering and no other words:"
+    
+    instructions_plus_binom = instructions + '\n ' + '"' + order1 + '"' + ' or ' + '"' + order2 + '"'
+    
+    gpt_prompt = gpt_assistant_prompt, instructions_plus_binom
+    
+    message=[{"role": "assistant", "content": gpt_assistant_prompt}, {"role": "user", "content": instructions_plus_binom}]
+    
+    response = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages = message,
+    temperature=temperature,
+    max_tokens=max_tokens,
+      frequency_penalty=frequency_penalty
+    )
+      
+    text = [response.choices[0].message.content]
+    #print(text)
+    
+    binoms_response += text
+      
+  all_sims.append(binoms_response)
+
+#all_sims
+all_sims_modified = [[word.strip('"') for word in inner_list] for inner_list in all_sims] #remove any quotes around the words
+
+all_sims_modified = [[word.lower() for word in inner_list] for inner_list in all_sims_modified]
+
+#create the dataframe:
+column_names = [f'Binomial_{i+1}' for i in range(len(all_sims_modified[0]))]
+#df = pd.DataFrame(all_sims_modified, columns = column_names)
+#df = df.iloc[1:]
+#print(df)
+#response
+```
+
+```{r}
+#ordering_prefs_gpt3.5_alternate = py$df
+#py$column_names
+ordering_prefs_gpt3.5_alternate = t(data.frame(py$all_sims_modified, row.names = NULL))
+
+rownames(ordering_prefs_gpt3.5_alternate) = NULL
+colnames(ordering_prefs_gpt3.5_alternate) = py$column_names
+
+ordering_prefs_gpt3.5_alternate = as.data.frame(ordering_prefs_gpt3.5_alternate)
+
+write_csv(ordering_prefs_gpt3.5_alternate, 'ordering_prefs_gpt3.5_LLM_alternate_1000sims.csv')
+```
+
+And we get it into a format we can work with:
+
+```{r}
+# Function to calculate percentage for each value in a column
+ordering_prefs = read_csv('ordering_prefs_gpt3.5_LLM_alternate_1000sims.csv')
+
+calculate_percentages = function(column_values) {
+  counts = table(column_values)
+  percentages = counts / sum(counts) * 100
+  return(percentages)
+}
+ordering_prefs = ordering_prefs %>%
+  mutate_all(~str_replace_all(., "\\.", ""))
+
+
+
+#ordering_prefs %>% 
+ # mutate(
+  #  across(
+   #   .cols = everything(),
+    #  .fns = ~ str_replace_all(
+     #   string = ..1, 
+      #  pattern = '\\.', 
+       # replacement = ""
+      #)
+    #)
+  #)
+
+ordering_prefs = ordering_prefs %>%
+  arrange(across(everything()))
+
+# Apply the function to each column in the data frame
+percentage_columns <- apply(ordering_prefs, 2, calculate_percentages)
+
+# Combine the results into a new data frame
+percentage_df <- data.frame(percentage_columns)
+
+# Print the result
+print(percentage_df)
+
+percentage_df = percentage_df %>%
+  mutate_if(is.factor, as.character)
+
+percentage_df = percentage_df[1,]
+
+df_pairs <- percentage_df %>%
+  mutate(across(everything(), as.character)) %>%
+  pivot_longer(everything(), names_to = ".value", names_pattern = "(column_values|Freq)")
+
+write_csv(df_pairs, "ordering_prefs_percentages_gpt3.5_alternate_1000sims.csv")
+```
+
+
