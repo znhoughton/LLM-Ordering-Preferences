@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 #Sys.setenv(RETICULATE_PYTHON = "C:/Users/zacha/AppData/Local/Programs/Python/Python39/") 
 #RETICULATE_PYTHON="C:/Users/zacha/AppData/Local/Programs/Python/Python39/"
 
-retciulate::use_python("C:/Users/zacha/AppData/Local/Programs/Python/Python39/python.exe")
+reticulate::use_python("C:/Users/zacha/AppData/Local/Programs/Python/Python39/python.exe")
 #py_config()
 
 #py_install(c('pytorch', 'pandas', 'numpy', 'transformers'))
