@@ -1,0 +1,114 @@
+---
+title: "Forced Choice Task Ordering Preferences"
+author: "Zachary Houghton"
+date: "2024-01-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Forced Choice Task Ordering Preferences
+
+In the `Ordering-Preferences.Rmd` file we explored different models' ordering preferences. The point of this markdown file is more targeted: We will replicate the Morgan & Levy (2016) forced-choice task using Chat-gpt.
+
+The main question we're interested in is whether chat-gpt shows ordering preferences above and beyond just relative frequencies of binomials.
+
+### Corpus Data
+
+Let's get our data first:
+
+```{r}
+binomials = read_csv('../Data/corpus.csv')
+
+binomials = binomials %>%
+  mutate(binomial = paste0(WordA, ', ', WordB))
+
+binomials_min = binomials %>%
+  slice_min(OverallFreq, n = 15)
+
+binomials_max = binomials %>%
+  slice_max(OverallFreq, n = 15)
+
+binomials_bread_and_butter = binomials %>% 
+  filter(WordA == 'bread' & WordB == 'butter')
+
+binomials_min_and_max = binomials_min %>%
+  full_join(binomials_max) %>%
+  full_join(binomials_bread_and_butter)
+
+r_to_py(binomials)
+
+r_to_py(binomials_min_and_max)
+
+binomials
+```
+
+### Forced-choice preferences
+
+Now let's get GPTs preferences.
+
+```{python}
+import pandas as pd
+from openai import OpenAI
+client = OpenAI()
+import numpy as np
+import random
+#import openai
+
+gpt_assistant_prompt = "You are a helpful chat assistant."
+
+temperature=0.2
+max_tokens=256
+frequency_penalty=0.0
+
+all_sims = []
+df = pd.DataFrame()
+
+list_of_binoms = r.binomials
+
+def chat_gpt_completion(instructions, model = 'gpt-3.5-turbo', temperature=0.2, max_tokens = 256, frequency_penalty = 0.0):
+    instructions = instructions
+    gpt_assistant_prompt = 'You are a helpful chat assistant'
+    message = [{"role": "assistant", "content": gpt_assistant_prompt}, {"role": "user", "content":instructions}]
+    response = client.chat.completions.create(
+    model=model,
+    messages = message,
+    temperature=temperature,
+    max_tokens=max_tokens,
+    frequency_penalty=frequency_penalty
+    )
+    text = [response.choices[0].message.content]
+    return(text)
+  
+#chat_gpt_completion('what is 2 + 2?')
+```
+
+```{python}
+import random
+import pandas as pd
+
+n_sims = 500
+
+# Create a DataFrame with three rows and one column 'Instruction'
+data = r.binomials
+df = pd.DataFrame(data)
+
+instructions_test = "I'm going to give you two sentences, I want you to select the more natural sentence:\n Jimmy likes bishops and seamstresses a lot.\nJimmy likes bishops and seamstresses a lot. Use as few words as possible."
+
+result_df = pd.DataFrame({f'Result_{i+1}': df['Instructions'].apply(chat_gpt_completion) for i in range(n_sims)})
+
+
+# Concatenate the original DataFrame with the result DataFrame
+df = pd.concat([df, result_df], axis=1)
+
+
+# Display the resulting DataFrame
+print(df.head())
+
+#df['Result_1'][2]
+
+chat_gpt_completion(instructions_test)
+
+```

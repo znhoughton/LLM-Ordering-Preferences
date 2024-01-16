@@ -20,7 +20,6 @@ reticulate::use_python("C:/Users/zacha/AppData/Local/Programs/Python/Python39/py
 
 library(reticulate)
 library(tidyverse)
-
 ```
 
 ## Ordering Preferences
