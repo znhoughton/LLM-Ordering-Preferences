@@ -89,13 +89,13 @@ def chat_gpt_completion(instructions, model = 'gpt-3.5-turbo', temperature=0.2, 
 import random
 import pandas as pd
 
-n_sims = 500
+n_sims = 10
 
 # Create a DataFrame with three rows and one column 'Instruction'
 data = r.binomials
 df = pd.DataFrame(data)
 
-instructions_test = "I'm going to give you two sentences, I want you to select the more natural sentence:\n Jimmy likes bishops and seamstresses a lot.\nJimmy likes bishops and seamstresses a lot. Use as few words as possible."
+instructions_test = "I'm going to give you two sentences, I want you to select the more natural sentence:\n They noticed that the chair and table were knocked over after the earthquake.\nThey noticed that the table and chair were knocked over after the earthquake. Include only the sentence."
 
 result_df = pd.DataFrame({f'Result_{i+1}': df['Instructions'].apply(chat_gpt_completion) for i in range(n_sims)})
 
