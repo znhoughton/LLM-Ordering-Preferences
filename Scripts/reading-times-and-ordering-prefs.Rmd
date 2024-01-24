@@ -1,0 +1,205 @@
+---
+title: "Reading Times and 2AFC Preferences M&L"
+author: "Zachary Houghton"
+date: "2024-01-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(reticulate)
+```
+
+# Overview
+
+We'll be calculating the 2AFC and reading times for various sentences containing binomials (taken from a combination of different M&L papers).
+
+For calculating 2AFC, we will get the probability of one sentence and then the other by adding the log-probability for each upcoming word.
+
+For reading time calculations, we'll do something similar but for a specific region.
+
+# Loading Data
+
+```{r}
+data = read_csv('../Data/materials.csv')[1:2,]
+binomial_alpha = data$`Sentence (WordA and WordB)`
+binomial_nonalpha = data$`Sentence (WordB and WordA)`
+```
+
+# 2AFC
+
+Here's our function to get the probability of the next word in the sentence:
+
+```{python}
+#load packages
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import numpy as np
+from torch import nn
+from collections import defaultdict
+import pandas as pd
+
+tokenizer = AutoTokenizer.from_pretrained("gpt2-xl") #we'll use chat-gpt2, but we could use another model if we wanted
+tokenizer.pad_token = tokenizer.eos_token
+
+model = AutoModelForCausalLM.from_pretrained("gpt2-xl", return_dict_in_generate=True) #load the model
+model.config.pad_token_id = model.config.eos_token_id
+
+```
+
+Courtesy of this thread: <https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/17>
+
+```{python}
+from pprint import pprint
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+
+def to_tokens_and_logprobs(model, tokenizer, input_texts):
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").input_ids
+    outputs = model(input_ids)
+    probs = torch.log_softmax(outputs.logits, dim=-1).detach()
+
+    # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
+    probs = probs[:, :-1, :]
+    input_ids = input_ids[:, 1:]
+    gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
+
+    batch = []
+    for input_sentence, input_probs in zip(input_ids, gen_probs):
+        text_sequence = []
+        for token, p in zip(input_sentence, input_probs):
+            if token not in tokenizer.all_special_ids:
+                text_sequence.append((tokenizer.decode(token), p.item()))
+        batch.append(text_sequence)
+    return batch
+
+
+#input_texts = ["The boy went outside to fly his kite.", "this is a test."]
+
+#batch = to_tokens_and_logprobs(model, tokenizer, input_texts)
+#sentence_probs = [sum(item[1] for item in inner_list) for inner_list in batch]
+
+#binom_probs = {}
+
+
+#pprint(batch)
+```
+
+Now we'll apply this to each sentence:
+
+```{python}
+input_texts_alpha = r.binomial_alpha
+input_texts_nonalpha = r.binomial_nonalpha
+
+batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
+batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+
+sentence_probs_alpha = [sum(item[1] for item in inner_list) for inner_list in batch_alpha]
+sentence_probs_nonalpha = [sum(item[1] for item in inner_list) for inner_list in batch_nonalpha]
+binom_probs = {}
+
+#count = 0
+#for item in batch_alpha[1]: 
+    #count += item[1]
+
+for i,row in enumerate(r.data.itertuples()):
+  binom = row[1] + ' and ' + row[2]
+  binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
+binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
+binom_probs_df.reset_index(inplace=True)
+binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
+#pprint(batch_alpha)
+#pprint(batch_nonalpha)
+```
+
+```{r}
+binom = py$binom_probs_df
+write_csv(binom, '../Data/gpt2_2afc_ordering_prefs')
+```
+
+# Reading Times
+
+We can do largely the same procedure for reading times, but we want to take into account the spillover region. So instead of looking at the entire sentence (as in the 2afc), we will look at the region that contains the first binomial and the 5 following words.
+
+```{r}
+data = data %>%
+  rowwise() %>%
+  mutate(Position = which(str_split(`Sentence (WordA and WordB)`, '\\s+')[[1]]=='and'))
+
+r_to_py(data)
+```
+
+<!--# things to account for: the position of 'and' is a decent way for now, but we probably need to find a way to account for whether the word before it is one or two bpe tokens. Maybe we can mutate a new column that contains whether the word is tokenized as one or two tokens? This should be possible -->
+
+```{python}
+reading_time_data = r.data
+
+second_item_lists = [[item[1] for item in sublist] for sublist in batch_alpha]
+second_item_lists_nonalpha = [[item[1] for item in sublist] for sublist in batch_nonalpha]
+word_list = [[item[0] for item in sublist] for sublist in batch_alpha]
+new_df = pd.DataFrame({'Second_Item_List': second_item_lists, 'Word_list': word_list, 'Second_Item_List_nonalpha': second_item_lists_nonalpha})
+reading_time_data = pd.concat([reading_time_data, new_df], axis = 1)
+
+
+def find_and_index(word_list):
+    try:
+        return word_list.index(' and')
+    except ValueError:
+        return -1  # Return -1 if 'and' is not found in the list
+
+# Apply the function to create a new column 'and_index'
+reading_time_data['and_index'] = reading_time_data['Word_list'].apply(find_and_index)
+
+def num_tokens(word):
+  tokens_in_word = tokenizer(word, return_tensors="pt").input_ids
+  return tokens_in_word.numel()
+  
+
+reading_time_data['alpha_bpe_num'] = reading_time_data['WordA'].apply(num_tokens)
+reading_time_data['nonalpha_bpe_num'] = reading_time_data['WordB'].apply(num_tokens)
+```
+
+```{python}
+def extract_number(row):
+    index = row['and_index'] - 1
+    number_list = row['Second_Item_List']
+    
+    # Check if the index is valid
+    if 0 <= index < len(number_list):
+        return number_list[index:index+6]
+    else:
+        return None  # Handle cases where the index is out of bounds
+      
+def extract_number_nonalpha(row):
+    index = row['and_index'] - 1
+    number_list = row['Second_Item_List_nonalpha']
+    
+    # Check if the index is valid
+    if 0 <= index < len(number_list):
+        return number_list[index:index+6]
+    else:
+        return None  # Handle cases where the index is out of bounds
+
+# Apply the function to create the 'extracted_number_column'
+reading_time_data['extracted_number_column_alpha'] = reading_time_data.apply(extract_number, axis=1)
+reading_time_data['extracted_number_column_nonalpha'] = reading_time_data.apply(extract_number_nonalpha, axis = 1)
+
+def sum_numbers(row):
+  return sum(row)
+
+reading_time_data['reading_times_alpha'] = reading_time_data['extracted_number_column_alpha'].apply(sum_numbers)
+reading_time_data['reading_times_nonalpha'] = reading_time_data['extracted_number_column_nonalpha'].apply(sum_numbers)
+```
+
+```{python}
+columns_to_keep = ['WordA', 'WordB', 'Sentence', 'reading_times_alpha', 'reading_times_nonalpha']
+reading_time_data = reading_time_data[columns_to_keep]
+```
+
+```{r}
+reading_time_data = py$reading_time_data
+
+write_csv('reading_time_data.csv', reading_time_data)
+```
