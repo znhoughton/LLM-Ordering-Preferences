@@ -287,7 +287,7 @@ reading_time_data = reading_time_data[columns_to_keep]
 ```{r}
 reading_time_data = py$reading_time_data
 
-write_csv(reading_time_data, 'reading_time_data.csv')
+write_csv(reading_time_data, '../Data/gpt2_reading_time_data.csv')
 ```
 
 Let's do some checking by hand to make sure everything works.
