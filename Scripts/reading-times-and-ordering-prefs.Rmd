@@ -22,7 +22,7 @@ For reading time calculations, we'll do something similar but for a specific reg
 # Loading Data
 
 ```{r}
-data = read_csv('../Data/materials.csv')[1:2,]
+data = read_csv('../Data/materials.csv')
 binomial_alpha = data$`Sentence (WordA and WordB)`
 binomial_nonalpha = data$`Sentence (WordB and WordA)`
 ```
@@ -39,6 +39,7 @@ import numpy as np
 from torch import nn
 from collections import defaultdict
 import pandas as pd
+import re
 
 tokenizer = AutoTokenizer.from_pretrained("gpt2-xl") #we'll use chat-gpt2, but we could use another model if we wanted
 tokenizer.pad_token = tokenizer.eos_token
@@ -116,6 +117,9 @@ binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
 
 ```{r}
 binom = py$binom_probs_df
+
+binom = binom %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`)))
 write_csv(binom, '../Data/gpt2_2afc_ordering_prefs')
 ```
 
@@ -124,14 +128,10 @@ write_csv(binom, '../Data/gpt2_2afc_ordering_prefs')
 We can do largely the same procedure for reading times, but we want to take into account the spillover region. So instead of looking at the entire sentence (as in the 2afc), we will look at the region that contains the first binomial and the 5 following words.
 
 ```{r}
-data = data %>%
-  rowwise() %>%
-  mutate(Position = which(str_split(`Sentence (WordA and WordB)`, '\\s+')[[1]]=='and'))
-
 r_to_py(data)
 ```
 
-<!--# things to account for: the position of 'and' is a decent way for now, but we probably need to find a way to account for whether the word before it is one or two bpe tokens. Maybe we can mutate a new column that contains whether the word is tokenized as one or two tokens? This should be possible -->
+First let's get the probabilities and words for each sentence as columns in the df:
 
 ```{python}
 reading_time_data = r.data
@@ -139,31 +139,107 @@ reading_time_data = r.data
 second_item_lists = [[item[1] for item in sublist] for sublist in batch_alpha]
 second_item_lists_nonalpha = [[item[1] for item in sublist] for sublist in batch_nonalpha]
 word_list = [[item[0] for item in sublist] for sublist in batch_alpha]
-new_df = pd.DataFrame({'Second_Item_List': second_item_lists, 'Word_list': word_list, 'Second_Item_List_nonalpha': second_item_lists_nonalpha})
+word_list_nonalpha = [[item[0] for item in sublist] for sublist in batch_nonalpha]
+new_df = pd.DataFrame({'Second_Item_List': second_item_lists, 'Word_list': word_list, 'Second_Item_List_nonalpha': second_item_lists_nonalpha, 'Word_list_nonalpha': word_list_nonalpha})
 reading_time_data = pd.concat([reading_time_data, new_df], axis = 1)
 
 
-def find_and_index(word_list):
-    try:
-        return word_list.index(' and')
-    except ValueError:
-        return -1  # Return -1 if 'and' is not found in the list
+
+
+```
+
+We need to get a bit creative for the next part:
+
+If items are split within word, they don't start with a space. So items starting with a space are a whole word. 'and' is also always a whole word, so we can index where ' and' is and find the closest word starting with a space that comes before ' and'.
+
+We'll do this by:
+
+-finding the position of ' and' (if there are multiple 'ands' it chooses the one that comes immediately after one of the binomial words. There's a slim chance this will break if there are multiple ands AND the word in the binomial is tokenized into subtokens. However, this is probability pretty unlikely).
+
+-finding the positions of words that begin with a space
+
+-find the largest position starting with a space that is still smaller than the position of ' and'
+
+```{python}
+def find_and_index(words, word_alpha):
+    positions = []
+    found_word_a = False
+
+    for i, word in enumerate(words):
+        if word == ' and' and found_word_a:
+            positions.append(i)
+            found_word_a = False
+        elif word.strip(' ') == word_alpha:
+            found_word_a = True
+        else:
+            found_word_a = False
+    
+    if positions == []:
+        positions.append(words.index(' and'))
+        
+    return positions[0]
+      
+# Initialize an empty list to store the positions
+positions = []
+
+# Iterate through rows and words
+for row_index, row in enumerate(reading_time_data['Word_list']):
+    word_positions = []
+    for word_index, word in enumerate(row):
+        if word.startswith(' '):
+            word_positions.append(word_index)
+    positions.append(word_positions)
+
+reading_time_data['alpha_space_conditions'] = positions
+
+positions = []
+for row_index, row in enumerate(reading_time_data['Word_list_nonalpha']):
+    word_positions = []
+    for word_index, word in enumerate(row):
+        if word.startswith(' '):
+            word_positions.append(word_index)
+    positions.append(word_positions)
+    
+# Create a new column 'position' in the DataFrame
+
+reading_time_data['nonalpha_space_conditions'] = positions
+
 
 # Apply the function to create a new column 'and_index'
-reading_time_data['and_index'] = reading_time_data['Word_list'].apply(find_and_index)
+reading_time_data['and_index'] = reading_time_data.apply(lambda row: find_and_index(row['Word_list'], row['WordA']), axis=1)
+#reading_time_data['and_index'] = reading_time_data['Word_list'].apply(find_and_index, 'WordA')
 
-def num_tokens(word):
-  tokens_in_word = tokenizer(word, return_tensors="pt").input_ids
-  return tokens_in_word.numel()
+#def num_tokens(word):
+  #tokens_in_word = tokenizer(word, return_tensors="pt").input_ids
+  #return tokens_in_word.numel()
+
+
+# Define a custom function to find the largest number in the list that is less than the comparison number
+def find_largest_less_than(nums, comparison_num):
+    valid_nums = [num for num in nums if num < comparison_num]
+    if valid_nums:
+        return max(valid_nums)
+    else:
+        return None
+
+# Apply the custom function to create a new column 'largest_less_than'
+reading_time_data['largest_less_than_alpha'] = reading_time_data.apply(lambda row: find_largest_less_than(row['alpha_space_conditions'], row['and_index']), axis=1)
+
+reading_time_data['largest_less_than_nonalpha'] = reading_time_data.apply(lambda row: find_largest_less_than(row['nonalpha_space_conditions'], row['and_index']), axis=1)
   
 
-reading_time_data['alpha_bpe_num'] = reading_time_data['WordA'].apply(num_tokens)
-reading_time_data['nonalpha_bpe_num'] = reading_time_data['WordB'].apply(num_tokens)
+#reading_time_data['alpha_diff'] = reading_time_data['largest_less_than_alpha'] - reading_time_data['and_index']
+#reading_time_data['alpha_bpe_num'] = reading_time_data['WordA'].apply(num_tokens)
+#reading_time_data['nonalpha_bpe_num'] = reading_time_data['WordB'].apply(num_tokens)
 ```
+
+Finally let's extract the numbers for the 6-word region we care about:
+
+<!--# Flaw with this: it's actually a 6-bpe token region, not a 6-word region -- prob worth discussing -->
 
 ```{python}
 def extract_number(row):
-    index = row['and_index'] - 1
+    index = row['largest_less_than_alpha'] 
     number_list = row['Second_Item_List']
     
     # Check if the index is valid
@@ -173,7 +249,7 @@ def extract_number(row):
         return None  # Handle cases where the index is out of bounds
       
 def extract_number_nonalpha(row):
-    index = row['and_index'] - 1
+    index = row['largest_less_than_nonalpha']
     number_list = row['Second_Item_List_nonalpha']
     
     # Check if the index is valid
@@ -189,8 +265,18 @@ reading_time_data['extracted_number_column_nonalpha'] = reading_time_data.apply(
 def sum_numbers(row):
   return sum(row)
 
+def word_region_alpha(row):
+  index = row['largest_less_than_alpha']
+  word_list = row['Word_list']
+  word_list = word_list[index:index+6]
+  return word_list
+
+#def word_region_nonalpha(row)
+
 reading_time_data['reading_times_alpha'] = reading_time_data['extracted_number_column_alpha'].apply(sum_numbers)
 reading_time_data['reading_times_nonalpha'] = reading_time_data['extracted_number_column_nonalpha'].apply(sum_numbers)
+
+reading_time_data['subset_words_alpha'] = reading_time_data.apply(word_region_alpha, axis = 1)
 ```
 
 ```{python}
@@ -201,5 +287,7 @@ reading_time_data = reading_time_data[columns_to_keep]
 ```{r}
 reading_time_data = py$reading_time_data
 
-write_csv('reading_time_data.csv', reading_time_data)
+write_csv(reading_time_data, 'reading_time_data.csv')
 ```
+
+Let's do some checking by hand to make sure everything works.
