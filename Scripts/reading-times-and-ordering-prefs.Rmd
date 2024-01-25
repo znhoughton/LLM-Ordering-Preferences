@@ -154,7 +154,7 @@ If items are split within word, they don't start with a space. So items starting
 
 We'll do this by:
 
--finding the position of ' and' (if there are multiple 'ands' it chooses the one that comes immediately after one of the binomial words. There's a slim chance this will break if there are multiple ands AND the word in the binomial is tokenized into subtokens. However, this is probability pretty unlikely).
+-finding the position of ' and' (if there are multiple 'ands' we choose the one that comes immediately after one of the binomial words. There's a slim chance this will break if there are multiple ands AND the word in the binomial is tokenized into subtokens. However, this is probably pretty unlikely).
 
 -finding the positions of words that begin with a space
 
@@ -290,4 +290,8 @@ reading_time_data = py$reading_time_data
 write_csv(reading_time_data, '../Data/gpt2_reading_time_data.csv')
 ```
 
+<!--# to-do: join them all into one dataframe -->
+
 Let's do some checking by hand to make sure everything works.
+
+# GPT2 (not xl)
