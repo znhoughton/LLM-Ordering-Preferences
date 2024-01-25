@@ -1,0 +1,74 @@
+---
+title: "Analysis"
+author: "Zachary Houghton"
+date: "2024-01-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Analysis of LLM ordering prefs
+
+## Load Data
+
+<!--# to-do: get gen-prefs -->
+
+```{r message = F}
+binom_data = read_csv('../Data/materials.csv') %>%
+  mutate(binom = paste0(WordA, ' and ', WordB)) 
+#gpt2
+fc_task_gpt2 = read_csv('../Data/gpt2_2afc_ordering_prefs.csv') %>%
+  mutate('LLM' = 'gpt2') %>%
+  full_join(binom_data, by = 'binom')
+
+reading_time_gpt2 = read_csv('../Data/gpt2_reading_time_data.csv') %>%
+  pivot_longer(c(reading_times_alpha, reading_times_nonalpha), names_to = 'condition', values_to = 'reading_times') %>%
+  mutate('LLM' = 'gpt2') %>%
+  full_join(binom_data, by = c('WordA', 'WordB'))
+
+#gpt2xl
+fc_task_gpt2xl = read_csv('../Data/gpt2xl_2afc_ordering_prefs.csv') %>%
+  mutate('LLM' = 'gpt2') %>%
+  full_join(binom_data, by = 'binom')
+
+reading_time_gpt2xl = read_csv('../Data/gpt2xl_reading_time_data.csv') %>%
+  pivot_longer(c(reading_times_alpha, reading_times_nonalpha), names_to = 'condition', values_to = 'reading_times') %>%
+  mutate('LLM' = 'gpt2') %>%
+  full_join(binom_data, by = c('WordA', 'WordB'))
+
+
+#meta's model
+```
+
+Join our dataframes for each model for a given task into one:
+
+```{r message = F}
+tafc_task = fc_task_gpt2 %>%
+  full_join(fc_task_gpt2xl)
+
+reading_time_task = reading_time_gpt2 %>%
+  full_join(reading_time_gpt2xl)
+```
+
+## Analyses
+
+### 2afc 
+
+### Reading Time
+
+## Plots
+
+### Raw data plots
+
+```{r}
+tafc_plot = ggplot(tafc_task) +
+  geom_point(aes(y = CollegeFreq, x = ProbAandB)) +
+  theme_bw()
+
+tafc_plot
+
+hist(tafc_task$ProbAandB)
+```
