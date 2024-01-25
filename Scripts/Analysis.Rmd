@@ -17,8 +17,11 @@ library(tidyverse)
 <!--# to-do: get gen-prefs -->
 
 ```{r message = F}
+genpref_relfreq = read_csv('../Data/corpus.csv')
+
 binom_data = read_csv('../Data/materials.csv') %>%
-  mutate(binom = paste0(WordA, ' and ', WordB)) 
+  mutate(binom = paste0(WordA, ' and ', WordB)) %>%
+  left_join(genpref_relfreq, by = c('WordA', 'WordB'))
 #gpt2
 fc_task_gpt2 = read_csv('../Data/gpt2_2afc_ordering_prefs.csv') %>%
   mutate('LLM' = 'gpt2') %>%
@@ -64,11 +67,13 @@ reading_time_task = reading_time_gpt2 %>%
 ### Raw data plots
 
 ```{r}
-tafc_plot = ggplot(tafc_task) +
-  geom_point(aes(y = CollegeFreq, x = ProbAandB)) +
-  theme_bw()
+#tafc_plot = ggplot(tafc_task) +
+  #geom_point(aes(y = CollegeFreq, x = ProbAandB)) +
+  #theme_bw()
 
-tafc_plot
+#tafc_plot
 
 hist(tafc_task$ProbAandB)
+hist(tafc_task$RelFreq)
+hist(tafc_task$GenPref)
 ```
