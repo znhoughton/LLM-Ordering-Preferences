@@ -58,7 +58,7 @@ reading_time_task = reading_time_gpt2 %>%
 
 ## Analyses
 
-### 2afc 
+### 2afc
 
 ### Reading Time
 
