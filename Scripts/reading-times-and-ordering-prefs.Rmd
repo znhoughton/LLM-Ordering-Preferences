@@ -22,7 +22,37 @@ For reading time calculations, we'll do something similar but for a specific reg
 # Loading Data
 
 ```{r}
+#function to find out which sentences are in alphabetical order
+check_order <- function(sentence, word_a, word_b) {
+  words <- str_split(sentence, "\\s+")[[1]]  # Split the sentence into words
+  pos_a <- which(tolower(words) == word_a)
+  pos_b <- which(tolower(words) == word_b)
+  
+  alphabetical <- as.integer(min(pos_a) < min(pos_b))
+  
+  return(alphabetical)
+}
+
+#function to replace the nonalphabetical order with alphabetical order
+replace_words_alpha <- function(df) {
+  df <- df %>%
+    mutate(Sentence = str_replace_all(Sentence, regex(WordA, ignore_case = TRUE), WordB),
+           Sentence = str_replace_all(Sentence, regex(WordB, ignore_case = TRUE), WordA))
+  return(df)
+}
+
+
 data = read_csv('../Data/materials.csv')
+data_novel = read_csv('../Data/corpus_novel.csv') %>%
+  rowwise() %>%
+  mutate(alphabetical = check_order(Sentence, WordA, WordB)) %>%
+  ungroup() %>%
+  mutate("Sentence (WordA and WordB)" = ifelse(alphabetical == 1, Sentence,
+                                               str_replace_all(Sentence, regex(paste0(WordB, ' and ', WordA), ignore_case = TRUE), paste0(WordA, ' and ', WordB)))) %>%
+  mutate("Sentence (WordB and WordA)" = str_replace_all(`Sentence (WordA and WordB)`, regex(paste0(WordA, ' and ', WordB), ignore_case = TRUE), paste0(WordB, ' and ', WordA)))
+
+
+  #mutate"Sentence (WordA and WordB)" = sentences
 binomial_alpha = data$`Sentence (WordA and WordB)`
 binomial_nonalpha = data$`Sentence (WordB and WordA)`
 
