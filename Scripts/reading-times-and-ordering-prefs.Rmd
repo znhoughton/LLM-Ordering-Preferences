@@ -34,7 +34,8 @@ data_novel = read_csv('../Data/corpus_novel.csv') %>%
 data_for_analysis = data %>%
   full_join(data_novel)
 
-binomial_alpha = data_for_analysis$`Sentence (WordA and WordB)`
+binomial_alpha = data_for_analysis$`Sentence (WordA and WordB)`[6:11]
+binomial_alpha2 = data_for_analysis$`Sentence (WordA and WordB)`[1:5]
 binomial_nonalpha = data_for_analysis$`Sentence (WordB and WordA)`
 ```
 
@@ -72,8 +73,10 @@ device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 model = model.to(device)
 
 def to_tokens_and_logprobs(model, tokenizer, input_texts):
+  
+
     input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").to(device).input_ids
-    
+  
     outputs = model(input_ids)
     probs = torch.log_softmax(outputs.logits, dim=-1).detach()
 
@@ -81,7 +84,7 @@ def to_tokens_and_logprobs(model, tokenizer, input_texts):
     probs = probs[:, :-1, :]
     input_ids = input_ids[:, 1:]
     gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
-
+    
     batch = []
     for input_sentence, input_probs in zip(input_ids, gen_probs):
         text_sequence = []
@@ -106,12 +109,31 @@ def to_tokens_and_logprobs(model, tokenizer, input_texts):
 Now we'll apply this to each sentence:
 
 ```{python}
-#had to run this on the server because R kept crashing 
+#R keeps crashing, maybe we need to run in smaller chunks
+
 input_texts_alpha = r.binomial_alpha
 input_texts_nonalpha = r.binomial_nonalpha
 
-batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
-batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+n_batches = len(input_texts) / 100
+input_texts_alpha = (np.array(np.array_split(np.array(input_texts_alpha), n_batches))).tolist() #for some reason, I can't conver the np array to a list -- python seems to think it's already a list, so I force it to be an array then conver it to a list
+
+input_texts_nonalpha = (np.array(np.array_split(np.array(input_texts_nonalpha), n_batches))).tolist() 
+
+batch_alpha = [[]]
+for minibatch in input_texts_alpha:
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_alpha.extend(batch_placeholder)
+  
+batch_nonalpha = [[]]
+for minibatch in input_texts_nonalpha:
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_nonalpha.extend(batch_placeholder)
+  
+batch_alpha = batch_alpha[1:]
+batch_nonalpha = batch_nonalpha[1:]
+
+#batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
+#batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
 
 sentence_probs_alpha = [sum(item[1] for item in inner_list) for inner_list in batch_alpha]
 sentence_probs_nonalpha = [sum(item[1] for item in inner_list) for inner_list in batch_nonalpha]
@@ -386,8 +408,24 @@ Now we'll apply this to each sentence:
 input_texts_alpha = r.binomial_alpha
 input_texts_nonalpha = r.binomial_nonalpha
 
-batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
-batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+
+n_batches = len(input_texts) / 100
+input_texts_alpha = (np.array(np.array_split(np.array(input_texts_alpha), n_batches))).tolist() #for some reason, I can't conver the np array to a list -- python seems to think it's already a list, so I force it to be an array then conver it to a list
+
+input_texts_nonalpha = (np.array(np.array_split(np.array(input_texts_nonalpha), n_batches))).tolist() 
+
+batch_alpha = [[]]
+for minibatch in input_texts_alpha:
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_alpha.extend(batch_placeholder)
+  
+batch_nonalpha = [[]]
+for minibatch in input_texts_nonalpha:
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_nonalpha.extend(batch_placeholder)
+  
+batch_alpha = batch_alpha[1:]
+batch_nonalpha = batch_nonalpha[1:]
 
 sentence_probs_alpha = [sum(item[1] for item in inner_list) for inner_list in batch_alpha]
 sentence_probs_nonalpha = [sum(item[1] for item in inner_list) for inner_list in batch_nonalpha]
