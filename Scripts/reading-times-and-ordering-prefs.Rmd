@@ -33,6 +33,9 @@ data_novel = read_csv('../Data/corpus_novel.csv') %>%
 
 data_for_analysis = data %>%
   full_join(data_novel)
+
+binomial_alpha = data_for_analysis$`Sentence (WordA and WordB)`
+binomial_nonalpha = data_for_analysis$`Sentence (WordB and WordA)`
 ```
 
 # GPTXL
@@ -47,7 +50,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import numpy as np
 from torch import nn
-from collections import defaultdict
+#from collections import defaultdict
 import pandas as pd
 import re
 
@@ -65,10 +68,12 @@ Courtesy of this thread: <https://discuss.huggingface.co/t/announcement-generati
 from pprint import pprint
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+model = model.to(device)
 
 def to_tokens_and_logprobs(model, tokenizer, input_texts):
-    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").input_ids
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").to(device).input_ids
+    
     outputs = model(input_ids)
     probs = torch.log_softmax(outputs.logits, dim=-1).detach()
 
@@ -101,6 +106,7 @@ def to_tokens_and_logprobs(model, tokenizer, input_texts):
 Now we'll apply this to each sentence:
 
 ```{python}
+#had to run this on the server because R kept crashing 
 input_texts_alpha = r.binomial_alpha
 input_texts_nonalpha = r.binomial_nonalpha
 
@@ -109,15 +115,17 @@ batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
 
 sentence_probs_alpha = [sum(item[1] for item in inner_list) for inner_list in batch_alpha]
 sentence_probs_nonalpha = [sum(item[1] for item in inner_list) for inner_list in batch_nonalpha]
-binom_probs = {}
+
 
 #count = 0
 #for item in batch_alpha[1]: 
     #count += item[1]
 
-for i,row in enumerate(r.data.itertuples()):
-  binom = row[1] + ' and ' + row[2]
+for i,row in enumerate(r.data_for_analysis.itertuples()):
+  binom = row[2] + ' and ' + row[3]
   binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
+
+
 binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
 binom_probs_df.reset_index(inplace=True)
 binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
@@ -127,6 +135,12 @@ binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
 
 ```{r}
 binom = py$binom_probs_df
+
+batch_alpha_gpt2xl = py$batch_alpha
+batch_nonalpha_gpt2xl = py$batch_nonalpha
+
+write_csv(batch_alpha_gpt2xl, '../Data/gpt2xl_batch_alpha.csv')
+write_csv(batch_nonalpha_gpt2xl, '../Data/gpt2xl_batch_nonalpha.csv')
 
 binom = binom %>%
   mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`)))
@@ -138,13 +152,13 @@ write_csv(binom, '../Data/gpt2xl_2afc_ordering_prefs.csv')
 We can do largely the same procedure for reading times, but we want to take into account the spillover region. So instead of looking at the entire sentence (as in the 2afc), we will look at the region that contains the first binomial and the 5 following words.
 
 ```{r}
-r_to_py(data)
+r_to_py(data_for_analysis)
 ```
 
 First let's get the probabilities and words for each sentence as columns in the df:
 
 ```{python}
-reading_time_data = r.data
+reading_time_data = r.data_for_analysis
 
 second_item_lists = [[item[1] for item in sublist] for sublist in batch_alpha]
 second_item_lists_nonalpha = [[item[1] for item in sublist] for sublist in batch_nonalpha]
@@ -336,6 +350,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 
 def to_tokens_and_logprobs(model, tokenizer, input_texts):
     input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").input_ids
+    
     outputs = model(input_ids)
     probs = torch.log_softmax(outputs.logits, dim=-1).detach()
 
@@ -394,6 +409,11 @@ binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
 
 ```{r}
 binom = py$binom_probs_df
+batch_alpha_gpt2 = py$batch_alpha
+batch_nonalpha_gpt2 = py$batch_nonalpha
+
+write_csv(batch_alpha_gpt2, '../Data/gpt2_batch_alpha.csv')
+write_csv(batch_nonalpha_gpt2, '../Data/gpt2_batch_nonalpha.csv')
 
 binom = binom %>%
   mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`)))
