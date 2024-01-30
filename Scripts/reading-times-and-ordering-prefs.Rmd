@@ -108,6 +108,8 @@ def to_tokens_and_logprobs(model, tokenizer, input_texts):
 
 Now we'll apply this to each sentence:
 
+<!--# can look into parallelizing batch runs later -->
+
 ```{python}
 #R keeps crashing, maybe we need to run in smaller chunks
 
@@ -115,9 +117,9 @@ input_texts_alpha = r.binomial_alpha
 input_texts_nonalpha = r.binomial_nonalpha
 
 n_batches = len(input_texts) / 100
-input_texts_alpha = (np.array(np.array_split(np.array(input_texts_alpha), n_batches))).tolist() #for some reason, I can't conver the np array to a list -- python seems to think it's already a list, so I force it to be an array then conver it to a list
+input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches)).tolist() #for some reason, I can't conver the np array to a list -- python seems to think it's already a list, so I force it to be an array then conver it to a list
 
-input_texts_nonalpha = (np.array(np.array_split(np.array(input_texts_nonalpha), n_batches))).tolist() 
+input_texts_nonalpha = (np.array(np.array_split(input_texts_nonalpha, n_batches)).tolist() 
 
 batch_alpha = [[]]
 for minibatch in input_texts_alpha:
@@ -410,9 +412,9 @@ input_texts_nonalpha = r.binomial_nonalpha
 
 
 n_batches = len(input_texts) / 100
-input_texts_alpha = (np.array(np.array_split(np.array(input_texts_alpha), n_batches))).tolist() #for some reason, I can't conver the np array to a list -- python seems to think it's already a list, so I force it to be an array then conver it to a list
+input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches)).tolist() #for some reason, I can't conver the np array to a list -- python seems to think it's already a list, so I force it to be an array then conver it to a list
 
-input_texts_nonalpha = (np.array(np.array_split(np.array(input_texts_nonalpha), n_batches))).tolist() 
+input_texts_nonalpha = (np.array(np.array_split(input_texts_nonalpha, n_batches)).tolist() 
 
 batch_alpha = [[]]
 for minibatch in input_texts_alpha:
