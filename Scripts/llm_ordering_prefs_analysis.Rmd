@@ -1,0 +1,81 @@
+---
+title: "Analysis"
+author: "Zach"
+date: "2024-02-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(brms)
+```
+
+# Analysis
+
+Within this script will be the analyses for the study about ordering preferences in LLMs.
+
+We care about how the effects of generative preferences and observed (relative) frequency change as a function of the overall frequency of the binomial.
+
+This script will be divided into two main sections:
+
+1.  The analyses for just the binomial (*cat and dog*)
+2.  The analyses for the binomial within a sentence context*.*
+
+We will run analyses for reading times and 2afc task. 2afc task is operationalized here as the sum of the log probabilities across all words in the sentence. Reading time is operationalized as the sum of the log probabilities across our target region, consists of 6 words: the first word in the binomial to the 6th word after.
+
+## Just Binomials
+
+### 2afc
+
+Technically, for just binomials, 2afc = reading times. Since 2afc is the probability of the sentence (sum of log probs for each item in the sentence), and reading times are the probability of a specific region in the sentence (sum of log probs for each item in a given region of the sentence).
+
+In this case, the entire sentence is the region we care about. Thus for just binomials we run only one task for each language model.
+
+Our main analyses will be:
+
+$$
+logit(P_{AandB}) \sim GenPref + OrderingPref + Overall Freq + OverallFreq \colon GenPref + OverallFreq \colon OrderingPref
+$$
+
+Where our dependent variable is the probability of the binomial being alphabetical form.
+
+And the independent variables are the generative preference of a given binomial, the ordering preference, the overall frequency, and the interaction between overall frequency and generative preference as well as the interaction between overall frequency and the ordering preference.
+
+We don't need a random intercept for item because we have one observation for each item, so this would be meaningless.
+
+We also don't need a random intercept for "subject" because we don't have any subjects.
+
+<!--# do we have no random effects here?? Surely I'm forgetting something -->
+
+#### GPT2
+
+Load data:
+
+```{r}
+gpt2_data_just_binoms = read_csv('../Data/gpt2_2afc_binom_ordering_prefs.csv')
+```
+
+Quick and dirty historgram:
+
+```{r}
+ggplot(data = gpt2_data_just_binoms, aes(x=log_odds)) +
+  geom_histogram() +
+  theme_bw()
+```
+
+#### GPT2-XL
+
+Load data:
+
+```{r}
+gpt2xl_data_just_binoms = read_csv('../Data/gpt2xl_2afc_binom_ordering_prefs.csv')
+```
+
+#### Llama-7b
+
+Load data:
+
+```{r}
+llama7b_data_just_binoms = read_csv('../Data/llama7_2afc_binom_ordering_prefs.csv')
+```
