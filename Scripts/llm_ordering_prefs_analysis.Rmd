@@ -77,5 +77,5 @@ gpt2xl_data_just_binoms = read_csv('../Data/gpt2xl_2afc_binom_ordering_prefs.csv
 Load data:
 
 ```{r}
-llama7b_data_just_binoms = read_csv('../Data/llama7_2afc_binom_ordering_prefs.csv')
+llama7b_data_just_binoms = read_csv('../Data/llama7b_2afc_binom_ordering_prefs.csv')
 ```
