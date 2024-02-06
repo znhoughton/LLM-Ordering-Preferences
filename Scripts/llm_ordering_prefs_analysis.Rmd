@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(brms)
+corpus = read_csv('../Data/corpus.csv')
 ```
 
 # Analysis
@@ -59,7 +60,11 @@ gpt2_data_just_binoms = read_csv('../Data/gpt2_2afc_binom_ordering_prefs.csv')
 Quick and dirty historgram:
 
 ```{r}
-ggplot(data = gpt2_data_just_binoms, aes(x=log_odds)) +
+ggplot(data = gpt2_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
+  geom_histogram() +
+  theme_bw()
+
+ggplot(data = corpus, aes(x=RelFreq, y = ..density..)) +
   geom_histogram() +
   theme_bw()
 ```
