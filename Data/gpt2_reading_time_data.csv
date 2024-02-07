@@ -1,565 +1,555 @@
-WordA,WordB,Sentence,reading_times_alpha,reading_times_nonalpha
-ability,age,"They questioned his X and Y in the interview, which he thought was unfair.",-27.095868945121765,-24.532524585723877
-ability,desire,Maddie had both the X and Y to play college-level soccer.,-16.641991667449474,-18.951661929488182
-ability,strength,Lisa had the X and Y to become a professional athlete.,-20.69316717237234,-20.03096128627658
-action,character,Riley thought his lack of X and Y was too significant to overlook.,-29.994320154190063,-30.718360900878906
-actions,feelings,He was confused because her X and Y were not matching up.,-29.27109593153,-27.089405119419098
-addresses,names,The company collected hundreds of X and Y for a petition they wanted to pass in June.,-32.10526204109192,-24.31130313873291
-adventure,romance,The movie had a great balance of X and Y which made it a great success.,-17.92501300573349,-18.199183404445648
-Africa,Asia,My colleague wanted to visit X and Y this year for a vacation with her husband.,-26.606287240982056,-25.589776873588562
-age,day,Amanda said that in this X and Y you need to be tech-savy.,-27.33276277780533,-11.316577762598172
-agencies,individuals,Many different X and Y worked together on this project.,-21.168930530548096,-24.171005070209503
-aggression,hostility,"Sasha felt X and Y towards her brother, so she tried to avoid him.",-25.718000650405884,-25.93029373884201
-agreements,contracts,Tony had to deal with many X and Y before he officially started working at the company.,-30.840481102466583,-31.256901025772095
-aircraft,ships,The new X and Y ended up being extremely expensive.,-31.998800545930862,-29.324706077575684
-ammunition,guns,The old man kept X and Y locked away in his basement in case of a zombie invasion.,-31.08700132369995,-25.198072910308838
-anger,anxiety,Anne felt X and Y whenever she was stuck in traffic.,-24.84788876771927,-27.164645314216614
-anger,fear,The abused dog showed both X and Y when animal control came to pick him up.,-20.893931925296783,-21.777745604515076
-anger,hatred,Michelle felt a lot of X and Y towards her brother when he crashed her car.,-18.624882340431213,-18.966546297073364
-anger,indignation,Amber felt X and Y after arguing with her sister.,-30.63605099916458,-31.533948302268982
-anguish,pain,His injury caused him a lot of X and Y and a long recovery.,-22.40248131752014,-21.930904626846313
-anthropology,psychology,He has figured out that X and Y are the subjects he wants to study in college.,-30.409750640392303,-29.077690064907074
-apprehension,fear,Charlie felt X and Y before jumping out of the plane to skydive.,-30.504498958587646,-28.73014521598816
-Arizona,California,The high school students visited both X and Y to tour colleges before they applied.,-27.334468245506287,-27.689463675022125
-arms,hands,Both Chelsea's X and Y are scraped up from falling off her bike.,-29.981038324534893,-29.558301728218794
-arms,legs,Sandra broke her X and Y because she got into a bike accident.,-22.574353516101837,-27.434339940547943
-arts,crafts,Lilly enjoys doing X and Y to relax when she is stressed.,-26.329754650592804,-34.5719211101532
-arts,sciences,"Carol couldn't decide between X and Y when applying for college majors, so she chose an interdisciplinary route.",-31.242850482463837,-33.6371306180954
-attractions,repulsions,He experienced both X and Y which made him very confused.,-28.95023089647293,-27.767741948366165
+WordA,WordB,Sentence,reading_times_alpha,reading_times_nonalpha,rt_AandB
+men,women,The guard instructed the X and Y to form an orderly line.,-19.737639367580414,-21.99107438325882,0.9049464209258451
+black,white,Dalmatians found in colors other than X and Y are highly unusual.,-16.847936689853668,-18.24986696243286,0.80249001500717565
+day,night,It is harder to tell the difference between X and Y if you can't see.,-19.229784585535526,-18.998561084270477,0.44245030106618477
+boys,girls,The teacher separated the X and Y into two groups.,-17.628484904766083,-19.59113645553589,0.8768196246628895
+left,right,You should look X and Y before crossing the street.,-24.164298951625824,-28.151372611522675,0.9817840476391884
+female,male,The dog breeder has X and Y puppies coming up for sale soon.,-29.621590696275234,-28.04958734009415,0.17193098498416545
+father,mother,"Because Stephanie was grounded, her X and Y would not permit her to go out with her friends.",-22.517563819885254,-21.920058727264404,0.354914696469571
+goods,services,The village people would not trade X and Y for money because they don't use currency.,-17.846585631370544,-23.19224226474762,0.9952538148854229
+north,south,The family moved X and Y a couple of times before deciding on their current home.,-23.91636362671852,-23.96493737399578,0.5121410497714151
+development,research,"The scientist had a lot of X and Y to do, because he had been sick for a long time.",-25.69845312833786,-21.47765851020813,0.014474384493564463
+place,time,Finding a X and Y for the meeting was very difficult due to the boss's busy schedule.,-24.8026065826416,-21.988142520189285,0.05654755141366728
+death,life,It is hard to tell the difference between X and Y when you are in purgatory.,-17.570666402578354,-13.606902189552784,0.018637536929480964
+brothers,sisters,When we were younger my X and Y wanted a Beagle puppy.,-26.601681172847748,-30.42516601085663,0.9786157590951697
+husband,wife,Because the X and Y didn't love each other anymore they pondered going their separate ways.,-23.034990270389244,-26.680634763091803,0.974559532504799
+gas,oil,"Sam had just bought a new car and didn't know the difference between X and Y, so she ruined her car.",-23.788962483406067,-24.594399333000183,0.6911362731408881
+pepper,salt,The food is in need of X and Y because it's rather bland.,-36.170392751693726,-29.97595524787903,0.002036594609379032
+fall,rise,I've gotten particularly ill due to the X and Y of the waves out at sea.,-27.333752870559692,-21.365102231502533,0.0025511652482893016
+arms,legs,Sandra broke her X and Y because she got into a bike accident.,-22.574578166007996,-27.434478163719177,0.9923083608908184
+fruits,vegetables,"Growing up, Paul ate his X and Y everyday in order to be healthy.",-23.62846951186657,-24.305831909179688,0.6631497578045127
+arts,sciences,"Carol couldn't decide between X and Y when applying for college majors, so she chose an interdisciplinary route.",-31.243007600307465,-33.63742274045944,0.916400437422203
+gentlemen,ladies,The hostess in the venue lead the X and Y to their respective tables at the wedding banquet.,-25.629678964614868,-20.512113094329834,0.005954913600049078
+feelings,thoughts,"Whenever Pat was frustrated, her X and Y got muddled and she couldn't make any decisions.",-26.715705543756485,-25.944280043244362,0.31617082257866497
+diagnosis,treatment,Marissa found that her X and Y at the hospital were completely different from what she anticipated.,-22.508134305477142,-27.570101618766785,0.9937067675146654
+groups,individuals,Differentiating between X and Y became increasingly difficult as the crowd grew larger.,-25.393184304237366,-22.803659319877625,0.06981562475590358
+knowledge,skills,"Although Cassie's X and Y were both strong, her exams were still difficult.",-26.93419575691223,-26.947680473327637,0.5033711280208603
+heart,mind,It took a long time for Sarah's X and Y to recover after her husband died.,-17.327543146908283,-17.456744071096182,0.5322553739380457
+influence,power,The employee used her X and Y in the company in order to get a raise.,-23.35836935043335,-19.605063796043396,0.02290327905870035
+Africa,Asia,My colleague wanted to visit X and Y this year for a vacation with her husband.,-26.606292724609375,-25.58986783027649,0.2657243725284903
+addresses,names,The company collected hundreds of X and Y for a petition they wanted to pass in June.,-32.105202317237854,-24.31154716014862,4.1217299125762805e-4
+poetry,prose,The professor taught both X and Y in his Renaissance literature class.,-30.074512131512165,-30.08545596897602,0.5027359320596886
+forefinger,thumb,The ability to use the X and Y are very important evolutionary traits that differentiate humans from apes.,-24.963318943977356,-26.358457221882418,0.8014112731324513
+minerals,vitamins,The human body needs both X and Y in order to continue functioning properly.,-13.43874742463231,-11.078827783465385,0.08628052947031294
+fall,winter,In the months during X and Y students tend to feel a bit sadder due to the cold and gloomy weather.,-28.187103303149343,-30.91826529428363,0.9388405915062359
+light,shadow,It is important to consider both X and Y when creating a still life painting.,-20.921177804470062,-23.943920731544495,0.953591065261687
+honey,milk,Jack's mother gave him X and Y in order to calm him after a nightmare.,-22.70267042517662,-21.27010142058134,0.19269871912690137
+nose,throat,Springtime allergies make my X and Y a lot more irritated than the rest of the year.,-13.4619961977005,-18.24507713317871,0.9916993069784281
+anger,fear,The abused dog showed both X and Y when animal control came to pick him up.,-20.894048869609833,-21.77776826918125,0.7075923787311078
+head,tail,There were white spots on the X and Y of the tiny dog.,-21.68241512775421,-24.728707015514374,0.9546221664849928
+novels,stories,The famous author had published many X and Y over the past twenty years.,-15.204337000846863,-16.726219654083252,0.8208155435712023
+sunrise,sunset,Andrew loved to be outside at X and Y during the summer months.,-18.03999415040016,-24.75540652871132,0.9987893813032185
+sympathy,understanding,Being a therapist requires a lot of X and Y because you often have to deal with people in rough patches.,-26.567824006080627,-27.806217312812805,0.7752842222336145
+shoes,socks,"When it rains, your X and Y become more of a nuisance than something to protect your feet.",-23.10252320766449,-23.82792615890503,0.6737956723500005
+equipment,personnel,The company had an appropriate amount of X and Y in order to make sure everyone at the event would be safe.,-19.294874642044306,-19.97724597901106,0.6642677495777484
+eyes,face,The instructions in the lab ask you cover your X and Y when you operate any machinery.,-22.206058859825134,-22.07852816581726,0.4681604681905673
+ink,paper,All you need is X and Y in order to write the next great novel.,-21.905079297721386,-22.15750326961279,0.5627730327860238
+muscles,nerves,Allison felt like her X and Y were on fire after running a marathon.,-19.948485270142555,-21.455355614423752,0.818596928811762
+charts,maps,Dr. Morganstern took out his X and Y in order to document where he found the last fossil.,-24.024111952632666,-22.347343049943447,0.1575237936192285
+elbows,knees,I hurt my X and Y when I fell off my longboard.,-19.941736310720444,-18.954009532928467,0.271361315355268
+Christmas,Easter,The child decided that X and Y were her favorite holidays.,-25.57809716463089,-28.42000412940979,0.9448988326694033
+nature,size,Sometimes it is hard to figure out the X and Y of a problem just from reading about it in the news.,-19.929169479757547,-20.13131876848638,0.5503659247141462
+gums,teeth,You should take care of your X and Y in order to have optimal dental hygiene.,-23.704293929040432,-17.130518181598745,0.0013945670256257248
+chairs,sofas,The hoarder had many X and Y in their living room.,-31.66442659497261,-27.820493233622983,0.020960477704388872
+characters,situations,Cheryl considered the X and Y in the novel she was writing.,-23.50536060333252,-27.462735772132874,0.9812452462116678
+joy,pleasure,Tucking yourself into bed provides a great sense of X and Y at the end of a long day.,-21.47315526008606,-23.71414750814438,0.9038707077430492
+Thursday,Tuesday,Don's manager scheduled him for work on X and Y every week for the next month.,-24.862540245056152,-24.13278567790985,0.32524858827855696
+barley,oats,Susanne prepared X and Y for breakfast everyday for a week.,-36.81312334537506,-36.653170466423035,0.4600968206552813
+beauty,dignity,The girl had both X and Y but was lacking intelligence.,-28.31101495027542,-28.249202743172646,0.48455186653109467
+boats,ships,The pier was full of X and Y ready to take off on an adventure.,-21.67650669813156,-22.38649347424507,0.6703982378067727
+misery,pain,The people experienced X and Y after they were shipwrecked for months.,-23.42532968521118,-22.15369153022766,0.21897695593961425
+bones,skulls,Scientists study the X and Y of long-extinct animal species.,-30.8206220587017,-32.469167460803874,0.8386943604395867
+dairy,poultry,You will often find X and Y close to each other in the refrigerated aisle of the grocery store.,-33.35044538974762,-30.91685163974762,0.08064661487644822
+being,existence,The girl questioned her X and Y when she went to her last therapy session.,-36.28386980295181,-33.241852045059204,0.045563343388008035
+radar,radio,The soldiers used X and Y to plan their next moves.,-24.769466757774353,-23.787601828575134,0.27252189771096547
+humility,pride,It is hard to have both X and Y when one is rich and famous.,-20.5770356208086,-19.719979017972946,0.29795467228298245
+pitch,volume,Musicians pride themselves on being able to adjust X and Y in order to produce art.,-21.128966636955738,-20.85978096909821,0.4331070233005247
+skirt,sweater,Clarissa chose the X and Y she would wear for her first day of school.,-26.636881291866302,-27.843158423900604,0.7696395676889053
+linen,silk,Betthany put her X and Y shirts into the wash and they all shrank.,-30.45927119255066,-30.68345594406128,0.5558126271304156
+checks,money,Graham disliked handling X and Y so he decided not to run for treasurer of the club.,-31.182778120040894,-30.04563808441162,0.24284584079370786
+calluses,corns,The grandmother had a lot of X and Y on her feet which made it difficult to walk.,-31.58307947218418,-35.46179918944836,0.9797416074666643
+action,motion,All of the X and Y in the 3D film made some viewers dizzy.,-30.152223646640778,-28.983385682106018,0.2370650918697297
+brain,intelligence,The committee admired the applicant's X and Y so much that they decided to award her the prize.,-23.391861736774445,-27.700652331113815,0.9867286905050177
+conduct,manners,"At a job interview, your X and Y can matter as much as your qualifications.",-32.15229249000549,-31.602836966514587,0.3659907409242301
+completeness,unity,I often feel a sense of X and Y after completing a tedious group project.,-26.825884458143264,-29.06697135232389,0.9038789310837084
+hostility,indifference,A lot of people feel X and Y from large bureaucratic institutions.,-42.357653856277466,-41.06604027748108,0.2155798210938859
+depth,force,The newspaper reported on the X and Y of the earthquake that had surprised the city the night before.,-28.449945278465748,-32.10770695656538,0.9748582356179569
+hours,miles,It takes many X and Y to drive between Los Angeles and Santa Barbara.,-22.548425376415253,-23.013242781162262,0.614156374388179
+movements,speech,Natalie studied the X and Y of young children in her development psychology class.,-25.775094032287598,-26.403939500451088,0.6522276295364803
+schools,synagogues,There are some places that have X and Y within the same vicinity.,-31.89872527483385,-30.224383913446218,0.157846220641509
+arrangers,composers,The work of many X and Y went into producing the soundtrack.,-32.877140854950994,-31.70553419739008,0.23656469615819145
+happiness,laughter,"When you are with the one you love, X and Y should be common occurences.",-29.7799072265625,-29.848426163196564,0.5171230355166366
+diagrams,sketches,The architect had many X and Y to show her client.,-24.948983430862427,-25.66098976135254,0.6708443338437798
+pail,shovel,Cassie's parents packed the X and Y in order to be able to build sand castles at the beach.,-27.558887742459774,-24.668721713125706,0.052641837825367216
+candies,cookies,Stephen's parents banned X and Y from the house because he kept getting cavities.,-21.92255812883377,-15.37598242238164,0.0014329647933631476
+county,village,The nearby X and Y faced constant threats from their neighbhors.,-35.133538484573364,-35.885881185531616,0.6796889475697702
+charm,variety,Anthony missed the X and Y of living in a big city.,-35.89998322725296,-37.22667783498764,0.7902933585284245
+bouquets,wreaths,"At certain times of year, X and Y are often gifted to neighbors as tokens of appreciation.",-35.32901224459056,-36.962150703780935,0.8365991227378198
+beech,elm,"During the spring, X and Y trees can to cause some people severe allergies.",-42.53406783938408,-41.54820120334625,0.27172926706191775
+complexity,obscurity,The student found that the X and Y of her research topic made the project difficult.,-30.110385909676552,-31.264967665076256,0.7603467979469161
+devotion,effort,The intern was praised for her X and Y after the big event went off without a hitch.,-30.36873483657837,-31.03582274913788,0.6608507877504062
+alibis,excuses,The student was always full of X and Y for why she didn't come to class.,-32.75360360369086,-23.79493977499078,1.2860145418315026e-4
+body,mind,She talked about the importance of keeping your X and Y super healthy and strong.,-19.41122990846634,-20.285167574882507,0.7055643833739323
+man,woman,He noticed that both the X and Y had green sneakers on.,-23.22746554017067,-26.87860456109047,0.9746954050901386
+law,order,There was a lack of X and Y that caused some chaos.,-24.32882922142744,-28.933247923851013,0.9900916404234534
+cause,effect,"Ryan was uncertain about the X and Y of inflation, so he did some research about it online.",-29.21599307656288,-35.57784083485603,0.998276800332259
+radio,television,Tania wanted to work in both X and Y and couldn't decide which she liked more.,-22.705591837788234,-23.921161523117917,0.7712829567448066
+feet,hands,The child's X and Y were numb from playing in the snow.,-21.99994397163391,-17.935374587774277,0.016880536277069105
+money,time,The amount of X and Y required to fix up the old car made it quite the project.,-18.21959963440895,-17.4009810090065,0.30605696602909854
+blood,flesh,Although Rhonda was not Nick's X and Y he considered her part of his family.,-29.772578597068787,-25.385659109801054,0.012286161301989368
+god,man,The friends had a discussion about the relationship between X and Y after school last week.,-28.446449413895607,-30.514706820249557,0.8877794692006393
+brother,sister,Paul wants to spend time with his X and Y because he doesn't get to see them very often.,-18.458380460739136,-19.95816683769226,0.8175426129125989
+father,son,Eric enjoys going to the movies with his X and Y so much that he decided to make it a weekly tradition for them.,-20.211507201194763,-20.844774961471558,0.6532300472225285
+men,officers,Nicole's history textbook listed an estimate of the number of X and Y who died during the civil war.,-26.42807900905609,-22.335480093955994,0.01642161443068381
+south,west,"The compass was broken, so it would only point to X and Y instead of all four directions.",-21.455757349729538,-22.855021089315414,0.8020670291559302
+error,trial,They dealt with a lot of X and Y before having a final product.,-35.2436021566391,-23.586189704132266,8.654586839245858e-6
+arts,crafts,Lilly enjoys doing X and Y to relax when she is stressed.,-26.329967379570007,-34.5719997882843,0.9997367208607105
+pressure,temperature,He learned about the relationship between X and Y in his science class.,-30.842605888843536,-29.31046073138714,0.17768004042305208
+days,nights,Finn spent many X and Y working on writing his novel.,-18.979963928461075,-19.01716262102127,0.5092986009254921
+land,sea,They had to travel across X and Y to get to their final destination.,-10.7393938601017,-14.789811432361603,0.9828829933428711
+north,west,The boat sailed X and Y to get to its destination.,-18.71658456325531,-20.883190631866455,0.897210386627722
+spring,summer,Maddy said that X and Y are her favorite seasons.,-24.237432569265366,-26.26746702194214,0.8839146131521072
+magazines,newspapers,Anna has written articles for many X and Y throughout her career as a journalist.,-11.492608308792114,-10.163419365882874,0.20929355521214907
+hands,knees,Chris had to get on his X and Y to look for the button that fell off his shirt.,-14.412408220872749,-22.259878516197205,0.9996094134436965
+moon,sun,Rebecca got a X and Y tattooed on her left arm.,-30.429337367415428,-30.1725846901536,0.43616213893841665
+fathers,mothers,The community center had summer camps for X and Y to send their kids to while they worked.,-21.826843351125717,-20.535380005836487,0.2156052274409773
+city,county,The meeting had representatives from both the X and Y to discuss policy changes.,-23.21742331981659,-25.62020117044449,0.9170388833820701
+ears,eyes,"Cleo said that her X and Y were bothering her, so she stayed home from work.",-25.1983183324337,-24.03802502155304,0.23861399312660067
+college,school,Matt said that X and Y are not worth his time.,-31.631935596466064,-31.002767086029053,0.3476990994387002
+college,university,Carlos talked about X and Y with his school counselor.,-33.1673424243927,-32.389256715774536,0.3147326062564263
+dark,light,Johanna thought the contrast between X and Y colors in the painting made it interesting to look at.,-18.07840958237648,-17.551943004131317,0.37134137892128133
+future,past,Jazmin wanted to talk about the X and Y of the company she was interviewing for.,-21.65351891517639,-16.087681353092194,0.0038117890447217956
+evening,morning,Victor plans on spending tomorrow X and Y reading the new book he bought.,-25.683520317077637,-22.027518272399902,0.025184928447753864
+ice,snow,All of the X and Y outside made Luis want to stay in all day.,-38.441378712654114,-38.52590861916542,0.5211199024463103
+husbands,wives,The counselor met with many X and Y throughout his long career.,-21.986192762851715,-24.668419778347015,0.9359697191873242
+boys,men,There were a lot of X and Y at the park today.,-23.296112298965454,-21.765869081020355,0.17795810288535815
+bread,butter,Brent likes to eat X and Y for breakfast when he doesn't have a lot of time in the morning.,-21.03520315885544,-24.15912663936615,0.9578688493456025
+head,shoulders,The doctor looked at Ashley's X and Y because she said that both were bothering her.,-28.53262746334076,-29.03715467453003,0.623522651317256
+rock,roll,He said he was ready to X and Y after getting off of work.,-26.496168076992035,-36.343926191329956,0.9999471372157763
+testament,will,Louis discussed his X and Y with his lawyer last week.,-36.646448373794556,-30.442201852798462,0.0020167553673739423
+engineers,scientists,There were a good number of X and Y present at the conference.,-19.5013909637928,-17.8155680000782,0.15632595119858
+man,wife,I learned that the X and Y got married after dating for 5 years.,-27.063272953033447,-32.66343879699707,0.9963163688083037
+arms,hands,Both Chelsea's X and Y are scraped up from falling off her bike.,-34.187426064163446,-33.833843767642975,0.41251399390109805
+math,science,Ricky discovered that X and Y are his favorite subjects in school.,-26.462917923927307,-27.938263058662415,0.8138684610460947
+son,wife,Roman lives with his X and Y in an apartment downtown.,-16.957606434822083,-12.970273613929749,0.01821131807016598
+fingers,thumb,Demi broke her X and Y when she fell while roller skating.,-23.69540846347809,-22.137665629386902,0.17397077425592827
+flesh,skin,Cory explained the difference between X and Y to his little brother.,-31.213339895009995,-31.256953954696655,0.5109017868740678
+life,religion,Jenny talked about X and Y with her brother and sister.,-25.664549350738525,-25.91463541984558,0.5621976853131343
+conscience,religion,Bree is reading a book about the relationship between X and Y in her book club.,-23.9497177824378,-24.64054773375392,0.6661515281161913
+pain,pressure,Jeremy felt X and Y in his chest that concerned him.,-21.057663053274155,-22.124473869800568,0.7439899483563612
+integrity,unity,India thought that there was a lack of X and Y amongst her friend group.,-34.800097942352295,-35.35590410232544,0.6354816124224194
+flowers,hearts,Craig drew X and Y on the card he was making for his mom.,-33.38341927528381,-32.72617042064667,0.3413578886995608
+grapefruit,oranges,Kyle liked to keep X and Y in a bowl on his kitchen counter.,-31.07423973083496,-19.356525897979736,8.148131009325378e-6
+folklore,legend,Mandy read about the X and Y surrounding King Arthur in her new book.,-29.822739958763123,-30.60198450088501,0.6855172726345192
+doctors,fathers,There were many X and Y in the same room.,-30.577969312667847,-29.988728046417236,0.3568089619898905
+contraction,dilation,Anna was confused about the difference between X and Y so she talked to her doctor about it.,-35.475599724799395,-31.078674852848053,0.012165334456821877
+ships,weapons,There are too many X and Y according to Jack's uncle.,-37.77724669966847,-37.95674009528011,0.5447532587822801
+funnels,masts,They noticed that the X and Y on the ship were broken.,-34.32601919770241,-37.67118387669325,0.9659461397006193
+law,sovereignty,They discussed both X and Y in their political science class.,-29.547351002693176,-27.9128839969635,0.16321934478686795
+assurance,dignity,Richard tried to portray X and Y at work but didn't know if he succeeded.,-35.77079200744629,-37.00935888290405,0.7753144596886237
+mr.,mrs.,The couple call each other X and Y Smith even though they aren't married.,-42.33213233947754,-44.466092839837074,0.8941604060042918
+bride,groom,I think that the X and Y are very excited about the upcoming wedding.,-24.12981539592147,-30.451892018318176,0.9982070110024666
+feet,legs,The soccer player injured their X and Y during a very intense game.,-24.848342180252075,-24.640279531478882,0.4481711758120546
+peace,quiet,The students reserved a spot in the library for some X and Y to study for their upcoming exams.,-22.836192190647125,-29.618685007095337,0.9988678373440079
+daughter,son,"With the holidays approaching, the X and Y needed to shop for presents for their parents.",-27.797148823738098,-26.41970592737198,0.20141999580225048
+ends,odds,"The new restaurant was almost ready for the grand opening, but had a few X and Y to deal with before the big night.",-36.8721488006413,-18.291077870409936,8.518113517552194e-9
+city,state,He liked his X and Y too much to move away.,-24.365898430347443,-23.848444879055023,0.37344787109273836
+facts,figures,Lauren needed to get her X and Y straight before her business plan presentation.,-25.39720582962036,-33.310951352119446,0.9996344513338052
+man,nature,Harry wanted to talk about how X and Y interact in today's society.,-29.50086522102356,-31.843262195587158,0.9123279982551773
+prose,verse,They discussed differences between X and Y in her writing class.,-26.91728949546814,-27.971317768096924,0.7415476875168334
+body,head,"When drawing people, Suzanne struggles with sketching the X and Y because she can never get the proportions right.",-24.880597949028015,-22.766722917556763,0.10775553796964868
+command,control,The eldest sibling wanted to X and Y all of their younger siblings.,-23.979308903217316,-26.104536533355713,0.8933310990195741
+child,wife,Bill wanted to take his X and Y on a tropical vacation.,-27.244468688964844,-22.525848925113678,0.008848497207114392
 aunt,uncle,"Over the summer, Steve stayed with his X and Y at their vacation home near the beach.
-",-20.8231600522995,-24.799654483795166
-aunts,uncles,The family reunion had all the X and Y together in one room.,-15.659887388344487,-24.05101925879717
-back,shoulders,Anthony got his X and Y adjusted by the chiropractor.,-32.34705400466919,-31.417548656463623
-bacon,eggs,"On the days Lilly doesn't have work, she makes X and Y for breakfast and reads the paper.",-21.970264434814453,-22.921444177627563
-bar,grill,We went to a X and Y in the city last night.,-25.95839524269104,-27.909512996673584
-barley,oats,Susanne prepared X and Y for breakfast everyday for a week.,-36.813254833221436,-36.653156876564026
-barrels,boxes,There were a lot of X and Y that needed to be moved before the event could start.,-26.44299502670765,-25.7723126411438
-beauty,dignity,The girl had both X and Y but was lacking intelligence.,-28.31081259250641,-28.2490628734231
-beauty,truth,I decided that X and Y would be the major themes of the poem I was writing.,-26.22195267677307,-22.531744122505188
-beauty,youth,The serum promised X and Y to everyone who used it.,-29.31446647644043,-30.76662015914917
-being,existence,The girl questioned her X and Y when she went to her last therapy session.,-36.28372794389725,-33.2416558265686
-belly,chest,"Zack said his X and Y were hurting, so his mom took him to the hospital.",-25.194032669067383,-25.39970362186432
-black,white,Dalmatians found in colors other than X and Y are highly unusual.,-16.847824156284332,-18.249897003173828
-blood,flesh,Although Rhonda was not Nick's X and Y he considered her part of his family.,-29.77256691455841,-25.385594107210636
-blood,guts,The film showed X and Y which made them very uncomfortable.,-27.485687255859375,-32.32486116886139
-boats,ships,The pier was full of X and Y ready to take off on an adventure.,-21.676485806703568,-22.386418402194977
-bodies,faces,Grant wrote a poem about how everyone's X and Y are beautiful and unique.,-25.075999438762665,-21.630436420440674
-body,face,"After visiting many stores, Ann finally found a X and Y sunscreen that worked well for her skin.",-38.58275663852692,-34.46445965766907
-body,head,"When drawing people, Suzanne struggles with sketching the X and Y because she can never get the proportions right.",-24.880487322807312,-22.76677680015564
-body,mind,She talked about the importance of keeping your X and Y super healthy and strong.,-19.411097705364227,-20.28516584634781
-bone,flesh,"After a hard fall, you could see the X and Y of the basketball player's leg.",-28.565046548843384,-27.51016664505005
-bone,muscle,The doctor studied the X and Y of the patient's injured leg.,-16.975231051445007,-18.46921330690384
-bones,skulls,Scientists study the X and Y of long-extinct animal species.,-21.12870153784752,-22.597549445927143
-boots,shoes,My suitcase was full of X and Y which made it exceed the weight limit.,-24.817050457000732,-24.206454753875732
-boys,girls,The teacher separated the X and Y into two groups.,-17.628406047821045,-19.59107056260109
-boys,men,There were a lot of X and Y at the park today.,-23.296016335487366,-21.765799820423126
-bread,butter,Brent likes to eat X and Y for breakfast when he doesn't have a lot of time in the morning.,-21.035018384456635,-24.15902441740036
-bread,cheese,Xavier brought X and Y to the potluck at the beach.,-24.762444734573364,-27.162351191043854
-breakfast,dinner,Molly decided that X and Y are her favorite meals of the day.,-25.538999557495117,-28.936971426010132
-bride,groom,I think that the X and Y are very excited about the upcoming wedding.,-24.12972104921937,-30.451794505119324
-brother,mother,Last week my X and Y came to visit me in my new apartment.,-17.318764686584473,-15.366396605968475
-brother,sister,Paul wants to spend time with his X and Y because he doesn't get to see them very often.,-18.45833718776703,-19.95807182788849
-brothers,sisters,When we were younger my X and Y wanted a Beagle puppy.,-26.601563036441803,-30.42514431476593
-brush,trees,Amanda loved all the X and Y that surrounded her house.,-29.194971591234207,-23.234203189611435
-Burma,India,They talked about visiting X and Y for their upcoming honeymoon.,-28.387277722358704,-27.42432391643524
-cakes,pies,Hannah had a real sweet tooth for X and Y so she took up baking as a hobby.,-26.785427689552307,-28.18916666507721
-cattle,horses,"On the ranch, there are X and Y roaming around the green pastures.",-21.05088996887207,-20.527111411094666
-cause,consequence,Finn didn't want to think about the X and Y of him losing his job.,-25.763466864824295,-32.17494523525238
-cause,effect,"Ryan was uncertain about the X and Y of inflation, so he did some research about it online.",-25.26663449406624,-31.912095174193382
-ceiling,walls,The painter finished painting the X and Y of all of the bedrooms.,-21.6508549451828,-18.96711838245392
-cents,dollars,The boy brought his X and Y to the store to buy an ice cream cone.,-31.871225833892822,-28.85543143749237
-chair,table,They noticed that the X and Y were knocked over after the earthquake.,-25.3827645778656,-25.266479015350342
-chairs,sofas,The hoarder had many X and Y in their living room.,-25.07324867649004,-21.814391880529
-chairs,table,The event planner fixed the X and Y to accommodate all of the wedding guests.,-26.87652277946472,-23.775803923606873
-characters,situations,Cheryl considered the X and Y in the novel she was writing.,-23.505314230918884,-27.462631106376648
-charts,maps,Dr. Morganstern took out his X and Y in order to document where he found the last fossil.,-24.024096563458443,-22.347385112196207
-chest,stomach,Tom felt pain in both his X and Y so he decided to stay home from school.,-18.033761642873287,-19.63793644309044
-child,husband,Rachel lived with her X and Y in a small apartment in New York City.,-20.211774587631226,-13.448753595352173
-child,wife,Bill wanted to take his X and Y on a tropical vacation.,-27.244251608848572,-22.525682032108307
-childhood,infancy,The students watched a video on X and Y in their human development class.,-41.73904490470886,-39.58750891685486
-choice,decision,It was her X and Y to stay home for the summer instead of traveling through South America.,-23.439699292182922,-23.636645913124084
-Christmas,Easter,The child decided that X and Y were her favorite holidays.,-25.578083634376526,-28.420075476169586
-church,community,Tim has said that his X and Y are very important to him.,-27.09231686592102,-28.493587493896484
-city,country,Her love for her X and Y made her want to get into politics.,-22.53009483218193,-23.872959822416306
-city,county,The meeting had representatives from both the X and Y to discuss policy changes.,-23.217197597026825,-25.6200413107872
-city,state,He liked his X and Y too much to move away.,-24.365763664245605,-23.848399698734283
-clarity,precision,Devin tried to achieve X and Y in everything he did.,-25.61124873161316,-25.756527543067932
-classmates,friends,We have been X and Y all the way from kindergarten to college.,-25.174449145793915,-24.977056711912155
-closets,drawers,Ben needed a lot of X and Y to store all of his clothes.,-25.902947816997766,-24.22968517243862
-coat,hat,"Once she stepped through the door, she designated a spot for her X and Y to be safely put away.",-27.27324104309082,-28.673243522644043
-coffee,sandwiches,The company had X and Y catered for their employees.,-33.988904006779194,-31.09185028076172
-coffee,toast,Every morning Karen has X and Y for breakfast before school.,-27.88567280769348,-28.485042452812195
-college,school,Matt said that X and Y are not worth his time.,-31.63178825378418,-31.00272011756897
-college,university,Carlos talked about X and Y with his school counselor.,-33.167080879211426,-32.38910984992981
-color,light,Rob used a lot of X and Y to make his photographs pop.,-20.29795730113983,-21.278154850006104
-color,texture,Sarah was known for the X and Y she used in her paintings.,-23.132445096969604,-23.875998377799988
-colors,forms,They read a whole chapter on X and Y in her art class.,-34.98091971874237,-36.63996601104736
-comfort,ease,"Her parents liked the X and Y of flying, so they flew to their friend's wedding.",-24.26221016049385,-24.68153476715088
-comings,goings,The school newspaper reported on the X and Y of the student body.,-12.374181224425229,-25.985253197461134
-command,control,The eldest sibling wanted to X and Y all of their younger siblings.,-23.979316979646683,-26.1045960187912
-Concord,Lexington,He used to live in both X and Y when he was a teenager.,-23.343187928199768,-19.754442021250725
-concrete,steel,The company got a new shipment of X and Y for an upcoming project.,-25.572001457214355,-24.65312671661377
-confusion,fear,They felt X and Y about what they would do after graduating.,-22.74025809764862,-21.05727970600128
-confusion,turmoil,Hannah felt X and Y after her mom gave her some unfortunate news.,-32.58697485923767,-31.059768438339233
-conscience,religion,Bree is reading a book about the relationship between X and Y in her book club.,-23.949445441365242,-24.640425318852067
-contemporary,friend,I learned that my professor was a X and Y of a famous poet.,-29.32130891084671,-27.61787125468254
-corruption,crime,All of the X and Y in the city made Tony want to move.,-24.603204607963562,-23.957759141921997
-costumes,masks,Tammy had to buy X and Y for all of the Halloween parties she was going to attend.,-26.234301805496216,-26.97961938381195
-cotton,tobacco,The company has sold X and Y for almost twenty years.,-33.03640842437744,-32.20071530342102
-council,governor,She wanted to meet with both the X and Y to discuss some ideas she had.,-21.24997779726982,-18.578679755330086
-counties,towns,Fred drove through many X and Y to move to his new house.,-21.43703556060791,-21.54889440536499
-courage,hope,It took X and Y to overcome what she had been through.,-25.709067344665527,-26.32942008972168
-cousins,uncles,Olivia said her X and Y are her favorite family members.,-27.279315343592316,-23.708375573158264
-crannies,nooks,He made sure to dust all of the X and Y throughout the old house.,-23.716401507146657,-8.465847309096716
-cream,peaches,We had X and Y for dessert at the diner down the street.,-28.886340856552124,-28.14725124835968
-crime,poverty,The study on the link between X and Y was published in the local newspaper.,-14.384013324975967,-13.769575297832489
-crime,punishment,The jury needed to consider the X and Y before coming to a final decision.,-25.817646712064743,-31.518338188529015
-crime,violence,The frequent X and Y in the neighborhood had people worried.,-22.386379718780518,-22.923187255859375
-crops,livestock,All of the X and Y needed a lot of water to survive.,-30.399307250976563,-33.47369384765625
-cysts,tumors,Paul had an appointment with his doctor to check for any X and Y that he might have.,-22.53446537256241,-18.3537774477154
-dairy,poultry,You will often find X and Y close to each other in the refrigerated aisle of the grocery store.,-33.35015344619751,-30.916590452194214
-dark,light,Johanna thought the contrast between X and Y colors in the painting made it interesting to look at.,-18.078221797943115,-17.551965206861496
-dates,events,Katrina had many X and Y to attend because she was very popular.,-26.296814143657684,-29.21812605857849
-daughter,son,"With the holidays approaching, the X and Y needed to shop for presents for their parents.",-27.797119081020355,-26.419661104679108
-day,night,It is harder to tell the difference between X and Y if you can't see.,-19.22955976985395,-18.998463056981564
-days,nights,Finn spent many X and Y working on writing his novel.,-18.979899168014526,-19.017153203487396
-days,years,It had been X and Y since Molly had seen her cousins.,-28.066078141331673,-29.53629522025585
-death,life,It is hard to tell the difference between X and Y when you are in purgatory.,-17.570561289787292,-13.60675835981965
-debate,discussion,"During class, there was X and Y surrounding the controversial current event.",-28.109604954719543,-25.905848443508148
-democracy,liberty,Jade's brother talked about X and Y while they ate dinner on the fourth of July.,-32.87236213684082,-30.82468271255493
-despair,rage,Annie felt a lot of X and Y so she wanted to talk with a therapist.,-27.98702746629715,-27.52183246612549
-development,research,"The scientist had a lot of X and Y to do, because he had been sick for a long time.",-20.265330880880356,-15.98834478855133
-diagnosis,treatment,Marissa found that her X and Y at the hospital were completely different from what she anticipated.,-22.508156418800354,-27.570147275924683
-diamonds,rubies,The pirates followed the treasure map to find that X and Y were hidden in the treasure chest.,-21.272022113204002,-27.952437043190002
-dirt,sweat,Mike needed to wash the X and Y out of his soccer uniform.,-17.30535127222538,-16.548140183091164
-discussion,thought,A lot of X and Y went into making the decision to buy this house.,-21.742274660617113,-19.509443547576666
-distress,pain,The couple's divorce caused a lot of X and Y for the whole family.,-21.470206141471863,-19.708359956741333
-dogs,men,Her grandma joked that X and Y had a lot in common.,-24.967555046081543,-26.291048049926758
-doorways,windows,Bill wanted to fix the X and Y before moving into the new home.,-30.336445569992065,-24.084269762039185
-doubts,fears,"She wanted to be a pop star, but her X and Y got in the way of her dream.",-23.61124782077968,-22.37514154240489
-dreams,plans,She had X and Y to become a successful scientist.,-22.869002640247345,-23.572068125009537
-ears,eyes,"Cleo said that her X and Y were bothering her, so she stayed home from work.",-25.198093503713608,-24.038026869297028
-earth,sky,Talking about the X and Y was one of Randy's favorite things to do.,-27.026628732681274,-25.569976031780243
-editing,publishing,The company did the X and Y for many well-known books.,-31.39561367034912,-29.36045813560486
-editor,publisher,"In order to finalize all the details, the X and Y wanted to have a meeting with the author of the book.",-25.14137192070484,-26.075341552495956
-education,skill,They had the X and Y to be a great professor.,-22.794023394584656,-22.13254702091217
-effort,resources,It would take a lot of X and Y to put on this fundraiser.,-16.753872454166412,-18.68980634212494
-eggs,ham,All she wanted to eat was X and Y but she didn't have either item in her refrigerator.,-22.41903018951416,-21.469008326530457
-elbows,knees,I hurt my X and Y when I fell off my longboard.,-19.941614598035812,-18.953862845897675
-ends,odds,"The new restaurant was almost ready for the grand opening, but had a few X and Y to deal with before the big night.",-36.87196862511337,-18.290799577720463
-energy,money,Alice said that all of the X and Y that her car needed made her want to sell it.,-31.12788689136505,-29.49389910697937
-engineers,scientists,There were a good number of X and Y present at the conference.,-19.501493334770203,-17.815584123134613
-English,German,The school held classes in both X and Y so the students could be bilingual.,-14.095779187977314,-15.80386958271265
-equipment,personnel,The company had an appropriate amount of X and Y in order to make sure everyone at the event would be safe.,-19.29473216459155,-19.97723039984703
-error,trial,They dealt with a lot of X and Y before having a final product.,-35.24355113506317,-23.586150850984268
-errors,omissions,Rebecca went over the X and Y that occurred in the paper.,-24.210574865341187,-26.19000732898712
-evening,morning,Victor plans on spending tomorrow X and Y reading the new book he bought.,-25.683266162872314,-22.02755117416382
-everybody,everything,Noah loved X and Y in his college town.,-27.50993001461029,-27.789641618728638
-expense,time,He said that the X and Y of maintaining the property was too much.,-27.698963284492493,-22.42161786556244
-eyes,face,The instructions in the lab ask you cover your X and Y when you operate any machinery.,-22.20579308271408,-22.07848435640335
-eyes,hair,"In order to make your X and Y stand out, you should choose an appropriate outfit.",-17.77497200667858,-19.03462590277195
-face,figure,The model's X and Y was highlighted in the magazine spread.,-28.698869585990906,-32.10343313217163
-facts,figures,Lauren needed to get her X and Y straight before her business plan presentation.,-25.397350072860718,-33.31068128347397
-faith,life,He wanted to write a book about X and Y using many personal stories.,-35.87615466117859,-35.76558065414429
-faith,love,He wrote songs about X and Y that he hoped to record for his next album.,-22.6776442527771,-22.016111373901367
-fall,rise,I've gotten particularly ill due to the X and Y of the waves out at sea.,-27.33369144797325,-21.3649562895298
-fall,winter,In the months during X and Y students tend to feel a bit sadder due to the cold and gloomy weather.,-28.187051083892584,-30.91824276931584
-family,neighborhood,She loved her X and Y so she was sad about leaving for college.,-25.254653215408325,-27.10507559776306
-farms,fields,Ron loved spending time at X and Y because he loved being in nature.,-23.283215045928955,-24.392607927322388
-father,mother,"Because Stephanie was grounded, her X and Y would not permit her to go out with her friends.",-22.51769471168518,-21.92005944252014
-father,son,Eric enjoys going to the movies with his X and Y so much that he decided to make it a weekly tradition for them.,-20.2112957239151,-20.844663858413696
-father,uncle,She took her X and Y out to dinner to celebrate their birthdays.,-17.301908910274506,-19.327813506126404
-fathers,mothers,The community center had summer camps for X and Y to send their kids to while they worked.,-21.826814651489258,-20.535418212413788
-feelings,thoughts,"Whenever Pat was frustrated, her X and Y got muddled and she couldn't make any decisions.",-25.048019379377365,-24.21040415763855
-feet,hands,The child's X and Y were numb from playing in the snow.,-21.99999439716339,-17.9354008436203
-feet,legs,The soccer player injured their X and Y during a very intense game.,-24.848456144332886,-24.640274047851563
-female,male,The dog breeder has X and Y puppies coming up for sale soon.,-29.62154794856906,-28.049550648778677
-fiction,poetry,Maddy liked to read X and Y in her spare time.,-20.796982288360596,-21.50106680393219
-field,stream,"There was a X and Y near his house, which made him very happy.",-35.85966205596924,-34.18631160259247
-figures,words,Hannah used X and Y to explain her findings.,-27.967201590538025,-23.164913058280945
-fingers,thumb,Demi broke her X and Y when she fell while roller skating.,-23.69532710313797,-22.13732749223709
-fire,light,"According to Mandy, the lack of X and Y ruined the evening's ambiance.",-31.641233801841736,-33.6491516828537
-fire,police,Both the X and Y departments put on a barbeque for the community.,-27.081164836883545,-22.49534946680069
-flame,smoke,"He noticed the X and Y coming from his neighbor's house, so he called the fire department.",-21.83500161767006,-21.093335330486298
-flames,smoke,"Down the street, you could see the X and Y from the house that was on fire.",-19.676262080669403,-20.238697111606598
-flesh,skin,Cory explained the difference between X and Y to his little brother.,-31.21329227089882,-31.256834983825684
-flowers,herbs,Dan grew X and Y in his own backyard.,-29.256654262542725,-29.49745237827301
-flowers,plants,All of the X and Y in the Arboretum made it a popular spot for walks.,-27.583547294139862,-27.37817257642746
-fog,mist,All of the X and Y made Terry want to stay inside the house all day.,-42.85690522193909,-43.490469455718994
-food,shelter,The stray dog searched for X and Y while running through the streets.,-24.67627727985382,-25.27720558643341
-force,violence,They didn't like how he used X and Y to get his way.,-19.36987054347992,-20.507795572280884
-forefinger,thumb,The ability to use the X and Y are very important evolutionary traits that differentiate humans from apes.,-23.549166917800903,-13.84865786251612
-fork,spoon,Tara needed both a X and Y to properly eat her meal.,-29.776189029216766,-25.05099618434906
-forms,materials,Lee didn't have the necessary X and Y to move forward with the task.,-25.656570315361023,-26.424762070178986
-freedom,security,Mary searched for X and Y in her next job opportunity.,-28.819947481155396,-32.43281376361847
-friends,relations,Ciara had many X and Y so she was rarely lonely.,-24.050060391426086,-26.948602199554443
-fruit,nuts,All he had in his kitchen was X and Y so he made a trip to the grocery store.,-25.476453065872192,-31.093477487564087
-fruits,vegetables,"Growing up, Paul ate his X and Y everyday in order to be healthy.",-23.62853255867958,-24.30589532852173
-fun,games,Sally promised that there would be X and Y at her birthday party.,-23.884956002235413,-32.08062720298767
-future,past,Jazmin wanted to talk about the X and Y of the company she was interviewing for.,-21.653436243534088,-16.087600857019424
-gas,oil,"Sam had just bought a new car and didn't know the difference between X and Y, so she ruined her car.",-12.945251524448395,-13.793058276176453
-gentlemen,ladies,The hostess in the venue lead the X and Y to their respective tables at the wedding banquet.,-25.629592776298523,-20.512062788009644
-gin,tonic,"After a long day of work, he had a X and Y to unwind and celebrate the weekend.",-23.233940647915006,-37.28207755088806
-glass,steel,The architect wanted the building to have a lot of X and Y to make it look sleek and modern.,-16.059657037258148,-17.256064236164093
-god,man,The friends had a discussion about the relationship between X and Y after school last week.,-28.44634784758091,-30.51456607878208
-goods,services,The village people would not trade X and Y for money because they don't use currency.,-17.846452355384827,-23.19236421585083
-gratitude,joy,David felt X and Y when his kids made him breakfast in bed.,-29.712713718414307,-29.431661128997803
-groups,individuals,Differentiating between X and Y became increasingly difficult as the crowd grew larger.,-25.393306970596313,-22.803498148918152
-guidance,information,She got a lot of X and Y from her older sister about the college admissions process.,-25.946022272109985,-24.420782208442688
-gums,teeth,You should take care of your X and Y in order to have optimal dental hygiene.,-23.594024538993835,-13.471142500289716
-hair,skin,The doctor recommended X and Y supplements to some of her patients.,-31.2346773147583,-29.94145894050598
-hands,knees,Chris had to get on his X and Y to look for the button that fell off his shirt.,-14.412422350913403,-22.259984731674194
-head,shoulders,The doctor looked at Ashley's X and Y because she said that both were bothering her.,-28.532514810562134,-29.03706383705139
-head,tail,There were white spots on the X and Y of the tiny dog.,-21.682384431362152,-24.72870135307312
-health,spirits,In order to improve their X and Y the couple decided to go for long daily walks.,-29.033711194992065,-31.51383876800537
-hearing,sight,His grandma lost her X and Y so she needed to live in a nursing home.,-27.23883330821991,-22.874414443969727
-heart,mind,It took a long time for Sarah's X and Y to recover after her husband died.,-17.327575583010912,-17.456524584442377
-heir,son,The king's X and Y went missing after the battle.,-30.65028190612793,-26.00568723678589
-help,understanding,She appreciated Claire's X and Y when it came to teaching John how to ride a bike.,-18.20963664352894,-19.4787899851799
-history,identity,Jonathon was unsure about the X and Y of the statue he saw in the park.,-24.762365117669106,-24.9652891010046
-honey,milk,Jack's mother gave him X and Y in order to calm him after a nightmare.,-22.702723249793053,-21.27000768855214
-horses,wagons,"Instead of a car, they used X and Y to move their belongings to a new town.",-19.795101009309292,-20.732159793376923
-houses,shops,"The town is pretty small, so the X and Y are really close to each other.",-23.041901886463165,-24.138495445251465
-humility,pride,It is hard to have both X and Y when one is rich and famous.,-20.57680031657219,-19.71985837817192
-husband,wife,Because the X and Y didn't love each other anymore they pondered going their separate ways.,-22.80637298998772,-26.394695338152815
-husbands,wives,The counselor met with many X and Y throughout his long career.,-21.98619520664215,-24.66823261976242
-ice,snow,All of the X and Y outside made Luis want to stay in all day.,-38.44149148464203,-38.525836288928986
-ice,water,The kids went all over town to find X and Y since their air conditioner was broken.,-37.79318904876709,-36.411232233047485
-Illinois,Missouri,Sam argues that X and Y are the best states to live in.,-25.470927357673645,-25.271827697753906
-improvements,land,Timothy said that the hotel needed more X and Y to be able to make enough money.,-28.56261920928955,-21.961567044258118
-inclination,time,Samuel had the X and Y to help his little brother with his homework.,-29.151576966047287,-20.63002596795559
-influence,power,The employee used her X and Y in the company in order to get a raise.,-23.358330249786377,-19.605038285255432
-influence,prestige,The doctor's X and Y made her popular with patients.,-33.4279420375824,-32.31466770172119
-information,material,Fred lacked the X and Y to work on the project.,-26.310189604759216,-24.05216336250305
-ink,paper,All you need is X and Y in order to write the next great novel.,-21.904965344816446,-22.157505229115486
-iron,wood,The company purchased X and Y for their latest construction project.,-32.256115674972534,-31.73129940032959
-jacket,trousers,Ted needed to iron his X and Y before his big meeting.,-27.899277210235596,-28.022205352783203
-jams,jellies,Jake started making X and Y with all the fruit he was growing in his garden.,-28.06342649459839,-24.89019977301359
-jaws,teeth,Teddy was surprised at how large the X and Y of the crocodiles he saw at the swamp were.,-23.8400981426239,-25.527778387069702
-joy,pleasure,Tucking yourself into bed provides a great sense of X and Y at the end of a long day.,-21.47309809923172,-23.713920056819916
-July,June,Max was planning to take off X and Y from work so he could travel through Asia.,-36.07513236999512,-32.74770140647888
-kind,quantity,This was the X and Y of bread that he needed for the recipe.,-32.281069695949554,-30.20806947350502
-knowledge,skills,"Although Cassie's X and Y were both strong, her exams were still difficult.",-26.93410611152649,-26.9475998878479
-labor,money,The amount of X and Y required to keep the farm was not worth it to Mark.,-20.121187448501587,-18.906514912843704
-land,sea,They had to travel across X and Y to get to their final destination.,-10.7393119931221,-14.789781242609024
-landings,takeoffs,Christian enjoyed watching the X and Y of the planes at the airport.,-32.13973867893219,-22.895625479519367
-law,order,There was a lack of X and Y that caused some chaos.,-24.328823059797287,-28.9331214427948
-lecturer,writer,She was both a X and Y but wanted to be an actor instead.,-26.390141293406487,-24.754237696528435
-left,right,You should look X and Y before crossing the street.,-24.16413241624832,-28.151152431964874
-length,quality,She thought the X and Y of the boat would impress her friends.,-24.046965219080448,-25.02473357319832
-length,weight,She took note of the X and Y of the bed before trying to bring it into the small room.,-20.588884443044662,-23.1540008187294
-libraries,museums,The amount of time he spent in X and Y surpassed the amount of time he spent at home.,-31.031077027320862,-30.06352162361145
-life,religion,Jenny talked about X and Y with her brother and sister.,-25.66444230079651,-25.914487600326538
-light,shadow,It is important to consider both X and Y when creating a still life painting.,-20.921025663614273,-23.94404488801956
-light,sound,The exhibit used X and Y to create an attention-grabbing experience.,-17.113919377326965,-19.101397275924683
-location,size,The couple told the realtor that X and Y are the most important criteria for picking a house.,-27.982811212539673,-27.439841508865356
-machinery,power,She didn't think they had enough X and Y to fulfill the large bulk order.,-29.181740283966064,-28.54045194387436
-magazines,newspapers,Anna has written articles for many X and Y throughout her career as a journalist.,-11.492487847805023,-10.163237154483795
-magic,superstition,He thinks X and Y are definitely not real.,-30.015255644917488,-31.19794750213623
-mamma,papa,Antonio wants to spend a lot of time with his X and Y while they are in town.,-23.0114481523633,-18.09283807873726
-man,nature,Harry wanted to talk about how X and Y interact in today's society.,-29.500521659851074,-31.843167304992676
-man,wife,I learned that the X and Y got married after dating for 5 years.,-27.06320023536682,-32.66320276260376
-man,woman,He noticed that both the X and Y had green sneakers on.,-23.227371335029602,-26.878626435995102
-math,science,Ricky discovered that X and Y are his favorite subjects in school.,-26.462899804115295,-27.93814444541931
-meaning,origin,Michael was confused about both the X and Y of the folk tale he had just heard.,-23.22470837458968,-23.137325398623943
-men,officers,Nicole's history textbook listed an estimate of the number of X and Y who died during the civil war.,-26.427772402763367,-22.335507035255432
-men,women,The guard instructed the X and Y to form an orderly line.,-19.737640917301178,-21.99093407392502
-methods,principles,She didn't agree with the company's X and Y so she made her opinion known.,-28.207426607608795,-28.056479513645172
-minerals,vitamins,The human body needs both X and Y in order to continue functioning properly.,-13.438703183084726,-11.078673984855413
-misery,pain,The people experienced X and Y after they were shipwrecked for months.,-23.42545974254608,-22.153579711914063
-money,time,The amount of X and Y required to fix up the old car made it quite the project.,-18.21953272819519,-17.401038825511932
-months,years,"After many tiring X and Y, the author finally published their book.",-19.83418321609497,-21.500553727149963
-moon,sun,Rebecca got a X and Y tattooed on her left arm.,-30.32935357093811,-30.06784623861313
-morning,night,Kevin worked both X and Y shifts as an ER nurse.,-19.74463903158903,-17.307864546775818
-mother,son,Jack spent more time with his X and Y than any other family member.,-12.910982549190521,-14.033033698797226
-mouth,nostrils,"Evan took a look at the X and Y of his dog, and compared them to his own.",-22.773820988833904,-24.33063267171383
-movements,positions,"After hurting her foot, certain X and Y caused her a lot of pain.",-27.164276838302612,-25.055040657520294
-mr.,mrs.,The couple call each other X and Y Smith even though they aren't married.,-23.983987987041473,-26.496127724647522
-muscles,nerves,Allison felt like her X and Y were on fire after running a marathon.,-19.94848082959652,-21.455241829156876
-names,numbers,The host asked for both the X and Y of the people who wanted to make reservations.,-15.749037653207779,-16.57037355005741
-nature,size,Sometimes it is hard to figure out the X and Y of a problem just from reading about it in the news.,-19.928967179730535,-20.13127349410206
-needle,thread,He needed a X and Y to fix the hole in his shirt.,-19.92746067047119,-30.8756000995636
-nights,weekends,Clare spent her X and Y working on new recipes for the cookbook she was writing.,-20.794315338134766,-21.605993509292603
-nitrogen,oxygen,The atmosphere is composed of X and Y as well as other elements.,-12.762447997927666,-13.314632043242455
-north,south,The family moved X and Y a couple of times before deciding on their current home.,-23.916235387325287,-23.964817240834236
-north,west,The boat sailed X and Y to get to its destination.,-18.716211676597595,-20.882973730564117
-nose,throat,Springtime allergies make my X and Y a lot more irritated than the rest of the year.,-13.461942315101624,-18.245088577270508
-novelist,poet,Lydia is a successful X and Y and is praised for her writing style.,-29.1534081697464,-28.155521392822266
-novels,stories,The famous author had published many X and Y over the past twenty years.,-15.204256236553192,-16.72603875398636
-novels,tales,He had always loved X and Y so he majored in English in college.,-33.50342261791229,-36.37511134147644
-pad,pencil,Antonio brought his X and Y to sketch the statues in the park.,-32.26324427127838,-31.77400016784668
-pain,pressure,Jeremy felt X and Y in his chest that concerned him.,-21.057616412639618,-22.124398708343506
-pain,shame,Todd felt X and Y when he talked about his divorce.,-26.99059021472931,-25.543500304222107
-paper,pen,"Even though most people use computers, I prefer to use X and Y to take my notes in class.",-24.919971227645874,-20.53018583357334
-peace,quiet,The students reserved a spot in the library for some X and Y to study for their upcoming exams.,-22.836276948451996,-29.618784189224243
-pepper,salt,The food is in need of X and Y because it's rather bland.,-28.065176844596863,-21.914739727973938
-piano,violin,Alex loved to play the X and Y so they took lessons for both instruments.,-24.441930651664734,-23.129780650138855
-pitch,volume,Musicians pride themselves on being able to adjust X and Y in order to produce art.,-21.128822047263384,-20.859766628593206
-place,time,Finding a X and Y for the meeting was very difficult due to the boss's busy schedule.,-24.80244755744934,-21.98796859383583
-plans,projects,She had many X and Y in the works for her small business.,-21.185132026672363,-20.267095923423767
-poetry,prose,The professor taught both X and Y in his Renaissance literature class.,-30.07442133128643,-30.08535146713257
-politics,religion,The strangers wanted to avoid discussing X and Y to avoid starting an argument.,-24.008867383003235,-24.804226636886597
-power,resources,The business had the X and Y to create a multi-million dollar company.,-16.569168016314507,-18.886161357164383
-pressure,temperature,He learned about the relationship between X and Y in his science class.,-30.842468202114105,-29.31039160490036
-prose,verse,They discussed differences between X and Y in her writing class.,-26.91719698905945,-27.971220433712006
-radar,radio,The soldiers used X and Y to plan their next moves.,-24.76948046684265,-23.787551045417786
-radio,television,Tania wanted to work in both X and Y and couldn't decide which she liked more.,-17.598561975202756,-18.858363559644204
-research,training,The surgeon had to do a lot of X and Y before attempting the risky procedure.,-23.242081999778748,-21.84947144985199
-rights,wrongs,She considered the X and Y of the situation before moving forward.,-18.00589033216238,-25.635344862937927
-rock,roll,He said he was ready to X and Y after getting off of work.,-26.49608823657036,-36.343714475631714
-sailors,soldiers,"The little boy thought X and Y were cool, so he liked to dress up as them for Halloween.",-30.337051391601563,-29.229289054870605
-shoes,socks,"When it rains, your X and Y become more of a nuisance than something to protect your feet.",-23.10238289833069,-23.82794761657715
-shower,tub,Lilly wanted to install a X and Y into her new bathroom.,-29.067394196987152,-28.51981019973755
-sidewalks,streets,All of the X and Y were so busy that Mike decided not to leave his house.,-26.69934582710266,-25.414264678955078
-sights,sounds,"While traveling, Kim wanted to experience the X and Y of the city she was visiting.",-8.573641300201416,-15.572838723659515
-son,wife,Roman lives with his X and Y in an apartment downtown.,-16.957602739334106,-12.970230460166931
-south,west,"The compass was broken, so it would only point to X and Y instead of all four directions.",-21.455685168504715,-22.854895412921906
-spring,summer,Maddy said that X and Y are her favorite seasons.,-24.23743188381195,-26.26743519306183
-stress,tension,"In order to get rid of X and Y after his exam, Zack went for a run.",-36.57822608947754,-37.60827398300171
-sunrise,sunset,Andrew loved to be outside at X and Y during the summer months.,-18.039853870868683,-24.755207628011703
-sympathy,understanding,Being a therapist requires a lot of X and Y because you often have to deal with people in rough patches.,-26.567858338356018,-27.806074500083923
-teaching,writing,He has discovered that X and Y are what he wants to do for a career.,-29.192596435546875,-28.352461099624634
-testament,will,Louis discussed his X and Y with his lawyer last week.,-36.64640784263611,-30.441896200180054
-Thursday,Tuesday,Don's manager scheduled him for work on X and Y every week for the next month.,-24.86258363723755,-24.132766127586365
-Tories,Whigs,Luke didn't know the difference between the X and Y so he asked his political science professor about them.,-26.523022443056107,-26.15287360548973
-turns,twists,The movie had many different X and Y that left the audience on the edge of their seats.,-25.326133847236633,-16.159883745014668
-vinegar,water,Nicole needed X and Y for the recipe she was trying out.,-27.03240966796875,-26.285353899002075
-wisdom,wit,Clare believed she gained a lot of X and Y throughout her time in college.,-25.176457464694977,-27.958321571350098
-self-aggrandisement,self-confidence,The businessman's speech was so full of X and Y that some of the audience left the room halfway through.,-10.790274988452438,-9.595761226381
-retribution,violence,Before resorting to X and Y other measures should be taken to resolve the conflict.,-38.99591565132141,-34.55239486694336
-grandfather,great-grandfather,Mr. Walton's X and Y were scholars in the same field as well.,-16.161036297678947,-16.80216872692108
-design,outline,"The composition's main X and Y was the product of collaboration with musicians, ballad singers, and musicologists.",-31.0248122215271,-32.26008343696594
-distinction,tone,The rider gave the day X and Y by breaking the world record.,-42.963910698890686,-39.04223704338074
-bicep,forearm,I was impressed by the strength in the man's X and Y although he looks relatively thin.,-28.721222745021805,-26.533402669942006
-delirium,illness,The story ends in the child 's X and Y without telling the readers if his mother ever made it back.,-31.23896174132824,-25.22641446441412
-temperature,wind-velocity,Edward checked the X and Y before setting out to the field.,-27.139511334709823,-29.104439467191696
-reference,withdrawal,Greta's memory has stored for X and Y the locations of nice restaurants in town.,-36.41018411517143,-39.69940268993378
-attraction,conflict,"Clearly, both X and Y existed between the two main characters.",-32.92029757797718,-33.09598708152771
-exasperation,love,The single word she said mingled X and Y in an equal blend.,-26.68544292449951,-24.06755080074072
-crisis,destruction,The Old Order's X and Y was symbolized by a dead armadillo on the stage.,-31.22369956970215,-31.05144077539444
-drawing,models,Dennis never went down to the factory but the X and Y were done by him.,-28.2631653547287,-30.537004709243774
-non-poetry,poetry,Literary works including X and Y can be analyzed under the proposed framework.,-21.995397448539734,-18.54373587667942
-peace,rehabilitation,The two sides both yearning for X and Y settled on a cease-fire last week.,-27.294867277145386,-30.498959958553314
-clarification,reexamination,All international laws are now in need of X and Y because of the change in social conditions of the present era.,-18.556341469287872,-18.96011209487915
-beech,horse-chestnut,The shelter is as much a part of my landscape as the X and Y trees that grow on the ridge .,-31.30001950263977,-29.63877296447754
-boards,two-by-fours,Mr. Mills gave him the various kinds of X and Y to make a new workbench for the studio.,-24.953724863007665,-17.7088406085968
-classifications,probings,With his endless X and Y the analyst appears to be lacking a soul.,-38.37694776058197,-37.00749635696411
-lights,motor,I turned off my X and Y because nobody was going anywhere in this traffic jam.,-30.43218195438385,-31.70631194114685
-usefulness,viability,"For the first time in the country's history, the X and Y of nationalism came into question.",-38.757954384200275,-37.66619905550033
-directness,truth,Her insistence on X and Y caused some problems in their relationship.,-33.654319286346436,-27.05783748626709
-career,wanderings,The Maestro told of his X and Y to explain how the number seven had significantly recurred in his life several times.,-33.035814344882965,-30.536904394626617
-goodnight,lullaby,The baby needs her mom's X and Y to go to sleep.,-30.900222420692444,-28.503762632608414
-names,specialties,Be sure to familiarize yourself with their X and Y before going to the wine dealers.,-22.279090404510498,-26.41257107257843
-farms,hayfields,The gravel roads leading past X and Y will be paved next year.,-24.73978489637375,-24.540130615234375
-aims,backgrounds,Participants with widely varying X and Y gathered in Rome for the conference.,-29.78336465358734,-31.46850562095642
-sushi,tea,Kate prepared X and Y for each of her visitors.,-27.42400348186493,-28.87105095386505
-interconnectedness,quality,Leading a life of X and Y is Helen's ultimate goal.,-35.70956387370825,-30.988500252366066
-stalls,urinals,By counting the number of X and Y I attempted to form a loose estimate of how many men the hall would hold at one time.,-35.43714840710163,-36.45888328552246
-childhood,hobo,Sandburg went to assemble a book of songs out of his X and Y days and from the memory of songs others had taught him.,-33.72290563583374,-36.34634876251221
-acknowledgment,authentication,The system needs to go through procedures for X and Y before carrying out the order.,-29.71497582644224,-29.52020236849785
-capture,isolation,All factors that might contribute to our country's X and Y must be eliminated as soon as possible.,-32.270088255405426,-32.858317106962204
-friends,tenants,Mrs. Green greeted her X and Y as she walked into the house.,-25.916778087615967,-26.970301270484924
-bankers,friends,A series of conferences with X and Y began about this time to discuss this issue.,-34.116883993148804,-33.964491188526154
-ketches,yachts,All the X and Y belonged to the royalties.,-40.775583773618564,-35.26461563445628
-salt,whiskey,Mark's mother used X and Y to treat itching skin.,-39.06322401762009,-36.61493360996246
-equality,relativism,"The theory suffers from many weaknesses, with X and Y being its biggest problems.",-28.033376775681973,-29.772470474243164
-desire,response,"During the animal behavior experiment, the lions' X and Y defied the scientists' predictions.",-39.194704413414,-41.54999220371246
-bleedings,pills,The hospital with all those X and Y has been John's least favorite place since his was a young boy.,-33.26836395263672,-33.049073338508606
-contortion,scream,The patient's X and Y scared most of the people in the room.,-43.4432258605957,-32.21423637866974
-preparations,services,Kate moved through all the X and Y in a state of bewilderment .,-29.878816843032837,-30.397613286972046
-incredulity,shock,Everyone was left in X and Y by the speaker's speech.,-21.236502131301677,-19.547134422813542
-hillbilly,jazz,Ears used to X and Y will not be surprised by the new albumn from the studio.,-33.522165218833834,-24.265161530929618
-action,interests,The executive's presentation on the company's X and Y was well received among the employees.,-29.638006687164307,-30.46563571691513
-dialects,localisms,The effects of television and other mass media are erasing X and Y with a startling force.,-24.047948479652405,-24.047948479652405
-contemplation,delight,Crossword puzzles are a source of X and Y for me whenever I am bored.,-30.052940845489502,-27.294124603271484
-articulation,establishment,The CEO believes that the X and Y of rules is key to a well-functioning corporation.,-29.362945273518562,-26.003597632050514
-holland,japan,His mentioning of X and Y opened up a discussion among the guests.,-27.680290699005127,-28.169720768928528
-clothing,decorations,The man's posh X and Y would have paid the Wrights' rent for a year.,-31.557143449783325,-34.89695608615875
-ambiguities,fears,"In recent years, X and Y have been introduced regarding certain actions formerly assumed safe.",-25.55539313168265,-18.554720342959627
-door,sill,"Light was beginning to creep across the room, touching X and Y before reaching Doaty 's flowers.",-42.26360321044922,-41.79872155189514
-angst,science,In our present era of X and Y many people find themselves uncertain of the fundamental truth.,-38.39980983734131,-37.77496063709259
-pills,tonics,"Having dealt with X and Y for months, Catherine finally got out of hospital.",-29.169924199581146,-31.61125075817108
-gossip,truth,Students who cannot distinguish between X and Y are all over this school.,-25.88188260793686,-28.297487147152424
-animosity,resistance,The audience started to turn to X and Y after the presenter's controversial speech.,-37.62452232837677,-37.231661438941956
-accessories,aircraft,The supplier provided the new military base with X and Y to ensure its normal operation as soon as possible.,-28.494154810905457,-24.957950234413147
-charters,contracts,Her lawyer of a father was too busy debating the legal inviolability of X and Y to notice her pining.,-23.33933174610138,-20.18246560357511
-bale,box,"Montero had set up a strong position, using every X and Y in addition to barricades.",-34.736193895339966,-26.104953015688807
-marquees,signs,Anna was surprised to see the X and Y lit up for the first time since blackout regulations had been instituted.,-39.73242378234863,-32.105698093771935
-dregs,wine,The undesirable mixture of X and Y should be left in the bottle.,-27.030203031376004,-20.857919016852975
-bitterness,youth,On his face was this uncanny combination of X and Y that makes one wonder what he must have been through.,-29.174703806638718,-27.2718808054924
-anthropologist,engineer,Our rural development team headed by a renowned X and Y arrived at the destination last week.,-24.53142972290516,-19.22728647477925
-gardens,riverbanks,Going to the X and Y is one of my favorite leisure activities.,-33.84331965446472,-32.12963008880615
-ambush,death,"Throughout the targeted cities, fear of X and Y was spread by the terrorists.",-26.14967906475067,-28.084539532661438
-dryness,dust,The season of X and Y is brought by the monsoon from the northeast.,-33.65773820877075,-25.968752145767212
-unhappiness,women,Men who believe that X and Y go together always mess up their dates.,-35.0555899143219,-34.534321308135986
-berries,gardens,The book on X and Y written by the famous botanist is accessible for everyone.,-32.70128318667412,-33.943123161792755
-choir,glee-club,He served as X and Y leader at different times during his college years.,-37.34720706939697,-39.24010396003723
-cry,rustle,All of a sudden the X and Y of wild birds filled the warm spring morning.,-31.838928550481796,-30.712311267852783
-sky,wasteland,The photographer positioned the model against the background of X and Y for an ideal picture.,-34.941856145858765,-34.1614089012146
-painting,sculptures,The theme of conflict in X and Y is one of Maria's areas of interest.,-23.986877143383026,-25.300895273685455
-chorus,verses,Most of the X and Y of the song had special meanings to the author.,-27.91474449634552,-26.070901095867157
-greed,pettiness,She is now freed from X and Y by leading a simple life in the countryside.,-26.722285863943398,-27.185981512069702
-sparkle,spring,Henry was still full of X and Y even in his fifties.,-28.94312810897827,-23.87533736228943
-bankruptcy,death,The old man has no fear of X and Y because he regards the well-being of others higher than his own.,-35.105617225170135,-31.649119436740875
-boy,mount,"For a moment, X and Y hung in midair, causing gasps from the audience.",-47.0871057510376,-50.87844753265381
-romance,snobbery,Having arrived at an age for X and Y the girls started to behave differently.,-23.23809682019055,-27.545344745740294
-catholics,non-catholics,Our next step is to recognize the substantial agreement already existing between X and Y before seeking futher negotiation.,-24.696101613342762,-25.605553299188614
-vitality,will,Terror had sapped some of Anne's X and Y so she was left frozen in the moment.,-23.467785716056824,-24.889227986335754
-covers,towels,The housemaid came in with clean X and Y but was startled by the unexpected presence of Mr. Hirschman.,-27.092549920082092,-26.71582520008087
-ingratitude,injury,"If the child isn't taught how to deal with other people, X and Y are likely to occur.",-28.530996177345514,-18.510320957750082
-diamonds,mink,The girl clad in X and Y listened to the Assistant District Attorney describe her to the arraigning judge.,-32.32197141647339,-33.767799973487854
-jubilation,regret,The engineer of the dam looks back with mingled X and Y now that the project is complete.,-21.05063072964549,-17.332486167550087
-cover,pillows,The bed with dark-brown X and Y had been made up way before the guest arrived.,-22.20900336280465,-25.90992900170386
-acids,tannin,"In order for the X and Y to work out, a red wine should be served at approximately room temperature.",-26.573274105787277,-28.295444190502167
-passage,rhythm,"When the lovers were together, time's X and Y seemed to change drastically.",-26.015999019145966,-30.939620196819305
-onrush,retreat,The wolves' X and Y were studied closely by the zoologists using a hidden camera.,-34.752384185791016,-38.246089458465576
-heat,outcry,The superintendent has noticed some X and Y among the assembly line workers.,-36.71349048614502,-42.974687337875366
-powers,traditions,The Presidential office's X and Y were firmly upheld during his term as president.,-31.303942441940308,-33.960312366485596
-courthouse,square,The assassin had followed him and waited till the X and Y were deserted to shut him up.,-38.76437544822693,-36.96548390388489
-ivory,sandalwood,The antique French chess set in X and Y was passed down to me from my grandfather.,-21.223937544971704,-22.077321488410234
-kind,scale,"In order to begin, John must on the X and Y of farming he wants to undertake.",-35.289645314216614,-43.43404221534729
-glance,signal,The agents communicating with each other by X and Y were on a secret mission.,-31.49015498161316,-33.126768827438354
-emeralds,peanuts,Those crazy people knew clearly the relative values of X and Y but insisted on selling them at the same price.,-30.166399121284485,-24.774984527379274
-maps,registers,From the X and Y the expert has identified six potential excavation sites.,-44.09828472137451,-44.805102825164795
-clerks,postmasters,The exhausted X and Y shoveled dirt out of their offices and wondered how to move the mail.,-33.52340108156204,-35.83191215991974
-neighborliness,politeness,"Because of his X and Y, Jack is on good terms with everyone in his community.",-26.065407120855525,-23.49526770412922
-nationalism,sentiment,Books that are marketed via X and Y are not popular anymore.,-36.1792471408844,-36.6686270236969
-gift,heritage,Through both X and Y Mr. Collins has come to possess a large coin collection.,-39.954416900873184,-41.975165009498596
-concern,inquiry,I immediately knew from the X and Y in her voice that she was the victim's family member.,-37.22245502471924,-36.61730170249939
-community,customers,Store owners can establish sincere relationships with their X and Y by representing a human personality.,-25.448838591575623,-24.099401116371155
-appliances,cosmetics,Salesmen in X and Y are the best in the department store.,-33.9096577167511,-31.15522277355194
-flirtation,romance,The novel filled with X and Y was disdained by the stern English teacher.,-29.745911836624146,-27.731107771396637
-optimism,practicality,Christina was trying to find a proper balance between X and Y through meditation every morning.,-26.63709495961666,-28.426354832947254
-gentility,principle,Having lived a life of X and Y Cousin Elec passed away peacefully in his bed.,-42.87108847498894,-43.18017449975014
-gardens,housing,A fringe of X and Y lined the top of the hill.,-37.708560943603516,-37.63119184970856
-clergymen,parishioners,This scandal involving X and Y shocked the entire world.,-19.689891032554442,-21.516787121305242
-arrows,crosses,"In the chart, a series of nodes are connected by X and Y to denote the lineage of the breed .",-26.130249857902527,-26.33369731903076
-envy,hurt,Helena was full of X and Y when she decided to tell Demetrius the two lovers' secret.,-24.926611483097076,-26.77790880203247
-bellboy,chambermaid,He should interview the X and Y before they get off their shifts.,-38.38552951812744,-40.322203636169434
-hat,tunic,The tall man in a X and Y was my friend Henry.,-25.754245115444064,-23.536866817390546
-cakes,comfort,She resumed her self-imposed chores of visiting the poor and bringing X and Y to destitute patients in the county hospital.,-30.71254397975281,-31.454685470089316
-clerk,cook,"One of his innovations was to see to it that every man, even X and Y included, qualified with every weapon in the troop.",-38.91831309348345,-41.61247706413269
-jazz,marijuana,"In college, X and Y were Martin's best friends.",-44.55559194087982,-44.989121317863464
-nagging,stress,I don't want to hear any more of her X and Y because they make me feel worse than I already do.,-30.772638499736786,-27.21319291740656
-poise,posture,The young lady was admired for her X and Y by all the young men in the ballroom.,-25.143444050103426,-17.74040777189657
-promoters,salesmen,Mr. Duncan is such a nice person that he even welcomes X and Y to join him for tea.,-31.42508840560913,-31.58614468574524
-patronage,subscription,The editor of the magazine thanked the readers for their X and Y in the last editorial of the year.,-27.112998604774475,-28.568794012069702
-amber,froth,There was a flash of X and Y when the bottle shattered against the side of the car.,-28.109339594841003,-30.018893480300903
-clarity,flavor,My landlord lugged me up a mountainside to drink from a spring famous for its X and Y a few mongths ago.,-33.280923902988434,-33.25682020187378
-mechanics,technique,My ballet teacher gave us an overview of the X and Y during the first class.,-24.741061091423035,-27.336719870567322
-cowboy,rancher,It turned out that Tom had a number of X and Y witnesses ready to swear with straight faces that he had been out of town the day of the killing.,-41.411857046186924,-42.47654569149017
-fishermen,scientists,Around this area X and Y have occasionally seen strange by-products of the phenomenon.,-35.17205619812012,-33.21584701538086
-doctors,president,"Despite the many meetings, the X and Y never managed to reach an agreement on this issue.",-31.998250568285584,-28.612699773162603
-dogs,grandchildren,My grandmother was too indulgent a lover of X and Y to be an impassioned gardener.,-27.710498809814453,-30.431583046913147
-maintenance,travel,Having served for a number of years without pay beyond her X and Y she finally left for a better job.,-41.01020812988281,-40.05316519737244
-authority,decency,This man of X and Y finally gave in under the blow.,-30.811563968658447,-32.881245374679565
-linguistics,psychiatry,Dr. Chang was trained in both X and Y before launching his successful career.,-22.525257270550355,-17.28957412042655
-disrespect,misunderstanding,Wright had to endure the X and Y as he best could.,-35.80799055099487,-38.26029622554779
-disarray,impasse,"According to some, the X and Y of European politics were reflected in ""Waiting For Godot"".",-27.421990305185318,-26.362085342407227
-form,mess,The tension between X and Y is an important topic in art.,-29.81637391448021,-32.50005114078522
-criminality,madness,The young man disgusted by the X and Y around him left home to become a monk.,-31.554903388023376,-30.530192255973816
-immersion,involvement,The country's X and Y in world affairs has increased over the years.,-29.81100842356682,-31.761063799262047
-handle,hinge,Each and every X and Y shone after the hardworking maid completed her work.,-44.36086452007294,-43.1131933927536
-barnyard,coop,Any bird accustomed only to the predictable life of X and Y would be overwelmed by the events of the last hour.,-26.124325037002563,-25.76795494556427
-linguists,psychotherapists,Teams of X and Y attended the conference to present their work.,-20.699914064258337,-23.7916025291197
-control,needs,Corporations must become quasi-governmental institutions subject to public X and Y if they are not to run away with us.,-24.95747834444046,-24.404407918453217
-sprains,swellings,It is said that for X and Y one pint of cider vinegar added to three beaten eggs can give speedy relief.,-35.92934442311525,-32.72080409526825
-people,soils,Designers need to take both X and Y into consideration when designing gardens for their clients.,-24.59050738811493,-24.280365705490112
-self-indulgence,softness,The president knew very well that X and Y was not going to be a successful strategy,-17.696741562336683,-13.659069519024342
-head-tossing,prancing,The pop star's signature X and Y cannot be easily immitated by impersonators.,-25.031021118164063,-23.883037485182285
-liquor,luxury,She had indulged herself in X and Y too much before re-examining her way of life.,-31.329256534576416,-30.11247169971466
-adaptations,cycles,The Pacific Ocean marine life's X and Y are the focus of Dr. Green's research.,-32.48542332649231,-28.321036338806152
-classicist,mathematician,She is not only a trained X and Y but also a good architect.,-24.083202838897705,-16.584540247917175
-benefactor,sponsor,It was announced that the school would be renamed after its X and Y from its early years.,-29.019237473607063,-26.69017953425646
-fear,ritual,A reduction in X and Y has been observed in the tribes as modern science gains more influence.,-31.593324959278107,-31.87406611442566
-freedom,israel,For the soldier X and Y are above everything else.,-42.423171520233154,-41.62380647659302
-force,voice,The campaign seeks to give X and Y to those striving for their rights.,-32.38195540383458,-29.33903956413269
-defeat,misfortune,The heroic loyalty of the Swedish people to their king in X and Y was the central theme of the play.,-26.663017749786377,-29.106443405151367
-danger,nuisance,Young boys were the main X and Y according to the glassware store owner.,-29.68748209485784,-29.786524618510157
-meaningfulness,relevance,The comments are sorted by their X and Y in order to be used for market research.,-24.660380482673645,-22.129258632659912
-envelope,pencil,Eugenia was sitting at the kitchen table with the X and Y jotting down words and figures.,-28.44537363946438,-33.25996196269989
-denial,ignorance,Pamela realized that X and Y were not the best ways to deal with those threatening forces.,-24.605816960334778,-25.004586696624756
-competence,willingness,The heads of growing enterprises can develop the X and Y to accept the personal responsibility so sorely needed now.,-22.14585018157959,-24.491908699274063
-carpet,tile,The best X and Y makers worked through Abbas's reign and those of his successors to enrich the city.,-44.13949418067932,-44.59033679962158
-desire,wishing,She let her soul suspend itself above all X and Y to just relax in the tub.,-34.61982476711273,-35.424219608306885
-ambiguities,urgencies,Some painters have less interest in the moment's X and Y than in a higher level of truth.,-23.380134781822562,-18.2240230574389
-barriers,stakes,"After placing X and Y all around, the residents of the town were confident of their defense against any attack.",-33.3995566368103,-32.59557271003723
-aqueducts,tombs,Ashely was so impressed by the X and Y that she extended her stay in Rome.,-27.37266524147708,-11.995431427727453
-curiosity,foreboding,"Kate tried to contain her X and Y as she read the letter, wondering what the new arrangement would mean for Juanita.",-22.4065979719162,-30.603991344571114
-scars,welts,The sight of the boy's body covered in X and Y made his mother burst out in tears.,-20.495137319434434,-20.731722995638847
-farms,mountains,The artist paints X and Y in a modern impressionist fashion.,-31.982990622520447,-29.50635814666748
-nightingales,roses,The traveler in the desert saw a great garden filled with X and Y but he knew it must have been an illusion.,-26.686008140444756,-26.095954712480307
-garden,livestock,Adequate water for your X and Y may be provided by a pond.,-21.437155663967133,-23.25260281562805
-honeysuckle,rosebush,A tangle of X and Y could be seen from the window.,-26.049909031484276,-16.024195292964578
-derelicts,outcasts,The house welcomes the city's X and Y to eat and converse.,-29.49181079864502,-27.481451451778412
-clothes,haircut,The newcomer with his old-fashioned X and Y was disliked by the superintendent.,-30.376794695854187,-30.220241844654083
-pen,telephone,He sat down at the hotel desk with his X and Y to resume his work.,-29.964431762695313,-30.255539536476135
-starvation,tuberculosis,Mrs. Hull died of X and Y before receiving a visit from her son.,-27.20425033569336,-29.83073139190674
-ceremonies,exhortations,They perform elaborate X and Y but have virtually no understanding of social cause and effect.,-25.838339373469353,-25.938471131026745
-starvation,suicide,People are dying of X and Y in many parts of the world.,-19.810458302497864,-23.120029628276825
-denials,sacrifices,"If providing higher standards of living gets in the way of producing sufficient guns to resist the aggression, then X and Y will have to be made.",-34.42846322059631,-20.946285903453827
-aspirations,dignity,The Rule of Law should be employed to ensure that an individual's X and Y are repected in society.,-38.36938387155533,-36.43731904029846
-chair,floor,Mark painted the X and Y on the day he got back.,-30.225849747657776,-28.03540802001953
-cables,communiques,My correspondent's constant dipatch of exciting X and Y made me wonder what background he came from.,-32.87121915817261,-31.706504464149475
-lint,thread,Particles of X and Y were found in the patient's mouth.,-32.6529483795166,-27.835780262947083
-ambition,poverty,The pressures of X and Y burdened Lawrence to a great extent.,-39.73066687583923,-39.080047726631165
-amusement,pride,The moderator of the panel grinned with X and Y as the speaker indicated pity for the unfortunate .,-26.40094256401062,-23.10689890384674
-felons,fixers,The officer consorting with those X and Y was fired from the police department.,-27.264796908944845,-29.24386446690187
-screens,shades,The skylights fitted with systems of multiple X and Y were fitted into the roof.,-23.744364976882935,-24.239843368530273
-background,dancers,The art design for the show was so well done that the X and Y merged into a shimmering unity .,-33.09174728393555,-37.54088044166565
-disasters,sufferings,John has seen too many X and Y to uphold his blind optimism.,-34.652589321136475,-32.089002907276154
-linguist,therapist,It should be clear to every X and Y that the word not used can be as important as the word that is used.,-22.962210586294532,-23.0147340670228
-apprenticeship,learning,We need to get back to X and Y instead of trying to figure out everything by ourselves.,-25.59870096296072,-21.51967290043831
-miners,teamsters,All the X and Y gathered at the company to demand better working conditions.,-35.26760137081146,-34.26700937747955
-song,tears,I remember my grandmother's X and Y at my grandfather's funeral.,-32.93300437927246,-33.463735580444336
-humor,proportion,They lost their sense of X and Y as they grew more and more defensive.,-24.754213452339172,-24.088132858276367
-patients,psychiatrists,Good relationships between X and Y must be established slowly.,-22.70266592502594,-21.282891258597374
-gasps,rushes,The boys exclaimed in X and Y as they searched all around the house.,-25.471909334883094,-19.030646808445454
-misunderstanding,persecution,Advocates of this unusual way of life face X and Y constantly wherever they go.,-38.07425343990326,-36.54188044369221
-courage,virility,"He had faith that the idea would work, since his X and Y were involved in the magnificent plan.",-30.20719726383686,-30.997780919075012
-juice,spirit,"The boy, full of X and Y, got down to painting the fence right away.",-27.654316619038582,-29.59212490916252
-suspense,worry,Once Bill had quieted all the X and Y the situation didn't seem that bad after all.,-36.982112407684326,-38.48210620880127
-attitude,culture,The author sincerely wanted to tap the real springs of American X and Y regardless of how unpopular and embarrassing they may be.,-28.68610841408372,-27.119522280991077
-anxiety,hazards,In order to deal with the situation's X and Y the honeymooners had a thorough conversation before the trip.,-37.63331377506256,-34.57947087287903
-abandon,fervor,The violinist played with X and Y even though he had just recovered from an accident.,-26.99472865462303,-26.633842408657074
-clash,meeting,No one predicted that the X and Y of the two cultures would unfold so violently.,-29.7744642496109,-31.189037084579468
-currents,rhythms,This life has its own X and Y just like any other way of life does.,-27.007279574871063,-26.607621788978577
-huggings,kissings,There have been a lot of X and Y since the reunion started.,-29.47990047931671,-19.625324934720993
-coverings,veils,The gentle nuns with X and Y were the unwitting models of several of his paintings.,-24.461015718989074,-24.767441749572754
-graces,manners,She seems to be a woman who keeps her X and Y as she ages over the years.,-26.9340980052948,-28.98797470331192
-austerity,denial,Before committing himself to a life of X and Y he never managed to succeed.,-32.15952444076538,-34.68597638607025
-composure,tranquility,He had achieved a certain X and Y by accepting the fact that there were certain things he could never know.,-26.640266954898834,-24.607701629400253
-instinct,judgement,An ignorant person's X and Y can never be trusted.,-23.60565984249115,-25.301881313323975
-beginnings,greetings,"As a pessimist, he believes that X and Y are the best part of any human interaction.",-33.470820766699035,-32.993255065754056
-seals,wires,All the X and Y need to be removed first before the gadgets can be fixed.,-25.564962223172188,-24.010415390133858
-adherent,advocate,The new foreign policy's chief X and Y gave a passionate speech during the gathering.,-37.451388239860535,-36.19097113609314
-calmness,detachment,His tone's X and Y suggested that he was unaware of his own guilt.,-24.446346163749695,-16.890480637550354
-diffidence,gentleness,His habitual X and Y was submerged under his present agitation.,-26.469873341731727,-24.112296618521214
-cherries,pineapple,He left the ham decorated with X and Y to cool on the porch.,-27.81791779398918,-20.673610700294375
-inertia,petulance,Having broken out of a long period of X and Y Charles regained his old self.,-37.93071207404137,-37.40750375390053
-garden,pavilion,Chehel Sotun was a X and Y built in the seventeenth century.,-29.448887940961868,-30.695083552971482
-furs,merchandise,All activity in X and Y were reserved for the largest trading company in the area.,-44.886494159698486,-29.049342930316925
-pains,shocks,The therapist led her patients to let go of their X and Y over their sessions every month.,-40.55097508430481,-38.66341042518616
-employees,proprietors,"Strikes should be declared illegal against corporations because X and Y must be completely interdependent, as they are each a part of the whole.",-24.266798957716674,-24.481637198477983
-madman,tyrant,From being a X and Y he was now the best-known figure in the history of Sweden.,-26.589933454990387,-25.55816587805748
-assistant,confidante,Mrs. Green's sole X and Y was her youngest daughter.,-24.006122767925262,-26.700807631015778
-gadgets,prowess,"Despite the scientific X and Y we have, new unanswered questions are arising every day.",-35.118863582611084,-27.86084473133087
-foresight,patriotism,Miss Johnson's X and Y have been widely praised among her readers.,-27.540419459342957,-21.99940599501133
-Scots,Swiss,"Surprisingly, the X and Y in my class spoke Spanish fluently.",-38.391990184783936,-38.352898597717285
-intensities,rhythms,The sequence of X and Y can be determined by a mathematical system established by the composer.,-26.80341075360775,-17.121560567058623
-intelligence,mentality,Despite his contempt for the police's X and Y the detective is perfectly willing to cooperate with them.,-34.55915093421936,-35.10824739933014
-costume,decor,To the arts of X and Y Mr. Nikolais has made a distinctive contribution.,-36.476380079984665,-39.1197509765625
-tension,terror,The news caused X and Y as soon as the latest report came out.,-29.027478438802063,-28.119746597483754
-hearsay,legend,People who fill their heads with X and Y have a hard time accepting the truth.,-27.461413830518723,-21.11035931110382
-hope,smiles,The little girl raised with X and Y had not the slightest idea of suffering.,-31.981062293052673,-31.338127613067627
-amateurs,collectors,The fossil hand book for X and Y alike is one of the best selling books in the store.,-23.282090723514557,-17.962923921644688
-medicines,yeast,A delivery of X and Y arrived by plane this morning.,-37.92612314224243,-40.0347843170166
-equipment,musket,The man stripped of his X and Y was then tied to the chair.,-31.068953216075897,-25.629078090190887
-modernizing,redecorating,The old house in need of X and Y was sold for a low price.,-21.83709880709648,-18.16759380698204
-cologne,munich,He will conduct two concerts in X and Y as well as at the Accademia Di Santa Cecilia.,-37.94917440414429,-37.64700722694397
-reason,sight,The girl was deprived of X and Y by her rare medical condition.,-34.920191287994385,-33.925493478775024
-gunfire,shouting,The children frightened by the X and Y hid in their mothers' arms.,-28.09392935037613,-29.583662748336792
-direction,moment,The attack that happened in the least expected X and Y caught everyone off guard.,-32.04163670539856,-32.94533157348633
-dancers,guests,"All the X and Y were bathed in the same soft, warm light.",-30.912725757807493,-31.294393366202712
-bleats,rasps,The horns' X and Y continuously serenaded everyone's ears.,-27.727037884294987,-26.07610321044922
-allegory,expressiveness,This little anecdote was selected mainly for X and Y in the opening speech.,-29.126140832901,-30.782329261302948
+",-20.823198914527893,-24.799566984176636,0.9815915966738615
+cattle,horses,"On the ranch, there are X and Y roaming around the green pastures.",-21.050858736038208,-20.527387142181396,0.3720408179120522
+politics,religion,The strangers wanted to avoid discussing X and Y to avoid starting an argument.,-24.009001851081848,-24.8044673204422,0.6890036664145283
+July,June,Max was planning to take off X and Y from work so he could travel through Asia.,-36.075316429138184,-32.747350454330444,0.03462415391405294
+sailors,soldiers,"The little boy thought X and Y were cool, so he liked to dress up as them for Halloween.",-33.68512201309204,-32.542126297950745,0.24177076875097717
+English,German,The school held classes in both X and Y so the students could be bilingual.,-14.095800206065178,-15.803837910294533,0.8465815922022277
+food,shelter,The stray dog searched for X and Y while running through the streets.,-24.676387190818787,-25.277466297149658,0.6459031499255647
+sights,sounds,"While traveling, Kim wanted to experience the X and Y of the city she was visiting.",-8.573810264468193,-15.57294625043869,0.9990881620225023
+comings,goings,The school newspaper reported on the X and Y of the student body.,-17.04304114023398,-30.92630044868565,0.9999990655056377
+heir,son,The king's X and Y went missing after the battle.,-30.650288343429565,-26.005608320236206,0.009521082572537224
+coat,hat,"Once she stepped through the door, she designated a spot for her X and Y to be safely put away.",-27.27312070131302,-28.67353057861328,0.8022489218401365
+crime,punishment,The jury needed to consider the X and Y before coming to a final decision.,-25.817595452070236,-31.518341079354286,0.9966676700062947
+earth,sky,Talking about the X and Y was one of Randy's favorite things to do.,-27.026655554771423,-25.570013344287872,0.18898142766462966
+faith,love,He wrote songs about X and Y that he hoped to record for his next album.,-22.677732348442078,-22.016074538230896,0.34036730586342245
+mother,son,Jack spent more time with his X and Y than any other family member.,-12.911021411418915,-14.03322347998619,0.7543969490674548
+cents,dollars,The boy brought his X and Y to the store to buy an ice cream cone.,-31.871281027793884,-28.85552567243576,0.04671915271509269
+turns,twists,The movie had many different X and Y that left the audience on the edge of their seats.,-25.326437830924988,-16.159941390156746,1.044710125152575e-4
+fire,police,Both the X and Y departments put on a barbeque for the community.,-27.081328868865967,-22.495485365390778,0.010092254504919244
+months,years,"After many tiring X and Y, the author finally published their book.",-23.193056106567383,-25.06388759613037,0.8665544584237832
+editor,publisher,"In order to finalize all the details, the X and Y wanted to have a meeting with the author of the book.",-25.141486153006554,-26.075502410531044,0.7178893862219982
+aunts,uncles,The family reunion had all the X and Y together in one room.,-21.48391357063838,-30.262316167354584,0.9998459997925977
+research,training,The surgeon had to do a lot of X and Y before attempting the risky procedure.,-23.24214816093445,-21.8495055437088,0.1989862131612875
+eyes,hair,"In order to make your X and Y stand out, you should choose an appropriate outfit.",-19.277418792247772,-20.49826112948358,0.7722117511618891
+methods,principles,She didn't agree with the company's X and Y so she made her opinion known.,-28.207330882549286,-28.056472778320313,0.4623568376618578
+city,country,Her love for her X and Y made her want to get into politics.,-22.53018432855606,-23.872944205999374,0.7929434359111404
+bread,cheese,Xavier brought X and Y to the potluck at the beach.,-24.762507677078247,-27.162270426750183,0.9168092101933295
+location,size,The couple told the realtor that X and Y are the most important criteria for picking a house.,-27.982847452163696,-27.44000482559204,0.36752656299936687
+childhood,infancy,The students watched a video on X and Y in their human development class.,-41.739115953445435,-39.58751082420349,0.1041813250926817
+morning,night,Kevin worked both X and Y shifts as an ER nurse.,-19.744710586965084,-17.307824909687042,0.08040287906621581
+council,governor,She wanted to meet with both the X and Y to discuss some ideas she had.,-21.24996581673622,-18.578789710998535,0.06469576574049579
+age,day,Amanda said that in this X and Y you need to be tech-savy.,-27.332907378673553,-11.316663707839325,1.1072194465010841e-7
+body,face,"After visiting many stores, Ann finally found a X and Y sunscreen that worked well for her skin.",-38.582582235336304,-34.46448516845703,0.016014807795938096
+hair,skin,The doctor recommended X and Y supplements to some of her patients.,-31.234654664993286,-29.94145131111145,0.2153111034818432
+nitrogen,oxygen,The atmosphere is composed of X and Y as well as other elements.,-12.762714266777039,-13.314863935112953,0.6346341865345863
+piano,violin,Alex loved to play the X and Y so they took lessons for both instruments.,-24.441879868507385,-23.129908204078674,0.2121571003503437
+ceiling,walls,The painter finished painting the X and Y of all of the bedrooms.,-21.650803923606873,-18.96715486049652,0.06394510974250284
+color,texture,Sarah was known for the X and Y she used in her paintings.,-23.13255500793457,-23.876132011413574,0.6777775526762356
+everybody,everything,Noah loved X and Y in his college town.,-27.510096192359924,-27.78973627090454,0.5694579821914609
+bacon,eggs,"On the days Lilly doesn't have work, she makes X and Y for breakfast and reads the paper.",-21.970281958580017,-22.921512961387634,0.7213626752332121
+paper,pen,"Even though most people use computers, I prefer to use X and Y to take my notes in class.",-24.919811010360718,-20.530283957719803,0.012254558153650461
+concrete,steel,The company got a new shipment of X and Y for an upcoming project.,-25.572155475616455,-24.65330410003662,0.28519199223889474
+color,light,Rob used a lot of X and Y to make his photographs pop.,-20.298161149024963,-21.27816939353943,0.7271098522299456
+friends,relations,Ciara had many X and Y so she was rarely lonely.,-24.05005669593811,-26.948700785636902,0.9477793687200433
+boots,shoes,My suitcase was full of X and Y which made it exceed the weight limit.,-24.81724226474762,-24.20643651485443,0.35187541739290207
+hearing,sight,His grandma lost her X and Y so she needed to live in a nursing home.,-27.239016890525818,-22.87454342842102,0.0125615517680906
+expense,time,He said that the X and Y of maintaining the property was too much.,-27.69903600215912,-22.42156982421875,0.005079418256972814
+flowers,plants,All of the X and Y in the Arboretum made it a popular spot for walks.,-27.5836278796196,-27.37828093767166,0.44884290164717217
+beauty,truth,I decided that X and Y would be the major themes of the poem I was writing.,-26.221969723701477,-22.531818866729736,0.02436000870089889
+bone,flesh,"After a hard fall, you could see the X and Y of the basketball player's leg.",-28.565172970294952,-27.510342717170715,0.25829863891749855
+doubts,fears,"She wanted to be a pop star, but her X and Y got in the way of her dream.",-23.611139729619026,-22.375380016863346,0.22517493142900288
+light,sound,The exhibit used X and Y to create an attention-grabbing experience.,-17.113827228546143,-19.10152244567871,0.8794990891949408
+beauty,youth,The serum promised X and Y to everyone who used it.,-29.314571380615234,-30.766873121261597,0.8103524213659601
+fiction,poetry,Maddy liked to read X and Y in her spare time.,-20.79710817337036,-21.501140594482422,0.6690812046991691
+needle,thread,He needed a X and Y to fix the hole in his shirt.,-19.927480340003967,-30.875791430473328,0.9999824126150656
+back,shoulders,Anthony got his X and Y adjusted by the chiropractor.,-32.3471360206604,-31.41759991645813,0.2830188383839404
+crime,violence,The frequent X and Y in the neighborhood had people worried.,-22.38637888431549,-22.923371195793152,0.6311124757654294
+force,violence,They didn't like how he used X and Y to get his way.,-19.36981964111328,-20.507845878601074,0.7573170695462145
+eggs,ham,All she wanted to eat was X and Y but she didn't have either item in her refrigerator.,-22.418893933296204,-21.469167232513428,0.2789397879787315
+bone,muscle,The doctor studied the X and Y of the patient's injured leg.,-16.975335955619812,-18.469280242919922,0.8166695505967015
+debate,discussion,"During class, there was X and Y surrounding the controversial current event.",-28.109729290008545,-25.90589690208435,0.09940686692964566
+errors,omissions,Rebecca went over the X and Y that occurred in the paper.,-25.567304940894246,-27.65157198905945,0.8893645885077599
+brother,mother,Last week my X and Y came to visit me in my new apartment.,-17.31880897283554,-15.366221964359283,0.12427154512860855
+face,figure,The model's X and Y was highlighted in the magazine spread.,-28.699032068252563,-32.10354709625244,0.9678453434843798
+chairs,table,The event planner fixed the X and Y to accommodate all of the wedding guests.,-26.876664400100708,-23.775798320770264,0.04307154415106855
+ammunition,guns,The old man kept X and Y locked away in his basement in case of a zombie invasion.,-31.087279319763184,-25.198084115982056,0.002761557129340456
+Concord,Lexington,He used to live in both X and Y when he was a teenager.,-23.343236327171326,-19.75466327369213,0.02689443838358101
+ice,water,The kids went all over town to find X and Y since their air conditioner was broken.,-37.793243408203125,-36.411338806152344,0.20070328649918426
+fun,games,Sally promised that there would be X and Y at her birthday party.,-23.885164260864258,-32.08073830604553,0.9997242042159566
+breakfast,dinner,Molly decided that X and Y are her favorite meals of the day.,-25.539063692092896,-28.937142610549927,0.9676444427882038
+comfort,ease,"Her parents liked the X and Y of flying, so they flew to their friend's wedding.",-26.990987539291382,-27.355375826358795,0.590102298001406
+father,uncle,She took her X and Y out to dinner to celebrate their birthdays.,-17.30193144083023,-19.3279470205307,0.8835016016436503
+health,spirits,In order to improve their X and Y the couple decided to go for long daily walks.,-29.03366994857788,-31.51370644569397,0.9227304001116904
+names,numbers,The host asked for both the X and Y of the people who wanted to make reservations.,-15.749096781015396,-16.5706185400486,0.6945592717983515
+rights,wrongs,She considered the X and Y of the situation before moving forward.,-22.96773399412632,-32.70010185241699,0.9999406718813527
+crannies,nooks,He made sure to dust all of the X and Y throughout the old house.,-38.71622513886541,-18.091368914785562,1.1034146641807756e-9
+power,resources,The business had the X and Y to create a multi-million dollar company.,-16.56947188079357,-18.886226624250412,0.9102551861675254
+flame,smoke,"He noticed the X and Y coming from his neighbor's house, so he called the fire department.",-21.83503821492195,-21.09332612156868,0.3226298695934071
+faith,life,He wanted to write a book about X and Y using many personal stories.,-35.87596786022186,-35.76563739776611,0.4724453301990837
+wisdom,wit,Clare believed she gained a lot of X and Y throughout her time in college.,-25.17647486925125,-27.958396822214127,0.9416910666071981
+novelist,poet,Lydia is a successful X and Y and is praised for her writing style.,-29.153510332107544,-28.155564188957214,0.26934542571859793
+Arizona,California,The high school students visited both X and Y to tour colleges before they applied.,-27.334487080574036,-27.68953824043274,0.5878419337429147
+crops,livestock,All of the X and Y needed a lot of water to survive.,-30.399357318878174,-33.47379207611084,0.9558257994346065
+glass,steel,The architect wanted the building to have a lot of X and Y to make it look sleek and modern.,-16.05964493751526,-17.256174951791763,0.7679069172359758
+bar,grill,We went to a X and Y in the city last night.,-25.958539724349976,-27.909550070762634,0.8755567680190298
+influence,prestige,The doctor's X and Y made her popular with patients.,-33.42797589302063,-32.31464767456055,0.24725092656801922
+cotton,tobacco,The company has sold X and Y for almost twenty years.,-33.03649044036865,-32.20068120956421,0.3024181418423542
+church,community,Tim has said that his X and Y are very important to him.,-27.092429161071777,-28.493621110916138,0.8023729648720417
+courage,hope,It took X and Y to overcome what she had been through.,-25.70919281244278,-26.32961666584015,0.650314941272889
+teaching,writing,He has discovered that X and Y are what he wants to do for a career.,-29.19249427318573,-28.35242009162903,0.30151916073424667
+gin,tonic,"After a long day of work, he had a X and Y to unwind and celebrate the weekend.",-25.12712686881423,-39.390613719820976,0.9999993610805775
+brush,trees,Amanda loved all the X and Y that surrounded her house.,-29.195186644792557,-23.234460815787315,0.0025714108762150763
+pad,pencil,Antonio brought his X and Y to sketch the statues in the park.,-32.26335924863815,-31.774123787879944,0.38007369009557035
+chair,table,They noticed that the X and Y were knocked over after the earthquake.,-25.382789731025696,-25.266424357891083,0.47094143924091947
+houses,shops,"The town is pretty small, so the X and Y are really close to each other.",-23.041823089122772,-24.138385474681854,0.7496154462272249
+libraries,museums,The amount of time he spent in X and Y surpassed the amount of time he spent at home.,-31.03119933605194,-30.063543915748596,0.27534807325104116
+flames,smoke,"Down the street, you could see the X and Y from the house that was on fire.",-19.67633318901062,-20.238752961158752,0.637012243787051
+guidance,information,She got a lot of X and Y from her older sister about the college admissions process.,-25.946229815483093,-24.420973658561707,0.17868882719765297
+stress,tension,"In order to get rid of X and Y after his exam, Zack went for a run.",-36.578224658966064,-37.60831832885742,0.7369340552926488
+days,years,It had been X and Y since Molly had seen her cousins.,-28.06630429625511,-29.536440804600716,0.8130781337412314
+actions,feelings,He was confused because her X and Y were not matching up.,-29.271232962608337,-27.089243412017822,0.10137953261054965
+energy,money,Alice said that all of the X and Y that her car needed made her want to sell it.,-31.127984285354614,-29.494040846824646,0.16329086557106448
+anguish,pain,His injury caused him a lot of X and Y and a long recovery.,-22.402573347091675,-21.9309504032135,0.38423218656188646
+colors,forms,They read a whole chapter on X and Y in her art class.,-34.98097574710846,-36.639907479286194,0.8400945486851704
+meaning,origin,Michael was confused about both the X and Y of the folk tale he had just heard.,-23.2247964926064,-23.137390792369843,0.4781624759513554
+freedom,security,Mary searched for X and Y in her next job opportunity.,-28.82012915611267,-32.4330335855484,0.9737350637112013
+gratitude,joy,David felt X and Y when his kids made him breakfast in bed.,-29.713041305541992,-29.431944608688354,0.4301849267484852
+mamma,papa,Antonio wants to spend a lot of time with his X and Y while they are in town.,-31.924311012029648,-22.176011085510254,5.839044359057659e-5
+length,weight,She took note of the X and Y of the bed before trying to bring it into the small room.,-20.588998526334763,-23.154245734214783,0.9285911814347254
+anger,hatred,Michelle felt a lot of X and Y towards her brother when he crashed her car.,-18.62485361099243,-18.966530442237854,0.5845977877025211
+aircraft,ships,The new X and Y ended up being extremely expensive.,-31.999035984277725,-29.32472062110901,0.0645060679551861
+sidewalks,streets,All of the X and Y were so busy that Mike decided not to leave his house.,-26.69935965538025,-25.414198398590088,0.21667294432608175
+democracy,liberty,Jade's brother talked about X and Y while they ate dinner on the fourth of July.,-32.87243664264679,-30.82484793663025,0.1142962559591273
+iron,wood,The company purchased X and Y for their latest construction project.,-32.25607419013977,-31.731497049331665,0.37178256946442434
+horses,wagons,"Instead of a car, they used X and Y to move their belongings to a new town.",-22.8237051544711,-23.87873375415802,0.7417393585848941
+clarity,precision,Devin tried to achieve X and Y in everything he did.,-25.6114698946476,-25.75666308403015,0.5362346642654265
+flowers,herbs,Dan grew X and Y in his own backyard.,-29.25655698776245,-29.497467041015625,0.5599379053833455
+confusion,fear,They felt X and Y about what they would do after graduating.,-22.740275621414185,-21.057482957839966,0.15672602822079723
+jaws,teeth,Teddy was surprised at how large the X and Y of the crocodiles he saw at the swamp were.,-23.840327501296997,-25.52790939807892,0.8439058910181301
+counties,towns,Fred drove through many X and Y to move to his new house.,-21.437063694000244,-21.548972725868225,0.527948096415075
+bodies,faces,Grant wrote a poem about how everyone's X and Y are beautiful and unique.,-25.076147854328156,-21.6304429769516,0.030897207567303853
+ability,desire,Maddie had both the X and Y to play college-level soccer.,-16.64231289923191,-18.951814249157906,0.9096608856218762
+chest,stomach,Tom felt pain in both his X and Y so he decided to stay home from school.,-18.03395416587591,-19.638194151222706,0.8326101476217308
+Illinois,Missouri,Sam argues that X and Y are the best states to live in.,-25.47089457511902,-25.27198088169098,0.4504348960972299
+jams,jellies,Jake started making X and Y with all the fruit he was growing in his garden.,-34.7399240732193,-31.635263860225677,0.04291543449897952
+Tories,Whigs,Luke didn't know the difference between the X and Y so he asked his political science professor about them.,-30.760119318962097,-30.485613614320755,0.43180128727131845
+dogs,men,Her grandma joked that X and Y had a lot in common.,-24.967543363571167,-26.29107117652893,0.7897680438886265
+discussion,thought,A lot of X and Y went into making the decision to buy this house.,-21.742328327149153,-19.509573459625244,0.09684741049690057
+distress,pain,The couple's divorce caused a lot of X and Y for the whole family.,-21.4702250957489,-19.708587646484375,0.14658537943530345
+mouth,nostrils,"Evan took a look at the X and Y of his dog, and compared them to his own.",-26.39002826064825,-27.617591485381126,0.7733917970562403
+cakes,pies,Hannah had a real sweet tooth for X and Y so she took up baking as a hobby.,-26.785592675209045,-28.189226627349854,0.8027599087073825
+adventure,romance,The movie had a great balance of X and Y which made it a great success.,-17.9251109957695,-18.19931447505951,0.5681245605326113
+agreements,contracts,Tony had to deal with many X and Y before he officially started working at the company.,-30.840547382831573,-31.256929337978363,0.6026171601833539
+crime,poverty,The study on the link between X and Y was published in the local newspaper.,-14.384069412946701,-13.76969013363123,0.35106087348769716
+cousins,uncles,Olivia said her X and Y are her favorite family members.,-31.253023375815246,-27.79097878932953,0.0304116870002764
+fire,light,"According to Mandy, the lack of X and Y ruined the evening's ambiance.",-31.641305565834045,-33.64917862415314,0.8816212235225079
+child,husband,Rachel lived with her X and Y in a small apartment in New York City.,-20.211912393569946,-13.448787212371826,0.0011542781300580907
+vinegar,water,Nicole needed X and Y for the recipe she was trying out.,-27.032691836357117,-26.285311698913574,0.3213924235317934
+fork,spoon,Tara needed both a X and Y to properly eat her meal.,-29.77618944644928,-25.05118563771248,0.00879268304505562
+Burma,India,They talked about visiting X and Y for their upcoming honeymoon.,-28.387149214744568,-27.424320697784424,0.2763122362128741
+fruit,nuts,All he had in his kitchen was X and Y so he made a trip to the grocery store.,-25.476580500602722,-31.093626022338867,0.9963778021468725
+ability,strength,Lisa had the X and Y to become a professional athlete.,-20.69316177815199,-20.030991420149803,0.3402522393816797
+agencies,individuals,Many different X and Y worked together on this project.,-21.169044137001038,-24.171123206615448,0.9526679639147315
+coffee,sandwiches,The company had X and Y catered for their employees.,-39.02570828422904,-36.24697867035866,0.05848446890624784
+coffee,toast,Every morning Karen has X and Y for breakfast before school.,-27.885744094848633,-28.485059022903442,0.6454995569260508
+anger,anxiety,Anne felt X and Y whenever she was stuck in traffic.,-24.8478906750679,-27.164948999881744,0.9102799828471755
+apprehension,fear,Charlie felt X and Y before jumping out of the plane to skydive.,-30.504541635513306,-28.730363130569458,0.14502346032027616
+figures,words,Hannah used X and Y to explain her findings.,-27.967278003692627,-23.165049195289612,0.008144546612235253
+blood,guts,The film showed X and Y which made them very uncomfortable.,-27.485750913619995,-32.325021266937256,0.9921492957402983
+action,character,Riley thought his lack of X and Y was too significant to overlook.,-29.994369983673096,-30.718407154083252,0.673495409238786
+diamonds,rubies,The pirates followed the treasure map to find that X and Y were hidden in the treasure chest.,-22.48238678649068,-29.171125769615173,0.9987566961662738
+plans,projects,She had many X and Y in the works for her small business.,-21.185315132141113,-20.26696479320526,0.2852941433185116
+jacket,trousers,Ted needed to iron his X and Y before his big meeting.,-27.89954376220703,-28.02259922027588,0.5307251026866036
+kind,quantity,This was the X and Y of bread that he needed for the recipe.,-32.28116601705551,-30.20812100172043,0.1117444400699325
+family,neighborhood,She loved her X and Y so she was sad about leaving for college.,-25.254579186439514,-27.104973554611206,0.8641733996820974
+nights,weekends,Clare spent her X and Y working on new recipes for the cookbook she was writing.,-20.79441463947296,-21.60599148273468,0.6924454182157448
+labor,money,The amount of X and Y required to keep the farm was not worth it to Mark.,-20.121275812387466,-18.90665751695633,0.22888491703539796
+shower,tub,Lilly wanted to install a X and Y into her new bathroom.,-29.067530035972595,-28.51994490623474,0.3664248586159232
+aggression,hostility,"Sasha felt X and Y towards her brother, so she tried to avoid him.",-25.71797788143158,-25.930488348007202,0.552928575456823
+information,material,Fred lacked the X and Y to work on the project.,-26.31023335456848,-24.05221927165985,0.09466042475893968
+despair,rage,Annie felt a lot of X and Y so she wanted to talk with a therapist.,-27.987211227416992,-27.522001266479492,0.3857506063996415
+improvements,land,Timothy said that the hotel needed more X and Y to be able to make enough money.,-28.56271195411682,-21.961776614189148,0.0013572515903728245
+landings,takeoffs,Christian enjoyed watching the X and Y of the planes at the airport.,-37.192922949790955,-29.548385731875896,4.7842277245835677e-4
+novels,tales,He had always loved X and Y so he majored in English in college.,-33.503592014312744,-36.375324726104736,0.9464312629522731
+corruption,crime,All of the X and Y in the city made Tony want to move.,-24.603405952453613,-23.957895517349243,0.3440019624820381
+anthropology,psychology,He has figured out that X and Y are the subjects he wants to study in college.,-30.409823060035706,-29.077786087989807,0.20882262576526983
+lecturer,writer,She was both a X and Y but wanted to be an actor instead.,-26.390174597501755,-24.75430178642273,0.16302743248500332
+fog,mist,All of the X and Y made Terry want to stay inside the house all day.,-42.85690402984619,-43.49046754837036,0.6532970395076532
+field,stream,"There was a X and Y near his house, which made him very happy.",-35.85974156856537,-34.186371088027954,0.15797532347775942
+dates,events,Katrina had many X and Y to attend because she was very popular.,-26.2969873547554,-29.218188881874084,0.948884607724464
+belly,chest,"Zack said his X and Y were hurting, so his mom took him to the hospital.",-28.323485851287842,-28.693804919719696,0.5915360743643155
+pain,shame,Todd felt X and Y when he talked about his divorce.,-26.9905686378479,-25.543628215789795,0.19047288469250154
+doorways,windows,Bill wanted to fix the X and Y before moving into the new home.,-33.07495665550232,-25.11295473575592,3.483334616395861e-4
+history,identity,Jonathon was unsure about the X and Y of the statue he saw in the park.,-24.762470791116357,-24.965534538030624,0.5505922090924407
+anger,indignation,Amber felt X and Y after arguing with her sister.,-30.63600081205368,-31.533972918987274,0.7105325917720844
+cream,peaches,We had X and Y for dessert at the diner down the street.,-33.09368109703064,-32.15491592884064,0.2811498403252846
+classmates,friends,We have been X and Y all the way from kindergarten to college.,-25.174606293439865,-24.977062046527863,0.4507739163662482
+movements,positions,"After hurting her foot, certain X and Y caused her a lot of pain.",-27.164352655410767,-25.055043876171112,0.10819534397862068
+barrels,boxes,There were a lot of X and Y that needed to be moved before the event could start.,-26.4429649412632,-25.772320300340652,0.3383525099414323
+costumes,masks,Tammy had to buy X and Y for all of the Halloween parties she was going to attend.,-26.234387159347534,-26.97972321510315,0.6781616009489491
+attractions,repulsions,He experienced both X and Y which made him very confused.,-32.09497821331024,-30.910686194896698,0.23428135765400157
+effort,resources,It would take a lot of X and Y to put on this fundraiser.,-16.753685355186462,-18.689860224723816,0.8739313107474662
+ability,age,"They questioned his X and Y in the interview, which he thought was unfair.",-27.095879673957825,-24.532642602920532,0.07154222482180696
+editing,publishing,The company did the X and Y for many well-known books.,-31.39556336402893,-29.360617518424988,0.11558238039019447
+cysts,tumors,Paul had an appointment with his doctor to check for any X and Y that he might have.,-23.409456074237823,-19.204262644052505,0.014698627558511777
+dirt,sweat,Mike needed to wash the X and Y out of his soccer uniform.,-17.305450960993767,-16.548389934003353,0.31928468887631056
+dreams,plans,She had X and Y to become a successful scientist.,-22.86939889192581,-23.572213023900986,0.6688114058751969
+farms,fields,Ron loved spending time at X and Y because he loved being in nature.,-23.28321659564972,-24.392664670944214,0.7520262012958475
+cause,consequence,Finn didn't want to think about the X and Y of him losing his job.,-25.76343920826912,-32.17525079846382,0.9983606448088678
+choice,decision,It was her X and Y to stay home for the summer instead of traveling through South America.,-23.43983268737793,-23.63683521747589,0.5490919635491388
+confusion,turmoil,Hannah felt X and Y after her mom gave her some unfortunate news.,-32.58715295791626,-31.05989980697632,0.1783959381239221
+magic,superstition,He thinks X and Y are definitely not real.,-32.52329523861408,-33.87781363725662,0.7948673493972874
+machinery,power,She didn't think they had enough X and Y to fulfill the large bulk order.,-29.18179678916931,-28.54064416885376,0.34498603449199144
+education,skill,They had the X and Y to be a great professor.,-22.79408323764801,-22.13250207901001,0.34038451568613864
+forms,materials,Lee didn't have the necessary X and Y to move forward with the task.,-25.656955540180206,-26.425086081027985,0.6831163535062382
+length,quality,She thought the X and Y of the boat would impress her friends.,-24.047037087380886,-25.024780049920082,0.7266601412850604
+inclination,time,Samuel had the X and Y to help his little brother with his homework.,-29.151614621281624,-20.6300201267004,1.9908203212765614e-4
+help,understanding,She appreciated Claire's X and Y when it came to teaching John how to ride a bike.,-18.20978708565235,-19.47893711924553,0.7805972129605901
+closets,drawers,Ben needed a lot of X and Y to store all of his clothes.,-32.30622625350952,-30.33024787902832,0.12174819879535428
+friends,partners,Josh and Jack had been X and Y for almost ten years.,-20.73635482788086,-23.190531730651855,0.9208663635713445
+receivers,senders,Both the X and Y of the letters visited the post office often.,-32.38709418475628,-25.52429163455963,0.0010448854864061028
+authority,force,They said that Richard's X and Y made him effective at his job.,-32.66077572107315,-33.41085636615753,0.6791962710816296
+trees,underbrush,All of the X and Y made the area extremely green.,-37.12558603286743,-37.19980311393738,0.5185457582751849
+bacon,coffee,Sara found out that X and Y was a combination she did not like.,-34.14723992347717,-36.04309892654419,0.869422128216023
+december,may,He is so busy that X and Y are the only months he can see his family.,-44.19504261016846,-30.624417066574097,1.2774727816202194e-6
+grains,seeds,Victoria liked her bread to have a variety of X and Y in it because she hated plain foods.,-21.98981922864914,-23.03998214006424,0.7408061814183191
+beauty,color,The women at the store complimented the X and Y of the girl's hair.,-23.299204915761948,-22.78914551436901,0.3751796005616437
+legs,torso,"Both her X and Y are extremely long, so she always has to get her clothes tailored.",-23.898802995681763,-23.760005950927734,0.4653563373777859
+transportation,utilities,Dylan had to spend a lot of money on X and Y on top of all his other bills.,-22.640526965726167,-24.91690847557038,0.9069019844523667
+hardships,trials,They dealt with many X and Y with the product they were trying to launch.,-30.74852156639099,-31.05879282951355,0.5769514720019135
+science,tactics,Cynthia didn't understand the X and Y behind the experiment she was reading about.,-28.035426139831543,-28.561925053596497,0.628666169676084
+neighborhood,school,The fantastic X and Y made the price of the house extremely high.,-40.28027820587158,-39.94237804412842,0.41631964288548795
+irony,satire,The comedian used a lot of X and Y in their show last night.,-23.76042890548706,-24.956372499465942,0.7678023855406477
+kitchen,pantry,They wanted to renovate the X and Y before the renters moved in.,-33.49353430769406,-33.066141679883,0.39474911954042363
+astronomy,geology,Richard hated X and Y so he avoided taking any classes in these subjects.,-33.39981531351805,-34.19546723365784,0.6890436172347121
+feet,heads,Amy thinks that the X and Y of the kittens are so cute.,-30.979397416114807,-29.062352538108826,0.1281914633496158
+snow,water,"Carl loves being around X and Y, so he does not want to go to the desert for vacation.",-26.40125799179077,-25.47289288043976,0.2832565156505246
+back,hips,Jon went to a chiropractic office to get his X and Y checked out by a professional.,-25.344648599624634,-16.73024010658264,1.814391996193385e-4
+bombers,missiles,"During the war, the X and Y caused a lot of destruction.",-28.02188491821289,-29.052428483963013,0.7370212638201227
+argument,debate,The couple's X and Y over what to have for dinner lasted an hour.,-26.46452248096466,-27.396769881248474,0.7175310117676985
+doubts,suspicions,The detective had X and Y about the suspect's alibi.,-24.742522716522217,-26.047432780265808,0.7866601789363361
+laborers,servants,The wealthy family had a budget for X and Y to work at their estate.,-29.890839338302612,-29.0520658493042,0.3017931642529269
+arms,faces,Paul noticed that the X and Y of his figurines could use some new paint.,-35.08364951610565,-31.748242735862732,0.03437630199534234
+chrome,glass,The architect said that X and Y are his favorite materials to use in his designs.,-30.728744506835938,-31.675108909606934,0.720383442625919
+paris,washington,Connor spent his summer in X and Y even though he wanted to travel to China.,-39.39619126915932,-41.40522754192352,0.8817425687995487
+arm,back,Maddy injured her X and Y during her basketball game last week.,-25.947866678237915,-24.99756169319153,0.2788234911570558
+emotion,meaning,The singer put a lot of X and Y into all of the songs they wrote.,-20.38877284526825,-18.761830300092697,0.1642496324903996
+bushes,vines,All of the X and Y in the backyard made Mandy very happy.,-27.586713641881943,-27.127168715000153,0.3870937854040805
+authority,independence,"Victor wanted more X and Y, so he worked towards a promotion.",-29.014319837093353,-29.141399562358856,0.5317272451856324
+crises,problems,All of the X and Y she had to overcome made her stronger.,-30.058833241462708,-30.100171089172363,0.5103329905362658
+bathrobe,slippers,Kyle refused to leave his X and Y at home when he travelled anywhere.,-31.943026661872864,-31.584905326366425,0.41141441359077785
+generalists,specialists,Martin wanted to talk with both X and Y before making his decision.,-30.293073922395706,-21.964948892593384,2.4156629108922702e-4
+boredom,loneliness,Chloe experienced X and Y over the summer because she missed her college friends.,-24.667103946208954,-26.543287098407745,0.8671720999859557
+excitement,fatigue,He felt both X and Y when spending the day at an amusement park.,-28.20159687846899,-26.28744675219059,0.12851532454955975
+fun,pleasure,All of the X and Y that came with traveling made the cost worth it.,-25.251286447048187,-24.731340885162354,0.3728649632267143
+individualism,socialism,Nate discussed X and Y with his friend in the coffee shop.,-31.049291729927063,-22.024454295635223,1.2036788345089045e-4
+fields,homes,"There were plenty of X and Y in the town, which made it an ideal place for families.",-26.040996193885803,-26.186439990997314,0.5362969865957684
+certainty,security,Trish appreciated the X and Y that her job as a dentist provided.,-29.91507911682129,-29.890029907226563,0.49373802502764297
+artist,critic,Lisa was both the X and Y who worked on the magazine.,-23.889602720737457,-26.312463134527206,0.918553995759145
+20s,30s,Amy said she enjoyed her X and Y because she was able to travel the world.,-22.92418803734472,-26.100089626852423,0.9599172720804814
+brick,glass,A lot of X and Y was needed to finish building the house.,-31.944570183753967,-30.651926457881927,0.21540566894699004
+dentist,doctor,He had X and Y appointments back to back on Thursday.,-37.60627472400665,-34.58601522445679,0.04651896307081333
+bourbon,water,All the bar had to drink was X and Y so they decided to try another place.,-31.00379776954651,-28.31466281414032,0.06361752988710861
+cuts,wounds,Max had many X and Y after falling off his bike.,-30.971733331680298,-29.327802896499634,0.1619309568769549
+palm,pine,Frank decided that X and Y trees are his favorite.,-35.134320855140686,-32.14981460571289,0.048130757674061844
+fish,vegetable,He wanted to make a X and Y soup that would impress his family.,-26.126986026763916,-28.719635844230652,0.930387033701705
+initials,names,Gloria wrote down both the X and Y of the people she wanted to invite to her wedding.,-18.421007975935936,-16.33832922577858,0.1107917890949836
+fury,pain,Wendy felt X and Y when she learned that her uncle had died.,-27.951633155345917,-26.866410791873932,0.2525190056626697
+gentleness,sweetness,The dog's X and Y made her loved by anyone who spent time with her.,-32.7197040617466,-24.237384924665093,2.0705497639804876e-4
+experiences,reactions,Randy said that her X and Y made her quite the character.,-31.485261887311935,-31.84228079020977,0.5883186034470503
+bitterness,disappointment,Kim felt a lot of X and Y when she learned that she didn't get into her dream school.,-19.836198806762695,-21.280545949935913,0.8091269289460833
+comedy,satire,Olivia enjoyed X and Y and made sure that everyone knew.,-29.413700699806213,-31.429510951042175,0.8824470847098633
+enthusiasm,warmth,Kristin appreciated Jack's X and Y so she spent a lot of time with him.,-27.784183740615845,-28.785691678524017,0.7313549538975184
+body,breath,"Both his X and Y smelled, which made him embarassed.",-30.505977630615234,-35.223297476768494,0.9911400949712043
+beauty,brains,Her mom says she has X and Y among many other things.,-41.87597966194153,-36.72719764709473,0.005772952130638964
+hotels,pensions,The company spent quite a lot of money on X and Y throughout their years of business.,-36.2559278011322,-37.43869435787201,0.7654448733625234
+imagination,originality,It takes a lot of X and Y to write a successful novel.,-21.52468031644821,-19.886403143405914,0.16269962427381549
+ears,hair,Bill washed his X and Y before going to bed.,-28.9798686504364,-23.02850639820099,0.0025955387704163224
+importance,validity,He questioned the X and Y of the statements they were making.,-22.935468012467027,-21.98208625521511,0.2782052320921199
+money,papers,Alice brought both the X and Y that were required to buy the house.,-24.808306217193604,-28.44431185722351,0.974319457726136
+pies,puddings,The baseball team had a bake sale with X and Y to raise money for new uniforms.,-26.60706477612257,-26.783649250864983,0.5440317612908306
+eloquence,force,He admires his sister for the X and Y she has when dealing with difficult situations.,-28.353140354156494,-26.052807092666626,0.09109536420324951
+blossom,leaf,Ethan kept track of the X and Y of the plant to make sure it was healthy.,-30.22297489643097,-23.27448469400406,9.591627154865531e-4
+desolation,misery,Robert felt X and Y so he started going to therapy.,-41.17130744457245,-29.54226578399539,8.903638324515156e-6
+boots,jacket,"On a trip to the mountains, Jane forgot her X and Y at home, so she had to make a trip to the mall.",-29.19023823738098,-28.360606908798218,0.3037230294513184
+confusions,contradictions,All of the X and Y did not make Amy feel confident about the new rules.,-29.954681247472763,-34.61969095468521,0.9906687358507539
+flames,sparks,Maeve stared at the X and Y that came from the fireplace.,-25.636683702468872,-24.012868523597717,0.16467938224365844
+danger,threat,Riley thought that the X and Y of sharks were too high to go surfing.,-30.600528478622437,-28.669753670692444,0.12666484540517864
+determination,faith,It took X and Y to get where she is today.,-26.930500984191895,-26.952049016952515,0.5053867997595546
+berlin,frankfurt,Sam wanted to visit X and Y on her trip to Germany.,-45.118208169937134,-41.861250817775726,0.037077687871599437
+clothes,dishes,Molly needed to wash her X and Y before leaving for her trip.,-21.55151343345642,-20.347861528396606,0.23082620005742516
+comfort,companionship,He experienced X and Y whenever he visited his Grandma.,-27.822752616310026,-29.763897591270506,0.8744778770688597
+background,interest,He thought that Eduardo's X and Y in cooking would make him perfect for the personal chef role.,-24.895512104034424,-31.186208963394165,0.998149961097432
+glass,rubber,Trisha made a statue out of X and Y for her friend's birthday.,-28.453444480895996,-27.804635047912598,0.34325787901259497
+color,scent,Both the X and Y of the flowers made Terry happy.,-24.525371730327606,-22.138764262199402,0.08419966155141194
+interest,payments,Christopher was stressed about the X and Y he had for his loans.,-29.944953441619873,-32.161399126052856,0.9017166484342228
+gambling,vice,Christine joked that the words X and Y should be considered synonyms.,-32.44871252775192,-32.503807723522186,0.5137703158249027
+activities,places,The many X and Y available to Ronnie meant that he was never bored.,-36.50364422798157,-35.31398856639862,0.23332052607989082
+elegance,purity,Her mom thought the dress exuded X and Y but Lauren did not agree.,-28.309110045433044,-27.255538940429688,0.2585399404890077
+leaves,limbs,All of the X and Y of the trees obstructed the ocean view.,-26.18972396850586,-27.76948845386505,0.8291711607752692
+power,trade,The country's lack of X and Y caused many financial problems.,-36.42720150947571,-36.01943778991699,0.3994484602722646
+games,races,All of the X and Y kept Troy very entertained.,-49.672635555267334,-49.043538093566895,0.3477152137816679
+evenings,sundays,Carlos spends his X and Y doing his favorite activities.,-33.7788952589035,-31.640174984931946,0.10538998493349741
+activity,nature,"Timothy thought that he didn't have enough X and Y in his life, so he decided to get out more.",-30.50488293170929,-30.680705785751343,0.5438428264160173
+sun,weather,Tina said that the X and Y made her want to be outside.,-31.388922214508057,-31.302173137664795,0.4783263210142783
+leather,paper,He needed to get some X and Y for his latest art project.,-30.970342874526978,-31.14121675491333,0.5426148319465524
+anguish,rage,She felt X and Y after learning that her dog had died.,-28.858270168304443,-27.951850533485413,0.2877330490843883
+shooting,yelling,The movie had a lot of X and Y which made Peter upset.,-38.2218873500824,-36.28646147251129,0.12615123283742002
+arches,piers,Tamara learned how to properly design X and Y in her architecture class.,-33.84259760379791,-36.51626032590866,0.9354545372017771
+investment,risk,Harry didn't think the X and Y were worth the money.,-26.3335702419281,-25.811154544353485,0.37228753652125135
+control,growth,The lack of X and Y that the position offered made Jerry want to find a new job.,-34.21628975868225,-34.695075035095215,0.6174609944854578
+happiness,pain,"Ed feels X and Y when drinking milk because he loves the taste, but is lactose intolerant.",-37.36435520648956,-35.989150524139404,0.20178025308888814
+Egypt,Europe,He wanted to visit X and Y once he had the time to travel.,-24.343211770057678,-26.270079851150513,0.8729023584123919
+order,truth,The judge wanted X and Y from the lawyers and witnesses.,-34.76223313808441,-26.018173217773438,1.5937999314478144e-4
+factories,industries,Tristen worked in a variety of X and Y before he was able to retire.,-21.884549975395203,-22.91680073738098,0.7373520202477746
+name,year,Jasmine wanted to know the X and Y of the car her friend was selling.,-20.32410204410553,-23.14290401339531,0.9436834309018359
+river,sky,"On an afternoon walk, Cindy noticed that the X and Y were the same shade of blue.",-24.37113130092621,-24.288012742996216,0.47923231560687907
+detection,removal,Victoria went to her dermatologist for X and Y of her potentially cancerous moles.,-29.704552948474884,-30.93151092529297,0.773285705615956
+breakfast,luncheon,The conference had a X and Y included on the itinerary.,-32.61031702160835,-32.94136179226916,0.5820135639018417
+attitude,experience,Both Jerry's X and Y made him an excellent candidate for the job.,-24.027765154838562,-24.54823613166809,0.6272578898513699
+pilot,plane,There was a need for a X and Y for the flight to Hawaii.,-30.189650654792786,-29.1020690202713,0.25207394586842913
+malaria,typhoid,Trina got her X and Y vaccines before travelling the world.,-41.33617516234517,-39.95722196996212,0.2011771742616012
+technology,time,Marissa thinks it will take a lot of X and Y for humans to be able to live on Mars.,-23.39982198178768,-22.465224001556635,0.2819928157776528
+economist,historian,He was surprised that both the X and Y are named Jane Doe.,-35.299501806497574,-35.64249211549759,0.5849167213774734
+muskets,swords,Soldiers used to use X and Y when they fought in battles.,-24.08373396494426,-21.700246447580867,0.08444055350803563
+character,wisdom,His mom's X and Y made her someone he would go to for advice.,-34.65947246551514,-30.033042907714844,0.009694742024290038
+azaleas,camellias,He bought his wife a bouquet of X and Y for Mother's Day this year.,-44.66715766862035,-43.931851010769606,0.32403129984239754
+silence,space,Ryan wanted X and Y after a long day of work.,-35.47558379173279,-34.90273356437683,0.3605794102203555
+fingers,mouth,Both her X and Y were dirty from eating ribs.,-26.73773694038391,-25.24688982963562,0.18379461477603803
+power,variety,Brian said that the X and Y of the cars at the dealership left him unimpressed.,-29.153094440698624,-27.741102278232574,0.1959200301848031
+cliches,stereotypes,The movie had a lot of X and Y but it was still one of Kim's favorites.,-22.499037951231003,-19.986136481165886,0.07495867364406088
+habits,movements,He kept track of his dog's X and Y because the vet told him to.,-28.61397433280945,-25.981087923049927,0.06705166329763616
+shirt,waistcoat,They needed to buy a new X and Y for the upcoming event.,-25.380482703447342,-27.432674288749695,0.8861688789814595
+boardinghouses,hotels,She spent a lot of time in X and Y during her summer travels.,-33.487258434295654,-29.644391179084778,0.02098236659027011
+stucco,wood,The builders used X and Y to decorate the house's exterior.,-24.093800341826864,-22.14985187642742,0.12521471703359027
+activities,character,They questioned her X and Y for no good reason.,-32.16366350650787,-30.96498417854309,0.23171024002694363
+happiness,warmth,Clarissa felt X and Y whenever she hugged her mom.,-32.598828077316284,-33.20054614543915,0.646049274700314
+fulfillment,pleasure,Her job gave her X and Y along with a satisfactory salary.,-29.349001690745354,-26.648563876748085,0.06294752659705223
+means,motives,He was trying to understand the X and Y behind this controversial decision.,-30.768837451934814,-29.073632657527924,0.1550925847020387
+fear,relief,Mary felt both X and Y about graduating from high school.,-27.37815883010626,-25.8632959574461,0.18021923353871058
+despair,futility,Clara felt X and Y after being fired from her new job.,-36.43222993705422,-36.97755765914917,0.6330509090082376
+ash,maple,Hank saw many X and Y trees while on his hike.,-34.75306224822998,-32.50413930416107,0.09544241002918306
+beauty,inspiration,Bridget wrote blog posts centered around X and Y in her spare time.,-30.642358779907227,-32.890475273132324,0.9044879438053002
+clippings,pictures,She used many X and Y for the collage she was working on.,-33.329756693856325,-32.56250745244324,0.31707445075296814
+liquids,powders,The factory used many different X and Y to make its products.,-20.88889117387589,-22.629507032659603,0.8507652740851681
+domination,influence,The player's X and Y made them the obvious choice for captain of the team.,-33.09206461906433,-33.81350755691528,0.6729246826467118
+action,conversation,There was X and Y occurring in every scene of the movie.,-35.05397820472717,-33.788241386413574,0.21998791187947173
+pattern,sequence,They discussed the connection between a X and Y in their math class today.,-37.19835090637207,-36.36997151374817,0.3039878480857258
+detective,police,Usually the town's X and Y work together to deal with criminals.,-26.92779242992401,-23.522323489189148,0.03212498329550481
+church,graveyard,The couple found out that the X and Y are right behind their new house.,-36.97936964035034,-35.83936953544617,0.2423203417357629
+gardens,lawn,He makes sure to water the X and Y of the estate every other day.,-28.244953215122223,-23.685545682907104,0.010359810036009923
+powers,processes,They lacked the necessary X and Y to finish the job.,-27.52445963025093,-27.59925651550293,0.5186905083393225
+machinery,tractors,"He sold X and Y for a living, but he wanted to open a bakery.",-28.001797454198822,-27.68183229677379,0.42068423927723814
+ammo,weapons,The military has X and Y readily available to them.,-29.245349895209074,-27.462281320244074,0.14392464066889332
+clay,wax,"Jackie loved doing different crafts, so she had a lot of X and Y readily available to her.",-31.884469598531723,-33.48957654181868,0.832730941134936
+associations,enterprises,She dealt with different X and Y in her line of work.,-37.42012810707092,-35.72665286064148,0.1553193579444436
+grace,modesty,Chloe's grandma said that X and Y are qualities a person should have.,-33.61008262634277,-33.97792983055115,0.5909386848311722
+brains,talent,Georgina had both the X and Y to be successful at her job.,-20.006429851055145,-19.92002446949482,0.47841208402273305
+comedy,humor,Ricky was confused about the difference between X and Y until he looked it up online.,-27.853287890553474,-26.553328588604927,0.21417186645253528
+certainty,order,Jake liked the X and Y that his job provided him.,-33.78830671310425,-36.518834590911865,0.9388041712605817
+discretion,moderation,"There was an absence of X and Y in the decision, which upset many people.",-25.946638882160187,-25.50868844985962,0.39222944842336943
+attention,civility,Jane's mom said the lack of X and Y made her very disappointed.,-28.38800005009398,-27.228643409907818,0.23878420664264333
+captain,leader,The team thought of her as a X and Y even though she didn't officially have the title.,-23.041449904441833,-24.076314687728882,0.7378579479298851
+control,intelligence,Jason wanted to be known for his X and Y instead of being known for his temper.,-28.43889629840851,-29.37789034843445,0.7188964154311658
+grease,sweat,"At the end of the day, Fred washed the X and Y off of his face.",-20.936384081840515,-16.960741728544235,0.01842152126658313
+comprehension,control,There was a lack of X and Y that made Stephanie feel uneasy.,-35.72120428085327,-36.27505350112915,0.6350281775751677
+hallucinations,visions,The man experienced X and Y when he was severely dehydrated.,-17.70655393600464,-17.605153530836105,0.4746715972984289
+commands,statements,The employees didn't listen to the X and Y of the rude boss.,-31.212650418281555,-34.10025304555893,0.9472301768862694
+cost,upkeep,They didn't think the house was worth the X and Y it would take to keep it.,-22.88896608352661,-30.757970094680786,0.9996177311316555
+men,objects,The artist painted X and Y for the museum's upcoming exhibit.,-30.847907543182373,-30.971694111824036,0.530907186039748
+fragrance,taste,"She wanted to like the smoothie, but the X and Y made her feel sick.",-23.238788604736328,-22.568117141723633,0.3383465053037594
+betrayal,murder,The book was about a X and Y and Harry thought it was very interesting.,-34.98235630989075,-32.937968730926514,0.11462071477136257
+bacteria,insects,Xander was afraid of X and Y so he spent most of his time inside his house.,-29.291352450847626,-28.747013986110687,0.36717892319111095
+confusion,congestion,The traffic caused X and Y for the drivers on the busy highway.,-22.670666813850403,-21.481606364250183,0.23342701572446473
+facts,techniques,She wanted to discuss different X and Y with her new boss.,-26.33713698387146,-28.525221943855286,0.899174421998355
+anger,spite,George felt X and Y towards his ex-best friend.,-29.95699656009674,-30.814136266708374,0.702062710880651
+money,numbers,Tom liked X and Y so he decided to become an accountant.,-31.813015460968018,-30.370594263076782,0.19117069218692678
+boulders,ledges,Paula climbed X and Y with her friend Chris.,-39.253456473350525,-31.04073366522789,2.711078210115508e-4
+abolition,emancipation,They learned about X and Y in their history class.,-30.334479331970215,-30.70424461364746,0.5914022609936478
+nationalism,sovereignty,He wrote a paper on X and Y for his political science class.,-30.122174978256226,-29.048221468925476,0.25465196334157325
+tensions,uncertainties,Chris said all of the X and Y made him feel uncomfortable.,-29.533727049827576,-30.199891209602356,0.6606437190349165
+beauty,poise,The model's X and Y got her booked for a lot of shows.,-37.54640467092395,-37.93415987491608,0.5957421937626609
+background,intelligence,Nolan had the X and Y to be a great teacher.,-22.845541834831238,-23.925288558006287,0.7464460500576404
+battle,bloodshed,The soldiers blamed the X and Y on many different politicians.,-31.764445900917053,-35.94506216049194,0.9849411533315057
+fairness,moderation,Gino thought that X and Y were concepts that should go together.,-33.687693774700165,-32.58174705505371,0.24862731730666607
+back,behind,She washed the baby's X and Y in the bath tub before putting him to bed.,-22.447642624378204,-24.53033345937729,0.8892094014613893
+apprehension,terror,Nora felt X and Y about leaving everyone she knows to move to the other side of the world.,-35.30697250366211,-34.63522815704346,0.33810636251054005
+head,teeth,"Both Vanessa's X and Y were bothering her, so she took some medicine for the pain.",-27.42174196243286,-27.59447032213211,0.5430750474940615
+cod,salmon,He made sure the chef knew that X and Y are his sister's favorite types of fish.,-35.03966951370239,-33.52171468734741,0.17976287907442043
+archaeologists,geologists,They consulted X and Y for the documentary they were making.,-29.329886108636856,-30.447340965270996,0.7535163133641726
+chopping,sawing,It took a lot of X and Y to remove the dead trees.,-22.52300364151597,-26.607178330421448,0.9834417621662258
+anxiety,dismay,Josh was filled with X and Y and didn't know what to do about it.,-22.991266857425217,-23.26587234431645,0.568223194030866
+resources,riches,The couple had the X and Y to start their own company.,-29.027258306741714,-25.708949744701385,0.034948410840707794
+personnel,ships,The company needed X and Y to carry out all the work they had to do.,-25.811597406864166,-22.971289932727814,0.055184504142457354
+bandits,outlaws,She watched an old western movie about X and Y with both of her roommates.,-28.228118859231472,-28.717743426561356,0.6200179860130542
+secrecy,stealth,The spy used X and Y to carry out his job assignments.,-25.737864390015602,-24.90756320208311,0.3035813893381764
+soldiers,subjects,He talked with both the X and Y about what to do next.,-26.940998047590256,-28.233237266540527,0.7845259590591185
+barges,towboats,The ocean was filled with X and Y so Mara didn't want to go in the water.,-45.710746156051755,-46.40722675411962,0.6674070141128065
+celebration,ritual,The event was considered both a X and Y by all who attended.,-26.28956401348114,-27.500471472740173,0.7704594741214188
+searching,yearning,It took a lot of X and Y to figure out what she wanted to do.,-20.832581602036953,-23.649175718426704,0.9435659795242258
+letters,magazines,Xena read many of her old X and Y instead of going on her phone.,-25.167114809155464,-24.452298492193222,0.32853548496177337
+flight,terror,Marissa argued that the words X and Y go together because she hates flying.,-31.099210500717163,-32.83843046426773,0.8505879592399989
+gaiety,spirit,He admired her X and Y and enjoyed spending time with her.,-35.31052124500275,-29.43579825758934,0.0028017007925024338
+disdain,indifference,"Nathan felt X and Y towards Mark, so he avoided him.",-36.428693652153015,-37.24926996231079,0.694358661062527
+liberalism,progress,He discussed the connection between X and Y with his friends who are political science majors.,-30.90356883406639,-28.215853571891785,0.06370215390813662
+blame,hate,She felt X and Y because of the poor decision she made.,-29.799902081489563,-28.170114040374756,0.1638593995345143
+color,imagery,She liked all of the X and Y the artist used in their art.,-29.716017961502075,-28.512614488601685,0.23087031101033206
+intonation,phrasing,Millie liked the X and Y that her teacher used when she spoke.,-34.29205168783665,-26.90053240582347,6.160788799586873e-4
+abasement,humiliation,"Jenny was subjected to X and Y at school, which made her want to leave.",-32.30818268656731,-29.29426447674632,0.0468010408673394
+commercialism,materialism,All of the X and Y in society makes Evan want to live off the grid.,-40.08324559777975,-39.71716660261154,0.409488813244953
+education,industrialization,Tania read about the connection between X and Y in a chapter of her textbook.,-27.12420079112053,-29.50426209717989,0.9152941874942959
+foreboding,gloom,There was a sense of X and Y that made Carrie feel anxious.,-29.889465996297076,-32.27095281484071,0.9154046431197792
+firepower,speed,Christopher liked the X and Y of the car he was test driving.,-24.17810219526291,-23.92617392539978,0.43734894322317625
