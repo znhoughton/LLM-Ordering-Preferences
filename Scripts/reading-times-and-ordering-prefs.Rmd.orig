@@ -1,0 +1,2400 @@
+---
+title: "Reading Times and 2AFC Preferences M&L"
+author: "Zachary Houghton"
+date: "2024-01-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(reticulate)
+myenvs = conda_list()
+envname = myenvs$name[2]
+use_condaenv(envname, required = T)
+#py_config()
+```
+
+# Overview
+
+We'll be calculating the 2AFC and reading times for various sentences containing binomials (taken from a combination of different M&L papers).
+
+For calculating 2AFC, we will get the probability of one sentence and then the other by adding the log-probability for each upcoming word.
+
+For reading time calculations, we'll do something similar but for a specific region.
+
+# Full Sentences
+
+## Loading data
+
+```{r}
+#data2 = read_csv('../Data/corpus.csv')
+data = read_csv('../Data/corpus_sentences.csv') %>%
+  filter(!`Too weird?` %in% c('maybe', 'too weird', 'yes')) %>%
+  filter(!is.na(Sentence))
+
+# data_novel = read_csv('../Data/corpus_novel.csv') %>%
+#   filter(`Experimental sentence` != 'x') %>%
+#   select(WordA, WordB, AlphaN, Freq, OverallFreq, RelFreq, `Experimental sentence`, `...21`, `...22`, model.prop) %>%
+#   rename('Sentence (WordA and WordB)' = `...21`, 'Sentence (WordB and WordA)' = `...22`, "Sentence" = `Experimental sentence`, 'GenPref' = model.prop) %>%
+#   mutate(CollegeFreq = OverallFreq / 323592921465 * 350000000)
+
+data_for_analysis = data 
+
+binomial_alpha = data_for_analysis$`Sentence (WordA and WordB)`
+binomial_nonalpha = data_for_analysis$`Sentence (WordB and WordA)`
+```
+
+## GPTXL
+
+### 2AFC
+
+Here's our function to get the probability of the next word in the sentence:
+
+```{python}
+#load packages
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import numpy as np
+from torch import nn
+#from collections import defaultdict
+import pandas as pd
+import re
+import gc
+#import matplotlib.pyplot as plt
+
+tokenizer = AutoTokenizer.from_pretrained("gpt2-xl") #we'll use chat-gpt2, but we could use another model if we wanted
+tokenizer.pad_token = tokenizer.eos_token
+
+model = AutoModelForCausalLM.from_pretrained("gpt2-xl", return_dict_in_generate=True) #load the model
+model.config.pad_token_id = model.config.eos_token_id
+
+```
+
+Courtesy of this thread: <https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/17>
+
+```{python}
+from pprint import pprint
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import pickle
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+#device = 'cpu'
+model = model.to(device)
+
+def to_tokens_and_logprobs(model, tokenizer, input_texts):
+  
+
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").to(device).input_ids
+  
+    input_ids = input_ids.to(device)
+    
+    outputs = model(input_ids)
+    probs = torch.log_softmax(outputs.logits, dim=-1).detach()
+
+    # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
+    probs = probs[:, :-1, :]
+    input_ids = input_ids[:, 1:]
+    gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
+    
+    batch = []
+    for input_sentence, input_probs in zip(input_ids, gen_probs):
+        text_sequence = []
+        for token, p in zip(input_sentence, input_probs):
+            if token not in tokenizer.all_special_ids:
+                text_sequence.append((tokenizer.decode(token), p.item()))
+        batch.append(text_sequence)
+    return batch
+
+
+#input_texts = ["The boy went outside to fly his kite.", "this is a test."]
+
+#batch = to_tokens_and_logprobs(model, tokenizer, input_texts)
+#sentence_probs = [sum(item[1] for item in inner_list) for inner_list in batch]
+
+#binom_probs = {}
+
+
+#pprint(batch)
+```
+
+Now we'll apply this to each sentence:
+
+<!--# can look into parallelizing batch runs later -->
+
+get alpha probs:
+
+```{python}
+#R keeps crashing, maybe we need to run in smaller chunks
+input_texts_alpha = r.binomial_alpha
+n_batches = len(input_texts_alpha) / 25 #25 sentences per batch
+print(n_batches)
+
+
+
+input_texts_alpha = np.array_split(input_texts_alpha, n_batches)
+input_texts_alpha = [x.tolist() for x in [*input_texts_alpha]]
+
+batch_alpha = [[]]
+timer = 0
+for minibatch in input_texts_alpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_alpha.extend(batch_placeholder)
+  
+
+batch_alpha = batch_alpha[1:]
+sentence_probs_alpha = [sum(item[1] for item in inner_list) for inner_list in batch_alpha]
+
+
+# with open('sentence_probs_alpha_gpt2xl.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_alpha, f)
+
+
+#count = 0
+#for item in batch_alpha[1]: 
+    #count += item[1]
+
+
+#pprint(batch_alpha)
+#pprint(batch_nonalpha)
+```
+
+```{r}
+# batch_alpha_gpt2xl = as.data.frame(py$batch_alpha)
+# 
+# #write_csv(batch_alpha_gpt2xl, '../Data/gpt2xl_batch_alpha.csv')
+# data = read_csv('../Data/gpt2xl_batch_alpha.csv')
+```
+
+Get nonalpha probs:
+
+```{python}
+input_texts_nonalpha = r.binomial_nonalpha
+
+n_batches = len(input_texts_nonalpha) / 50
+#input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
+
+
+
+input_texts_nonalpha = np.array_split(input_texts_nonalpha, n_batches)
+input_texts_nonalpha = [x.tolist() for x in [*input_texts_nonalpha]]
+
+
+
+batch_nonalpha = [[]]
+timer = 0
+for minibatch in input_texts_nonalpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_nonalpha.extend(batch_placeholder)
+  
+
+batch_nonalpha = batch_nonalpha[1:]
+
+#batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
+#batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+
+sentence_probs_nonalpha = [sum(item[1] for item in inner_list) for inner_list in batch_nonalpha]
+
+# with open('sentence_probs_nonalpha_gpt2xl.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_nonalpha, f)
+```
+
+```{r}
+# batch_nonalpha_gpt2xl = as.data.frame(py$batch_nonalpha)
+# 
+# write_csv(batch_nonalpha_gpt2xl, '../Data/gpt2xl_batch_nonalpha.csv')
+```
+
+Combine them:
+
+```{python}
+# file_sentence_alpha = open('sentence_probs_alpha_gpt2xl.obj', 'rb')
+# sentence_probs_alpha = pickle.load(file_sentence_alpha)
+# 
+# file_sentence_nonalpha = open('sentence_probs_nonalpha_gpt2xl.obj', 'rb')
+# sentence_probs_nonalpha = pickle.load(file_sentence_nonalpha)
+
+binom_probs = {}
+
+for i,row in enumerate(r.data_for_analysis.itertuples()):
+  binom = row[1] + ' and ' + row[2]
+  binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
+
+
+binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
+binom_probs_df.reset_index(inplace=True)
+binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
+```
+
+```{r}
+binom = py$binom_probs_df
+
+binom = binom %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`)))
+write_csv(binom, '../Data/gpt2xl_2afc_ordering_prefs.csv')
+
+#data = read_csv('../Data/gpt2xl_2afc_ordering_prefs.csv')
+```
+
+### Reading Times
+
+We can do largely the same procedure for reading times, but we want to take into account the spillover region. So instead of looking at the entire sentence (as in the 2afc), we will look at the region that contains the first binomial and the 5 following words.
+
+```{r}
+# r_to_py(data_for_analysis)
+```
+
+First let's get the probabilities and words for each sentence as columns in the df:
+
+```{python}
+reading_time_data = r.data_for_analysis
+
+second_item_lists = [[item[1] for item in sublist] for sublist in batch_alpha]
+second_item_lists_nonalpha = [[item[1] for item in sublist] for sublist in batch_nonalpha]
+word_list = [[item[0] for item in sublist] for sublist in batch_alpha]
+word_list_nonalpha = [[item[0] for item in sublist] for sublist in batch_nonalpha]
+new_df = pd.DataFrame({'Second_Item_List': second_item_lists, 'Word_list': word_list, 'Second_Item_List_nonalpha': second_item_lists_nonalpha, 'Word_list_nonalpha': word_list_nonalpha})
+reading_time_data = pd.concat([reading_time_data, new_df], axis = 1)
+
+
+
+
+```
+
+We need to get a bit creative for the next part:
+
+If items are split within word, they don't start with a space. So items starting with a space are a whole word. 'and' is also always a whole word, so we can index where ' and' is and find the closest word starting with a space that comes before ' and'.
+
+We'll do this by:
+
+-finding the position of ' and' (if there are multiple 'ands' we choose the one that comes immediately after one of the binomial words. There's a slim chance this will break if there are multiple ands AND the word in the binomial is tokenized into subtokens. However, this is probably pretty unlikely).
+
+-finding the positions of words that begin with a space
+
+-find the largest position starting with a space that is still smaller than the position of ' and'
+
+```{python}
+def find_and_index(words, word_alpha):
+    positions = []
+    found_word_a = False
+
+    for i, word in enumerate(words):
+        if word == ' and' and found_word_a:
+            positions.append(i)
+            found_word_a = False
+        elif word.strip(' ') == word_alpha:
+            found_word_a = True
+        else:
+            found_word_a = False
+    
+    if positions == []:
+        positions.append(words.index(' and'))
+        
+    return positions[0]
+      
+# Initialize an empty list to store the positions
+positions = []
+
+# Iterate through rows and words
+for row_index, row in enumerate(reading_time_data['Word_list']):
+    word_positions = []
+    for word_index, word in enumerate(row):
+        if word.startswith(' '):
+            word_positions.append(word_index)
+    positions.append(word_positions)
+
+reading_time_data['alpha_space_conditions'] = positions
+
+positions = []
+for row_index, row in enumerate(reading_time_data['Word_list_nonalpha']):
+    word_positions = []
+    for word_index, word in enumerate(row):
+        if word.startswith(' '):
+            word_positions.append(word_index)
+    positions.append(word_positions)
+    
+# Create a new column 'position' in the DataFrame
+
+reading_time_data['nonalpha_space_conditions'] = positions
+
+
+# Apply the function to create a new column 'and_index'
+reading_time_data['and_index'] = reading_time_data.apply(lambda row: find_and_index(row['Word_list'], row['WordA']), axis=1)
+#reading_time_data['and_index'] = reading_time_data['Word_list'].apply(find_and_index, 'WordA')
+
+#def num_tokens(word):
+  #tokens_in_word = tokenizer(word, return_tensors="pt").input_ids
+  #return tokens_in_word.numel()
+
+
+# Define a custom function to find the largest number in the list that is less than the comparison number
+def find_largest_less_than(nums, comparison_num):
+    valid_nums = [num for num in nums if num < comparison_num]
+    if valid_nums:
+        return max(valid_nums)
+    else:
+        return None
+
+# Apply the custom function to create a new column 'largest_less_than'
+reading_time_data['largest_less_than_alpha'] = reading_time_data.apply(lambda row: find_largest_less_than(row['alpha_space_conditions'], row['and_index']), axis=1)
+
+reading_time_data['largest_less_than_nonalpha'] = reading_time_data.apply(lambda row: find_largest_less_than(row['nonalpha_space_conditions'], row['and_index']), axis=1)
+  
+
+#reading_time_data['alpha_diff'] = reading_time_data['largest_less_than_alpha'] - reading_time_data['and_index']
+#reading_time_data['alpha_bpe_num'] = reading_time_data['WordA'].apply(num_tokens)
+#reading_time_data['nonalpha_bpe_num'] = reading_time_data['WordB'].apply(num_tokens)
+```
+
+Finally let's extract the numbers for the 6-word region we care about:
+
+<!--# Flaw with this: it's actually a 6-bpe token region, not a 6-word region -- prob worth discussing -->
+
+Let's extract the 6-word region now, but let's modify it so that it's not 6 bpe, but 6 *words*:
+
+```{python}
+def new_list(row):
+    index = row['largest_less_than_alpha']
+    number_list = row['Second_Item_List']
+    sentence = row['Word_list']
+    
+    new_list = []
+    space_count = 0
+    for word in sentence[index:]:
+        if space_count < 6:
+            new_list.append(word)
+            if word.startswith(' '):
+                space_count += 1
+        else:
+            break
+    
+    if 0 <= index < len(number_list):
+        return number_list[index:(index+len(new_list))]
+      
+    else:
+        return None
+      
+def new_list_nonalpha(row):
+    index = row['largest_less_than_nonalpha']
+    number_list = row['Second_Item_List_nonalpha']
+    sentence = row['Word_list_nonalpha']
+    
+    new_list = []
+    space_count = 0
+    for word in sentence[index:]:
+        if space_count < 6:
+            new_list.append(word)
+            if word.startswith(' '):
+                space_count += 1
+        else:
+            break
+    
+    if 0 <= index < len(number_list):
+        return number_list[index:(index+len(new_list))]
+      
+    else:
+        return None
+      
+ 
+# Apply the function to create the 'extracted_number_column'
+reading_time_data['extracted_number_column_alpha'] = reading_time_data.apply(new_list, axis=1)
+reading_time_data['extracted_number_column_nonalpha'] = reading_time_data.apply(new_list_nonalpha, axis = 1)
+
+def sum_numbers(row):
+  return sum(row)
+
+def word_region_alpha(row):
+  index = row['largest_less_than_alpha']
+  word_list = row['Word_list']
+  max_number = len(row['extracted_number_column_alpha'])
+  word_list = word_list[index:(index+max_number)]
+  return word_list
+
+#def word_region_nonalpha(row)
+
+reading_time_data['reading_times_alpha'] = reading_time_data['extracted_number_column_alpha'].apply(sum_numbers)
+reading_time_data['reading_times_nonalpha'] = reading_time_data['extracted_number_column_nonalpha'].apply(sum_numbers)
+
+reading_time_data['subset_words_alpha'] = reading_time_data.apply(word_region_alpha, axis = 1)
+```
+
+```{python}
+columns_to_keep = ['WordA', 'WordB', 'Sentence', 'reading_times_alpha', 'reading_times_nonalpha']
+reading_time_data = reading_time_data[columns_to_keep]
+```
+
+```{r}
+reading_time_data = py$reading_time_data
+
+write_csv(reading_time_data, '../Data/gpt2xl_reading_time_data.csv')
+```
+
+<!--# to-do: join them all into one dataframe -->
+
+Let's do some checking by hand to make sure everything works.
+
+## GPT2 (not xl)
+
+### 2afc
+
+```{python}
+
+import gc
+torch.cuda.empty_cache()
+gc.collect() #clear our gpu memory
+
+#load packages
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import numpy as np
+from torch import nn
+from collections import defaultdict
+import pandas as pd
+import re
+
+tokenizer = AutoTokenizer.from_pretrained("gpt2") #we'll use chat-gpt2, but we could use another model if we wanted
+tokenizer.pad_token = tokenizer.eos_token
+
+model = AutoModelForCausalLM.from_pretrained("gpt2", return_dict_in_generate=True) #load the model
+model.config.pad_token_id = model.config.eos_token_id
+
+```
+
+Courtesy of this thread: <https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/17>
+
+```{python}
+from pprint import pprint
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+#device = 'cpu'
+model = model.to(device)
+
+def to_tokens_and_logprobs(model, tokenizer, input_texts):
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").input_ids
+    input_ids = input_ids.to(device)
+    outputs = model(input_ids)
+    probs = torch.log_softmax(outputs.logits, dim=-1).detach()
+
+    # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
+    probs = probs[:, :-1, :]
+    input_ids = input_ids[:, 1:]
+    gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
+
+    batch = []
+    for input_sentence, input_probs in zip(input_ids, gen_probs):
+        text_sequence = []
+        for token, p in zip(input_sentence, input_probs):
+            if token not in tokenizer.all_special_ids:
+                text_sequence.append((tokenizer.decode(token), p.item()))
+        batch.append(text_sequence)
+    return batch
+
+
+#input_texts = ["The boy went outside to fly his kite.", "this is a test."]
+
+#batch = to_tokens_and_logprobs(model, tokenizer, input_texts)
+#sentence_probs = [sum(item[1] for item in inner_list) for inner_list in batch]
+
+#binom_probs = {}
+
+
+#pprint(batch)
+```
+
+get alpha probs:
+
+```{python}
+#R keeps crashing, maybe we need to run in smaller chunks
+
+input_texts_alpha = r.binomial_alpha
+
+n_batches = len(input_texts_alpha) / 50
+
+
+
+input_texts_alpha = np.array_split(input_texts_alpha, n_batches)
+input_texts_alpha = [x.tolist() for x in [*input_texts_alpha]]
+
+batch_alpha = [[]]
+timer = 0
+for minibatch in input_texts_alpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_alpha.extend(batch_placeholder)
+  
+
+batch_alpha = batch_alpha[1:]
+sentence_probs_alpha = [sum(item[1] for item in inner_list) for inner_list in batch_alpha]
+
+
+# with open('sentence_probs_alpha_gpt2.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_alpha, f)
+# 
+
+
+
+#count = 0
+#for item in batch_alpha[1]: 
+    #count += item[1]
+
+
+#pprint(batch_alpha)
+#pprint(batch_nonalpha)
+```
+
+```{r}
+# batch_alpha_gpt2 = as.data.frame(py$batch_alpha)
+# 
+# write_csv(batch_alpha_gpt2, '../Data/gpt2_batch_alpha.csv')
+```
+
+Get nonalpha probs:
+
+```{python}
+input_texts_nonalpha = r.binomial_nonalpha
+
+n_batches = len(input_texts_nonalpha) / 50
+#input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
+
+
+
+input_texts_nonalpha = np.array_split(input_texts_nonalpha, n_batches)
+input_texts_nonalpha = [x.tolist() for x in [*input_texts_nonalpha]]
+
+
+
+batch_nonalpha = [[]]
+timer = 0
+for minibatch in input_texts_nonalpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_nonalpha.extend(batch_placeholder)
+  
+
+batch_nonalpha = batch_nonalpha[1:]
+
+#batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
+#batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+
+sentence_probs_nonalpha = [sum(item[1] for item in inner_list) for inner_list in batch_nonalpha]
+
+# with open('sentence_probs_nonalpha_gpt2.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_nonalpha, f)
+```
+
+```{r}
+# batch_nonalpha_gpt2 = as.data.frame(py$batch_nonalpha)
+# 
+# write_csv(batch_alpha_gpt2, '../Data/gpt2_batch_nonalpha.csv')
+```
+
+Combine them:
+
+```{python}
+#file_sentence_alpha = open('sentence_probs_alpha_gpt2.obj', 'r')
+#sentence_probls_alpha = pickle.load(file_sentence_alpha)
+
+#file_sentence_nonalpha = open('sentence_probs_nonalpha_gpt2.obj', 'r')
+#sentence_probs_nonalpha = pickle.load(file_sentence_nonalpha)
+
+binom_probs = {}
+
+for i,row in enumerate(r.data_for_analysis.itertuples()):
+  binom = row[1] + ' and ' + row[2]
+  binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
+
+
+binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
+binom_probs_df.reset_index(inplace=True)
+binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
+```
+
+```{r}
+binom = py$binom_probs_df
+
+binom = binom %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`)))
+
+write_csv(binom, '../Data/gpt2_2afc_ordering_prefs.csv')
+```
+
+### Reading Times
+
+We can do largely the same procedure for reading times, but we want to take into account the spillover region. So instead of looking at the entire sentence (as in the 2afc), we will look at the region that contains the first binomial and the 5 following words.
+
+First let's get the probabilities and words for each sentence as columns in the df:
+
+```{python}
+reading_time_data = r.data_for_analysis
+
+second_item_lists = [[item[1] for item in sublist] for sublist in batch_alpha]
+second_item_lists_nonalpha = [[item[1] for item in sublist] for sublist in batch_nonalpha]
+word_list = [[item[0] for item in sublist] for sublist in batch_alpha]
+word_list_nonalpha = [[item[0] for item in sublist] for sublist in batch_nonalpha]
+new_df = pd.DataFrame({'Second_Item_List': second_item_lists, 'Word_list': word_list, 'Second_Item_List_nonalpha': second_item_lists_nonalpha, 'Word_list_nonalpha': word_list_nonalpha})
+reading_time_data = pd.concat([reading_time_data, new_df], axis = 1)
+
+
+
+
+```
+
+We need to get a bit creative for the next part:
+
+If items are split within word, they don't start with a space. So items starting with a space are a whole word. 'and' is also always a whole word, so we can index where ' and' is and find the closest word starting with a space that comes before ' and'.
+
+We'll do this by:
+
+-finding the position of ' and' (if there are multiple 'ands' we choose the one that comes immediately after one of the binomial words. There's a slim chance this will break if there are multiple ands AND the word in the binomial is tokenized into subtokens. However, this is probably pretty unlikely).
+
+-finding the positions of words that begin with a space
+
+-find the largest position starting with a space that is still smaller than the position of ' and'
+
+```{python}
+def find_and_index(words, word_alpha):
+    positions = []
+    found_word_a = False
+
+    for i, word in enumerate(words):
+        if word == ' and' and found_word_a:
+            positions.append(i)
+            found_word_a = False
+        elif word.strip(' ') == word_alpha:
+            found_word_a = True
+        else:
+            found_word_a = False
+    
+    if positions == []:
+        positions.append(words.index(' and'))
+        
+    return positions[0]
+      
+# Initialize an empty list to store the positions
+positions = []
+
+# Iterate through rows and words
+for row_index, row in enumerate(reading_time_data['Word_list']):
+    word_positions = []
+    for word_index, word in enumerate(row):
+        if word.startswith(' '):
+            word_positions.append(word_index)
+    positions.append(word_positions)
+
+reading_time_data['alpha_space_conditions'] = positions
+
+positions = []
+for row_index, row in enumerate(reading_time_data['Word_list_nonalpha']):
+    word_positions = []
+    for word_index, word in enumerate(row):
+        if word.startswith(' '):
+            word_positions.append(word_index)
+    positions.append(word_positions)
+    
+# Create a new column 'position' in the DataFrame
+
+reading_time_data['nonalpha_space_conditions'] = positions
+
+
+# Apply the function to create a new column 'and_index'
+reading_time_data['and_index'] = reading_time_data.apply(lambda row: find_and_index(row['Word_list'], row['WordA']), axis=1)
+#reading_time_data['and_index'] = reading_time_data['Word_list'].apply(find_and_index, 'WordA')
+
+#def num_tokens(word):
+  #tokens_in_word = tokenizer(word, return_tensors="pt").input_ids
+  #return tokens_in_word.numel()
+
+
+# Define a custom function to find the largest number in the list that is less than the comparison number
+def find_largest_less_than(nums, comparison_num):
+    valid_nums = [num for num in nums if num < comparison_num]
+    if valid_nums:
+        return max(valid_nums)
+    else:
+        return None
+
+# Apply the custom function to create a new column 'largest_less_than'
+reading_time_data['largest_less_than_alpha'] = reading_time_data.apply(lambda row: find_largest_less_than(row['alpha_space_conditions'], row['and_index']), axis=1)
+
+reading_time_data['largest_less_than_nonalpha'] = reading_time_data.apply(lambda row: find_largest_less_than(row['nonalpha_space_conditions'], row['and_index']), axis=1)
+  
+
+#reading_time_data['alpha_diff'] = reading_time_data['largest_less_than_alpha'] - reading_time_data['and_index']
+#reading_time_data['alpha_bpe_num'] = reading_time_data['WordA'].apply(num_tokens)
+#reading_time_data['nonalpha_bpe_num'] = reading_time_data['WordB'].apply(num_tokens)
+```
+
+Finally let's extract the numbers for the 6-word region we care about:
+
+<!--# Flaw with this: it's actually a 6-bpe token region, not a 6-word region -- prob worth discussing -->
+
+```{python}
+def new_list(row):
+    index = row['largest_less_than_alpha']
+    number_list = row['Second_Item_List']
+    sentence = row['Word_list']
+    
+    new_list = []
+    space_count = 0
+    for word in sentence[index:]:
+        if space_count < 6:
+            new_list.append(word)
+            if word.startswith(' '):
+                space_count += 1
+        else:
+            break
+    
+    if 0 <= index < len(number_list):
+        return number_list[index:(index+len(new_list))]
+      
+    else:
+        return None
+      
+def new_list_nonalpha(row):
+    index = row['largest_less_than_nonalpha']
+    number_list = row['Second_Item_List_nonalpha']
+    sentence = row['Word_list_nonalpha']
+    
+    new_list = []
+    space_count = 0
+    for word in sentence[index:]:
+        if space_count < 6:
+            new_list.append(word)
+            if word.startswith(' '):
+                space_count += 1
+        else:
+            break
+    
+    if 0 <= index < len(number_list):
+        return number_list[index:(index+len(new_list))]
+      
+    else:
+        return None
+      
+ 
+# Apply the function to create the 'extracted_number_column'
+reading_time_data['extracted_number_column_alpha'] = reading_time_data.apply(new_list, axis=1)
+reading_time_data['extracted_number_column_nonalpha'] = reading_time_data.apply(new_list_nonalpha, axis = 1)
+
+def sum_numbers(row):
+  return sum(row)
+
+def word_region_alpha(row):
+  index = row['largest_less_than_alpha']
+  word_list = row['Word_list']
+  max_number = len(row['extracted_number_column_alpha'])
+  word_list = word_list[index:(index+max_number)]
+  return word_list
+
+reading_time_data['reading_times_alpha'] = reading_time_data['extracted_number_column_alpha'].apply(sum_numbers)
+reading_time_data['reading_times_nonalpha'] = reading_time_data['extracted_number_column_nonalpha'].apply(sum_numbers)
+
+reading_time_data['subset_words_alpha'] = reading_time_data.apply(word_region_alpha, axis = 1)
+```
+
+```{python}
+columns_to_keep = ['WordA', 'WordB', 'Sentence', 'reading_times_alpha', 'reading_times_nonalpha']
+reading_time_data = reading_time_data[columns_to_keep]
+```
+
+```{r}
+reading_time_data = py$reading_time_data %>%
+  mutate(rt_AandB = exp(reading_times_alpha) / (exp(reading_times_alpha) + exp(reading_times_nonalpha)))
+
+write_csv(reading_time_data, '../Data/gpt2_reading_time_data.csv')
+```
+
+## Llama 7-b
+
+### 2AFC
+
+Here's our function to get the probability of the next word in the sentence:
+
+```{python}
+#load packages
+
+import gc
+torch.cuda.empty_cache()
+gc.collect() #clear our gpu memory
+
+
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, logging
+from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
+import numpy as np
+from torch import nn
+#from collections import defaultdict
+import pandas as pd
+import re
+import pickle
+#import matplotlib.pyplot as plt
+
+model_name_or_path = "TheBloke/Llama-2-7b-GPTQ"
+model_basename = "model"
+
+use_triton = False
+
+tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
+tokenizer.pad_token = tokenizer.eos_token
+
+
+model = AutoGPTQForCausalLM.from_quantized(model_name_or_path,
+        model_basename=model_basename,
+        use_safetensors=True,
+        trust_remote_code=True,
+        device="cuda:0",
+        use_triton=use_triton,
+        quantize_config=None)
+        
+model.config.pad_token_id = model.config.eos_token_id
+
+```
+
+Courtesy of this thread: <https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/17>
+
+```{python}
+from pprint import pprint
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import pickle
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+#device = 'cpu'
+model = model.to(device)
+
+def to_tokens_and_logprobs(model, tokenizer, input_texts):
+    
+
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").to(device).input_ids
+    input_ids = input_ids.to(device)
+    
+    outputs = model(input_ids)
+    probs = torch.log_softmax(outputs.logits, dim=-1).detach()
+
+    # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
+    probs = probs[:, :-1, :]
+    input_ids = input_ids[:, 1:]
+    gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
+    
+    batch = []
+    for input_sentence, input_probs in zip(input_ids, gen_probs):
+        text_sequence = []
+        for token, p in zip(input_sentence, input_probs):
+            if token not in tokenizer.all_special_ids:
+                text_sequence.append((tokenizer.decode(token), p.item()))
+        batch.append(text_sequence)
+    return batch
+
+
+#input_texts = ["The boy went outside to fly his kite.", "this is a test."]
+
+#batch = to_tokens_and_logprobs(model, tokenizer, input_texts)
+#sentence_probs = [sum(item[1] for item in inner_list) for inner_list in batch]
+
+#binom_probs = {}
+
+
+#pprint(batch)
+```
+
+Now we'll apply this to each sentence:
+
+<!--# can look into parallelizing batch runs later -->
+
+get alpha probs:
+
+```{python}
+#R keeps crashing, maybe we need to run in smaller chunks
+input_texts_alpha = r.binomial_alpha
+n_batches = len(input_texts_alpha) / 25
+print(n_batches)
+
+
+
+input_texts_alpha = np.array_split(input_texts_alpha, n_batches)
+input_texts_alpha = [x.tolist() for x in [*input_texts_alpha]]
+
+batch_alpha = [[]]
+timer = 0
+for minibatch in input_texts_alpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_alpha.extend(batch_placeholder)
+  
+
+batch_alpha = batch_alpha[1:]
+sentence_probs_alpha = [sum(item[1] for item in inner_list) for inner_list in batch_alpha]
+
+<<<<<<< HEAD
+# 
+=======
+
+>>>>>>> 41e28855c125db35e9335f85cfdf9ac2edb20e21
+# with open('sentence_probs_alpha_llama7b.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_alpha, f)
+
+
+#count = 0
+#for item in batch_alpha[1]: 
+    #count += item[1]
+
+
+#pprint(batch_alpha)
+#pprint(batch_nonalpha)
+```
+
+```{r}
+#batch_alpha_gpt2xl = as.data.frame(py$batch_alpha)
+
+#write_csv(batch_alpha_gpt2xl, '../Data/gpt2xl_batch_alpha.csv')
+#data = read_csv('../Data/llama7b_batch_alpha.csv')
+```
+
+Get nonalpha probs:
+
+```{python}
+input_texts_nonalpha = r.binomial_nonalpha
+
+n_batches = len(input_texts_nonalpha) / 25
+#input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
+
+
+
+input_texts_nonalpha = np.array_split(input_texts_nonalpha, n_batches)
+input_texts_nonalpha = [x.tolist() for x in [*input_texts_nonalpha]]
+
+
+
+batch_nonalpha = [[]]
+timer = 0
+for minibatch in input_texts_nonalpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_nonalpha.extend(batch_placeholder)
+  
+
+batch_nonalpha = batch_nonalpha[1:]
+
+#batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
+#batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+
+sentence_probs_nonalpha = [sum(item[1] for item in inner_list) for inner_list in batch_nonalpha]
+
+# with open('sentence_probs_nonalpha_llama7b.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_nonalpha, f)
+```
+
+```{r}
+# batch_nonalpha_gpt2xl = as.data.frame(py$batch_nonalpha)
+# 
+# write_csv(batch_nonalpha_gpt2xl, '../Data/llama7b_batch_nonalpha.csv')
+```
+
+Combine them:
+
+```{python}
+# file_sentence_alpha = open('sentence_probs_alpha_gpt2xl.obj', 'rb')
+# sentence_probs_alpha = pickle.load(file_sentence_alpha)
+# 
+# file_sentence_nonalpha = open('sentence_probs_nonalpha_gpt2xl.obj', 'rb')
+# sentence_probs_nonalpha = pickle.load(file_sentence_nonalpha)
+
+binom_probs = {}
+
+for i,row in enumerate(r.data_for_analysis.itertuples()):
+  binom = row[1] + ' and ' + row[2]
+  binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
+
+
+binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
+binom_probs_df.reset_index(inplace=True)
+binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
+```
+
+```{r}
+binom = py$binom_probs_df
+
+binom = binom %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`)))
+
+write_csv(binom, '../Data/llama7b_2afc_ordering_prefs.csv')
+
+#data = read_csv('../Data/llama7b_2afc_ordering_prefs.csv')
+```
+
+### Reading Times
+
+We can do largely the same procedure for reading times, but we want to take into account the spillover region. So instead of looking at the entire sentence (as in the 2afc), we will look at the region that contains the first binomial and the 5 following words.
+
+```{r}
+# r_to_py(data_for_analysis)
+```
+
+First let's get the probabilities and words for each sentence as columns in the df:
+
+```{python}
+reading_time_data = r.data_for_analysis
+
+second_item_lists = [[item[1] for item in sublist] for sublist in batch_alpha]
+second_item_lists_nonalpha = [[item[1] for item in sublist] for sublist in batch_nonalpha]
+word_list = [[item[0] for item in sublist] for sublist in batch_alpha]
+word_list_nonalpha = [[item[0] for item in sublist] for sublist in batch_nonalpha]
+new_df = pd.DataFrame({'Second_Item_List': second_item_lists, 'Word_list': word_list, 'Second_Item_List_nonalpha': second_item_lists_nonalpha, 'Word_list_nonalpha': word_list_nonalpha})
+reading_time_data = pd.concat([reading_time_data, new_df], axis = 1)
+
+
+
+
+```
+
+We need to get a bit creative for the next part:
+
+If items are split within word, they don't start with a space. So items starting with a space are a whole word. 'and' is also always a whole word, so we can index where ' and' is and find the closest word starting with a space that comes before ' and'.
+
+We'll do this by:
+
+-finding the position of ' and' (if there are multiple 'ands' we choose the one that comes immediately after one of the binomial words. There's a slim chance this will break if there are multiple ands AND the word in the binomial is tokenized into subtokens. However, this is probably pretty unlikely).
+
+-finding the positions of words that begin with a space
+
+-find the largest position starting with a space that is still smaller than the position of ' and'
+
+```{python}
+def find_and_index(words, word_alpha):
+    positions = []
+    found_word_a = False
+
+    for i, word in enumerate(words):
+        if word == 'and' and found_word_a:
+            positions.append(i)
+            found_word_a = False
+        elif word.strip(' ') == word_alpha:
+            found_word_a = True
+        else:
+            found_word_a = False
+    
+    if positions == []:
+        positions.append(words.index('and'))
+        
+    return positions[0]
+      
+# Initialize an empty list to store the positions
+positions = []
+
+# Iterate through rows and words
+for row_index, row in enumerate(reading_time_data['Word_list']):
+    word_positions = []
+    for word_index, word in enumerate(row):
+        if word.startswith(''):
+            word_positions.append(word_index)
+    positions.append(word_positions)
+
+reading_time_data['alpha_space_conditions'] = positions
+
+positions = []
+for row_index, row in enumerate(reading_time_data['Word_list_nonalpha']):
+    word_positions = []
+    for word_index, word in enumerate(row):
+        if word.startswith(''):
+            word_positions.append(word_index)
+    positions.append(word_positions)
+    
+# Create a new column 'position' in the DataFrame
+
+reading_time_data['nonalpha_space_conditions'] = positions
+
+
+# Apply the function to create a new column 'and_index'
+reading_time_data['and_index'] = reading_time_data.apply(lambda row: find_and_index(row['Word_list'], row['WordA']), axis=1)
+#reading_time_data['and_index'] = reading_time_data['Word_list'].apply(find_and_index, 'WordA')
+
+#def num_tokens(word):
+  #tokens_in_word = tokenizer(word, return_tensors="pt").input_ids
+  #return tokens_in_word.numel()
+
+
+# Define a custom function to find the largest number in the list that is less than the comparison number
+def find_largest_less_than(nums, comparison_num):
+    valid_nums = [num for num in nums if num < comparison_num]
+    if valid_nums:
+        return max(valid_nums)
+    else:
+        return None
+
+# Apply the custom function to create a new column 'largest_less_than'
+reading_time_data['largest_less_than_alpha'] = reading_time_data.apply(lambda row: find_largest_less_than(row['alpha_space_conditions'], row['and_index']), axis=1)
+
+reading_time_data['largest_less_than_nonalpha'] = reading_time_data.apply(lambda row: find_largest_less_than(row['nonalpha_space_conditions'], row['and_index']), axis=1)
+  
+
+#reading_time_data['alpha_diff'] = reading_time_data['largest_less_than_alpha'] - reading_time_data['and_index']
+#reading_time_data['alpha_bpe_num'] = reading_time_data['WordA'].apply(num_tokens)
+#reading_time_data['nonalpha_bpe_num'] = reading_time_data['WordB'].apply(num_tokens)
+```
+
+Finally let's extract the numbers for the 6-word region we care about:
+
+For llama 7b we have to use bpe for now because there's no clear way to calculate the 6-word region other than manually noting it (which may just be what I'll do)
+
+TO-DO: SOLVE THIS!
+
+```{python}
+def new_list(row):
+    index = row['largest_less_than_alpha']
+    number_list = row['Second_Item_List']
+    
+    if 0 <= index < len(number_list):
+        return number_list[index:(index+6)]
+      
+    else:
+        return None
+      
+def new_list_nonalpha(row):
+    index = row['largest_less_than_nonalpha']
+    number_list = row['Second_Item_List_nonalpha']
+    sentence = row['Word_list_nonalpha']
+    
+    if 0 <= index < len(number_list):
+        return number_list[index:(index+6)]
+      
+    else:
+        return None
+      
+ 
+# Apply the function to create the 'extracted_number_column'
+reading_time_data['extracted_number_column_alpha'] = reading_time_data.apply(new_list, axis=1)
+reading_time_data['extracted_number_column_nonalpha'] = reading_time_data.apply(new_list_nonalpha, axis = 1)
+
+def sum_numbers(row):
+  return sum(row)
+
+def word_region_alpha(row):
+  index = row['largest_less_than_alpha']
+  word_list = row['Word_list']
+  max_number = len(row['extracted_number_column_alpha'])
+  word_list = word_list[index:(index+max_number)]
+  return word_list
+
+reading_time_data['reading_times_alpha'] = reading_time_data['extracted_number_column_alpha'].apply(sum_numbers)
+reading_time_data['reading_times_nonalpha'] = reading_time_data['extracted_number_column_nonalpha'].apply(sum_numbers)
+
+reading_time_data['subset_words_alpha'] = reading_time_data.apply(word_region_alpha, axis = 1)
+```
+
+```{python}
+columns_to_keep = ['WordA', 'WordB', 'Sentence', 'reading_times_alpha', 'reading_times_nonalpha']
+reading_time_data = reading_time_data[columns_to_keep]
+```
+
+```{r}
+reading_time_data = py$reading_time_data
+
+write_csv(reading_time_data, '../Data/llama7b_reading_time_data.csv')
+```
+
+## Llama 13-b
+
+### 2AFC
+
+Here's our function to get the probability of the next word in the sentence:
+
+```{python}
+#load packages
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, logging
+from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
+import numpy as np
+from torch import nn
+#from collections import defaultdict
+import pandas as pd
+import re
+import pickle
+#import matplotlib.pyplot as plt
+
+model_name_or_path = "TheBloke/Llama-2-13b-GPTQ"
+model_basename = "model"
+
+use_triton = False
+
+tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
+tokenizer.pad_token = tokenizer.eos_token
+
+
+model = AutoGPTQForCausalLM.from_quantized(model_name_or_path,
+        model_basename=model_basename,
+        use_safetensors=True,
+        trust_remote_code=True,
+        device="cuda:0",
+        use_triton=use_triton,
+        quantize_config=None)
+        
+model.config.pad_token_id = model.config.eos_token_id
+
+```
+
+Courtesy of this thread: <https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/17>
+
+```{python}
+from pprint import pprint
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import pickle
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+#device = 'cpu'
+model = model.to(device)
+
+def to_tokens_and_logprobs(model, tokenizer, input_texts):
+    
+
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").to(device).input_ids
+    input_ids = input_ids.to(device)
+    
+    outputs = model(input_ids)
+    probs = torch.log_softmax(outputs.logits, dim=-1).detach()
+
+    # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
+    probs = probs[:, :-1, :]
+    input_ids = input_ids[:, 1:]
+    gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
+    
+    batch = []
+    for input_sentence, input_probs in zip(input_ids, gen_probs):
+        text_sequence = []
+        for token, p in zip(input_sentence, input_probs):
+            if token not in tokenizer.all_special_ids:
+                text_sequence.append((tokenizer.decode(token), p.item()))
+        batch.append(text_sequence)
+    return batch
+
+
+#input_texts = ["The boy went outside to fly his kite.", "this is a test."]
+
+#batch = to_tokens_and_logprobs(model, tokenizer, input_texts)
+#sentence_probs = [sum(item[1] for item in inner_list) for inner_list in batch]
+
+#binom_probs = {}
+
+
+#pprint(batch)
+```
+
+Now we'll apply this to each sentence:
+
+<!--# can look into parallelizing batch runs later -->
+
+get alpha probs:
+
+```{python}
+#R keeps crashing, maybe we need to run in smaller chunks
+input_texts_alpha = r.binomial_alpha
+n_batches = len(input_texts_alpha) / 50
+print(n_batches)
+
+
+
+input_texts_alpha = np.array_split(input_texts_alpha, n_batches)
+input_texts_alpha = [x.tolist() for x in [*input_texts_alpha]]
+
+batch_alpha = [[]]
+timer = 0
+for minibatch in input_texts_alpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_alpha.extend(batch_placeholder)
+  
+
+batch_alpha = batch_alpha[1:]
+sentence_probs_alpha = [sum(item[1] for item in inner_list) for inner_list in batch_alpha]
+
+# 
+# with open('sentence_probs_alpha_llama7b.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_alpha, f)
+
+
+#count = 0
+#for item in batch_alpha[1]: 
+    #count += item[1]
+
+
+#pprint(batch_alpha)
+#pprint(batch_nonalpha)
+```
+
+```{r}
+#batch_alpha_gpt2xl = as.data.frame(py$batch_alpha)
+
+#write_csv(batch_alpha_gpt2xl, '../Data/gpt2xl_batch_alpha.csv')
+#data = read_csv('../Data/llama7b_batch_alpha.csv')
+```
+
+Get nonalpha probs:
+
+```{python}
+input_texts_nonalpha = r.binomial_nonalpha
+
+n_batches = len(input_texts_nonalpha) / 50
+#input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
+
+
+
+input_texts_nonalpha = np.array_split(input_texts_nonalpha, n_batches)
+input_texts_nonalpha = [x.tolist() for x in [*input_texts_nonalpha]]
+
+
+
+batch_nonalpha = [[]]
+timer = 0
+for minibatch in input_texts_nonalpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_nonalpha.extend(batch_placeholder)
+  
+
+batch_nonalpha = batch_nonalpha[1:]
+
+#batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
+#batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+
+sentence_probs_nonalpha = [sum(item[1] for item in inner_list) for inner_list in batch_nonalpha]
+
+# with open('sentence_probs_nonalpha_llama7b.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_nonalpha, f)
+```
+
+```{r}
+# batch_nonalpha_gpt2xl = as.data.frame(py$batch_nonalpha)
+# 
+# write_csv(batch_nonalpha_gpt2xl, '../Data/llama7b_batch_nonalpha.csv')
+```
+
+Combine them:
+
+```{python}
+# file_sentence_alpha = open('sentence_probs_alpha_gpt2xl.obj', 'rb')
+# sentence_probs_alpha = pickle.load(file_sentence_alpha)
+# 
+# file_sentence_nonalpha = open('sentence_probs_nonalpha_gpt2xl.obj', 'rb')
+# sentence_probs_nonalpha = pickle.load(file_sentence_nonalpha)
+
+binom_probs = {}
+
+for i,row in enumerate(r.data_for_analysis.itertuples()):
+  binom = row[1] + ' and ' + row[2]
+  binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
+
+
+binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
+binom_probs_df.reset_index(inplace=True)
+binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
+```
+
+```{r}
+binom = py$binom_probs_df
+
+binom = binom %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`)))
+
+write_csv(binom, '../Data/llama7b_2afc_ordering_prefs.csv')
+
+#data = read_csv('../Data/llama7b_2afc_ordering_prefs.csv')
+```
+
+### Reading Times
+
+We can do largely the same procedure for reading times, but we want to take into account the spillover region. So instead of looking at the entire sentence (as in the 2afc), we will look at the region that contains the first binomial and the 5 following words.
+
+```{r}
+# r_to_py(data_for_analysis)
+```
+
+First let's get the probabilities and words for each sentence as columns in the df:
+
+```{python}
+reading_time_data = r.data_for_analysis
+
+second_item_lists = [[item[1] for item in sublist] for sublist in batch_alpha]
+second_item_lists_nonalpha = [[item[1] for item in sublist] for sublist in batch_nonalpha]
+word_list = [[item[0] for item in sublist] for sublist in batch_alpha]
+word_list_nonalpha = [[item[0] for item in sublist] for sublist in batch_nonalpha]
+new_df = pd.DataFrame({'Second_Item_List': second_item_lists, 'Word_list': word_list, 'Second_Item_List_nonalpha': second_item_lists_nonalpha, 'Word_list_nonalpha': word_list_nonalpha})
+reading_time_data = pd.concat([reading_time_data, new_df], axis = 1)
+
+
+
+
+```
+
+We need to get a bit creative for the next part:
+
+If items are split within word, they don't start with a space. So items starting with a space are a whole word. 'and' is also always a whole word, so we can index where ' and' is and find the closest word starting with a space that comes before ' and'.
+
+We'll do this by:
+
+-finding the position of ' and' (if there are multiple 'ands' we choose the one that comes immediately after one of the binomial words. There's a slim chance this will break if there are multiple ands AND the word in the binomial is tokenized into subtokens. However, this is probably pretty unlikely).
+
+-finding the positions of words that begin with a space
+
+-find the largest position starting with a space that is still smaller than the position of ' and'
+
+```{python}
+def find_and_index(words, word_alpha):
+    positions = []
+    found_word_a = False
+
+    for i, word in enumerate(words):
+        if word == 'and' and found_word_a:
+            positions.append(i)
+            found_word_a = False
+        elif word.strip(' ') == word_alpha:
+            found_word_a = True
+        else:
+            found_word_a = False
+    
+    if positions == []:
+        positions.append(words.index('and'))
+        
+    return positions[0]
+      
+# Initialize an empty list to store the positions
+positions = []
+
+# Iterate through rows and words
+for row_index, row in enumerate(reading_time_data['Word_list']):
+    word_positions = []
+    for word_index, word in enumerate(row):
+        if word.startswith(''):
+            word_positions.append(word_index)
+    positions.append(word_positions)
+
+reading_time_data['alpha_space_conditions'] = positions
+
+positions = []
+for row_index, row in enumerate(reading_time_data['Word_list_nonalpha']):
+    word_positions = []
+    for word_index, word in enumerate(row):
+        if word.startswith(''):
+            word_positions.append(word_index)
+    positions.append(word_positions)
+    
+# Create a new column 'position' in the DataFrame
+
+reading_time_data['nonalpha_space_conditions'] = positions
+
+
+# Apply the function to create a new column 'and_index'
+reading_time_data['and_index'] = reading_time_data.apply(lambda row: find_and_index(row['Word_list'], row['WordA']), axis=1)
+#reading_time_data['and_index'] = reading_time_data['Word_list'].apply(find_and_index, 'WordA')
+
+#def num_tokens(word):
+  #tokens_in_word = tokenizer(word, return_tensors="pt").input_ids
+  #return tokens_in_word.numel()
+
+
+# Define a custom function to find the largest number in the list that is less than the comparison number
+def find_largest_less_than(nums, comparison_num):
+    valid_nums = [num for num in nums if num < comparison_num]
+    if valid_nums:
+        return max(valid_nums)
+    else:
+        return None
+
+# Apply the custom function to create a new column 'largest_less_than'
+reading_time_data['largest_less_than_alpha'] = reading_time_data.apply(lambda row: find_largest_less_than(row['alpha_space_conditions'], row['and_index']), axis=1)
+
+reading_time_data['largest_less_than_nonalpha'] = reading_time_data.apply(lambda row: find_largest_less_than(row['nonalpha_space_conditions'], row['and_index']), axis=1)
+  
+
+#reading_time_data['alpha_diff'] = reading_time_data['largest_less_than_alpha'] - reading_time_data['and_index']
+#reading_time_data['alpha_bpe_num'] = reading_time_data['WordA'].apply(num_tokens)
+#reading_time_data['nonalpha_bpe_num'] = reading_time_data['WordB'].apply(num_tokens)
+```
+
+Finally let's extract the numbers for the 6-word region we care about:
+
+For llama 7b we have to use bpe for now because there's no clear way to calculate the 6-word region other than manually noting it (which may just be what I'll do)
+
+TO-DO: SOLVE THIS!
+
+```{python}
+def new_list(row):
+    index = row['largest_less_than_alpha']
+    number_list = row['Second_Item_List']
+    
+    if 0 <= index < len(number_list):
+        return number_list[index:(index+6)]
+      
+    else:
+        return None
+      
+def new_list_nonalpha(row):
+    index = row['largest_less_than_nonalpha']
+    number_list = row['Second_Item_List_nonalpha']
+    sentence = row['Word_list_nonalpha']
+    
+    if 0 <= index < len(number_list):
+        return number_list[index:(index+6)]
+      
+    else:
+        return None
+      
+ 
+# Apply the function to create the 'extracted_number_column'
+reading_time_data['extracted_number_column_alpha'] = reading_time_data.apply(new_list, axis=1)
+reading_time_data['extracted_number_column_nonalpha'] = reading_time_data.apply(new_list_nonalpha, axis = 1)
+
+def sum_numbers(row):
+  return sum(row)
+
+def word_region_alpha(row):
+  index = row['largest_less_than_alpha']
+  word_list = row['Word_list']
+  max_number = len(row['extracted_number_column_alpha'])
+  word_list = word_list[index:(index+max_number)]
+  return word_list
+
+reading_time_data['reading_times_alpha'] = reading_time_data['extracted_number_column_alpha'].apply(sum_numbers)
+reading_time_data['reading_times_nonalpha'] = reading_time_data['extracted_number_column_nonalpha'].apply(sum_numbers)
+
+reading_time_data['subset_words_alpha'] = reading_time_data.apply(word_region_alpha, axis = 1)
+```
+
+```{python}
+columns_to_keep = ['WordA', 'WordB', 'Sentence', 'reading_times_alpha', 'reading_times_nonalpha']
+reading_time_data = reading_time_data[columns_to_keep]
+```
+
+```{r}
+reading_time_data = py$reading_time_data
+
+write_csv(reading_time_data, '../Data/llama7b_reading_time_data.csv')
+```
+
+
+# Binomials only (no sentences)
+
+## Loading Data
+
+```{r}
+data_just_binoms = read_csv('../Data/corpus_sentences.csv') %>%
+  filter(!`Too weird?` %in% c('maybe', 'too weird', 'yes')) %>%
+  filter(!is.na(Sentence)) %>%
+  mutate('AandB' = paste0('Next item: ', WordA, ' and ', WordB)) %>%
+  mutate('BandA' = paste0('Next item: ', WordB, ' and ', WordA))
+
+binomial_alpha = data_just_binoms$AandB
+binomial_nonalpha = data_just_binoms$BandA
+
+data_for_analysis = data_just_binoms
+# data = read_csv('../Data/materials.csv') %>%
+#   left_join(data2, by = c('WordA', 'WordB'))
+# data_novel = read_csv('../Data/corpus_novel.csv') %>%
+#   filter(`Experimental sentence` != 'x') %>%
+#   select(WordA, WordB, AlphaN, Freq, OverallFreq, RelFreq, `Experimental sentence`, `...21`, `...22`, model.prop) %>%
+#   rename('Sentence (WordA and WordB)' = `...21`, 'Sentence (WordB and WordA)' = `...22`, "Sentence" = `Experimental sentence`, 'GenPref' = model.prop) %>%
+#   mutate(CollegeFreq = OverallFreq / 323592921465 * 350000000)
+# 
+# data_for_analysis = data %>%
+#   full_join(data_novel)
+# 
+# binomial_alpha = data_for_analysis$`Sentence (WordA and WordB)`
+# binomial_nonalpha = data_for_analysis$`Sentence (WordB and WordA)`
+```
+
+## GPTXL
+
+### 2AFC
+
+Here's our function to get the probability of the next word in the sentence:
+
+```{python}
+#load packages
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import numpy as np
+from torch import nn
+#from collections import defaultdict
+import pandas as pd
+import re
+#import matplotlib.pyplot as plt
+
+tokenizer = AutoTokenizer.from_pretrained("gpt2-xl") #we'll use chat-gpt2, but we could use another model if we wanted
+tokenizer.pad_token = tokenizer.eos_token
+
+model = AutoModelForCausalLM.from_pretrained("gpt2-xl", return_dict_in_generate=True) #load the model
+model.config.pad_token_id = model.config.eos_token_id
+
+```
+
+Courtesy of this thread: <https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/17>
+
+```{python}
+from pprint import pprint
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import pickle
+#device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+#device = 'cpu'
+model = model.to(device)
+
+def to_tokens_and_logprobs(model, tokenizer, input_texts):
+  
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").to(device).input_ids
+  
+    outputs = model(input_ids)
+    probs = torch.log_softmax(outputs.logits, dim=-1).detach()
+
+    # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
+    probs = probs[:, :-1, :]
+    input_ids = input_ids[:, 1:]
+    gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
+    
+    batch = []
+    for input_sentence, input_probs in zip(input_ids, gen_probs):
+        text_sequence = []
+        for token, p in zip(input_sentence, input_probs):
+            if token not in tokenizer.all_special_ids:
+                text_sequence.append((tokenizer.decode(token), p.item()))
+        batch.append(text_sequence)
+    return batch
+
+
+#input_texts = ["The boy went outside to fly his kite.", "this is a test."]
+
+#batch = to_tokens_and_logprobs(model, tokenizer, input_texts)
+#sentence_probs = [sum(item[1] for item in inner_list) for inner_list in batch]
+
+#binom_probs = {}
+
+#pprint(batch)
+```
+
+Now we'll apply this to each sentence:
+
+<!--# can look into parallelizing batch runs later -->
+
+get alpha probs:
+
+```{python}
+#R keeps crashing, maybe we need to run in smaller chunks
+input_texts_alpha = r.binomial_alpha
+n_batches = len(input_texts_alpha) / 50
+print(n_batches)
+
+
+
+input_texts_alpha = np.array_split(input_texts_alpha, n_batches)
+input_texts_alpha = [x.tolist() for x in [*input_texts_alpha]]
+
+batch_alpha = [[]]
+timer = 0
+for minibatch in input_texts_alpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_alpha.extend(batch_placeholder)
+  
+
+batch_alpha = batch_alpha[1:]
+sentence_probs_alpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_alpha]
+
+# 
+# with open('binom_probs_alpha_gpt2xl.obj', 'wb') as f: #just in case R crashes
+#   pickle.dump(sentence_probs_alpha, f)
+
+
+#count = 0
+#for item in batch_alpha[1]: 
+    #count += item[1]
+
+
+#pprint(batch_alpha)
+#pprint(batch_nonalpha)
+```
+
+```{r}
+# batch_alpha_gpt2xl = as.data.frame(py$batch_alpha)
+# 
+# write_csv(batch_alpha_gpt2xl, '../Data/gpt2xl_batch_alpha_binom_probs.csv')
+# #data = read_csv('../Data/gpt2xl_batch_alpha_binom_probs.csv')
+```
+
+Get nonalpha probs:
+
+```{python}
+input_texts_nonalpha = r.binomial_nonalpha
+
+n_batches = len(input_texts_nonalpha) / 50
+#input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
+
+
+
+input_texts_nonalpha = np.array_split(input_texts_nonalpha, n_batches)
+input_texts_nonalpha = [x.tolist() for x in [*input_texts_nonalpha]]
+
+
+
+batch_nonalpha = [[]]
+timer = 0
+for minibatch in input_texts_nonalpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_nonalpha.extend(batch_placeholder)
+  
+batch_nonalpha = batch_nonalpha[1:]
+
+#batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
+#batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+
+#sentence_probs_nonalpha = [sum(item[1] for item in inner_list) for inner_list in batch_nonalpha]
+sentence_probs_nonalpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_nonalpha]
+
+with open('binom_probs_nonalpha_gpt2xl.obj', 'wb') as f:
+  pickle.dump(sentence_probs_nonalpha, f)
+
+```
+
+```{r}
+# batch_nonalpha_gpt2xl = as.data.frame(py$batch_nonalpha)
+# 
+# write_csv(batch_nonalpha_gpt2xl, '../Data/gpt2xl_batch_nonalpha_binom_probs.csv')
+```
+
+Combine them:
+
+```{python}
+# file_sentence_alpha = open('binom_probs_alpha_gpt2xl.obj', 'rb')
+# sentence_probs_alpha = pickle.load(file_sentence_alpha)
+# 
+# file_sentence_nonalpha = open('binom_probs_nonalpha_gpt2xl.obj', 'rb')
+# sentence_probs_nonalpha = pickle.load(file_sentence_nonalpha)
+
+binom_probs = {}
+
+for i,row in enumerate(r.data_for_analysis.itertuples()):
+  binom = row[1] + ' and ' + row[2]
+  binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
+
+
+
+binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
+binom_probs_df.reset_index(inplace=True)
+binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
+```
+
+```{r}
+binom = py$binom_probs_df
+
+binom = binom %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`))) %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`)
+
+write_csv(binom, '../Data/gpt2xl_2afc_binom_ordering_prefs.csv')
+
+#data = read_csv('../Data/gpt2xl_2afc_binom_ordering_prefs.csv')
+```
+
+## GPT2 (not xl)
+
+### 2afc
+
+```{python}
+#load packages
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import numpy as np
+from torch import nn
+from collections import defaultdict
+import pandas as pd
+import re
+
+tokenizer = AutoTokenizer.from_pretrained("gpt2") #we'll use chat-gpt2, but we could use another model if we wanted
+tokenizer.pad_token = tokenizer.eos_token
+
+model = AutoModelForCausalLM.from_pretrained("gpt2", return_dict_in_generate=True) #load the model
+model.config.pad_token_id = model.config.eos_token_id
+
+```
+
+Courtesy of this thread: <https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/17>
+
+```{python}
+from pprint import pprint
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+#device = 'cpu'
+model = model.to(device)
+
+
+def to_tokens_and_logprobs(model, tokenizer, input_texts):
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").input_ids
+    
+    outputs = model(input_ids)
+    probs = torch.log_softmax(outputs.logits, dim=-1).detach()
+
+    # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
+    probs = probs[:, :-1, :]
+    input_ids = input_ids[:, 1:]
+    gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
+
+    batch = []
+    for input_sentence, input_probs in zip(input_ids, gen_probs):
+        text_sequence = []
+        for token, p in zip(input_sentence, input_probs):
+            if token not in tokenizer.all_special_ids:
+                text_sequence.append((tokenizer.decode(token), p.item()))
+        batch.append(text_sequence)
+    return batch
+
+
+#input_texts = ["The boy went outside to fly his kite.", "this is a test."]
+
+#batch = to_tokens_and_logprobs(model, tokenizer, input_texts)
+#sentence_probs = [sum(item[1] for item in inner_list) for inner_list in batch]
+
+#binom_probs = {}
+
+
+#pprint(batch)
+```
+
+get alpha probs:
+
+```{python}
+#R keeps crashing, maybe we need to run in smaller chunks
+
+input_texts_alpha = r.binomial_alpha
+
+n_batches = len(input_texts_alpha) / 50
+
+
+
+input_texts_alpha = np.array_split(input_texts_alpha, n_batches)
+input_texts_alpha = [x.tolist() for x in [*input_texts_alpha]]
+
+batch_alpha = [[]]
+timer = 0
+for minibatch in input_texts_alpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_alpha.extend(batch_placeholder)
+  
+
+batch_alpha = batch_alpha[1:]
+sentence_probs_alpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_alpha]
+
+# 
+# with open('binom_probs_alpha_gpt2.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_alpha, f)
+
+
+
+
+#count = 0
+#for item in batch_alpha[1]: 
+    #count += item[1]
+
+
+#pprint(batch_alpha)
+#pprint(batch_nonalpha)
+```
+
+```{r}
+# batch_alpha_gpt2 = as.data.frame(py$batch_alpha)
+# 
+# write_csv(batch_alpha_gpt2, '../Data/gpt2_batch_alpha_binom_probs.csv')
+```
+
+Get nonalpha probs:
+
+```{python}
+input_texts_nonalpha = r.binomial_nonalpha
+
+n_batches = len(input_texts_nonalpha) / 50
+#input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
+
+
+
+input_texts_nonalpha = np.array_split(input_texts_nonalpha, n_batches)
+input_texts_nonalpha = [x.tolist() for x in [*input_texts_nonalpha]]
+
+
+
+batch_nonalpha = [[]]
+timer = 0
+for minibatch in input_texts_nonalpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_nonalpha.extend(batch_placeholder)
+  
+
+batch_nonalpha = batch_nonalpha[1:]
+
+#batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
+#batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+
+sentence_probs_nonalpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_nonalpha]
+
+
+
+# with open('binom_probs_nonalpha_gpt2.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_nonalpha, f)
+```
+
+```{r}
+# batch_nonalpha_gpt2 = as.data.frame(py$batch_nonalpha)
+# 
+# write_csv(batch_alpha_gpt2, '../Data/gpt2_batch_nonalpha_binom_probs.csv')
+```
+
+Combine them:
+
+```{python}
+#file_sentence_alpha = open('sentence_probs_alpha_gpt2.obj', 'r')
+#sentence_probls_alpha = pickle.load(file_sentence_alpha)
+
+#file_sentence_nonalpha = open('sentence_probs_nonalpha_gpt2.obj', 'r')
+#sentence_probs_nonalpha = pickle.load(file_sentence_nonalpha)
+
+binom_probs = {}
+
+for i,row in enumerate(r.data_for_analysis.itertuples()):
+  binom = row[1] + ' and ' + row[2]
+  binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
+
+
+binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
+binom_probs_df.reset_index(inplace=True)
+binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
+```
+
+```{r}
+binom = py$binom_probs_df
+
+binom = binom %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`))) %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`)
+
+write_csv(binom, '../Data/gpt2_2afc_binom_ordering_prefs.csv') 
+```
+
+## Llama 7-b
+
+### 2afc
+
+```{python}
+#load packages
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, logging
+from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
+import numpy as np
+from torch import nn
+from collections import defaultdict
+import pandas as pd
+import re
+
+model_name_or_path = "TheBloke/Llama-2-7b-GPTQ"
+model_basename = "model"
+
+use_triton = False
+
+tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
+tokenizer.pad_token = tokenizer.eos_token
+
+model = AutoGPTQForCausalLM.from_quantized(model_name_or_path,
+        model_basename=model_basename,
+        use_safetensors=True,
+        trust_remote_code=True,
+        device="cuda:0",
+        use_triton=use_triton,
+        quantize_config=None)
+        
+model.config.pad_token_id = model.config.eos_token_id
+
+#test_ids = tokenizer('this is a test', padding = True, return_tensors='pt').input_ids
+#test_output = model(test_ids)
+
+```
+
+Courtesy of this thread: <https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/17>
+
+```{python}
+from pprint import pprint
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+#device = 'cpu'
+model = model.to(device)
+
+def to_tokens_and_logprobs(model, tokenizer, input_texts):
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").input_ids
+    input_ids = input_ids.to(device)
+    
+    outputs = model(input_ids)
+    probs = torch.log_softmax(outputs.logits, dim=-1).detach()
+
+    # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
+    probs = probs[:, :-1, :]
+    input_ids = input_ids[:, 1:]
+    gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
+
+    batch = []
+    for input_sentence, input_probs in zip(input_ids, gen_probs):
+        text_sequence = []
+        for token, p in zip(input_sentence, input_probs):
+            if token not in tokenizer.all_special_ids:
+                text_sequence.append((tokenizer.decode(token), p.item()))
+        batch.append(text_sequence)
+    return batch
+
+
+#input_texts = ["The boy went outside to fly his kite.", "this is a test."]
+
+#batch = to_tokens_and_logprobs(model, tokenizer, input_texts)
+#sentence_probs = [sum(item[1] for item in inner_list) for inner_list in batch]
+
+#binom_probs = {}
+
+
+#pprint(batch)
+```
+
+get alpha probs:
+
+```{python}
+#R keeps crashing, maybe we need to run in smaller chunks
+
+input_texts_alpha = r.binomial_alpha
+
+n_batches = len(input_texts_alpha) / 50
+
+
+
+input_texts_alpha = np.array_split(input_texts_alpha, n_batches)
+input_texts_alpha = [x.tolist() for x in [*input_texts_alpha]]
+
+batch_alpha = [[]]
+timer = 0
+for minibatch in input_texts_alpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_alpha.extend(batch_placeholder)
+  
+
+batch_alpha = batch_alpha[1:]
+sentence_probs_alpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_alpha]
+
+
+# with open('binom_probs_alpha_llama7.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_alpha, f)
+
+
+
+
+#count = 0
+#for item in batch_alpha[1]: 
+    #count += item[1]
+
+
+#pprint(batch_alpha)
+#pprint(batch_nonalpha)
+```
+
+```{r}
+# batch_alpha_gpt2 = as.data.frame(py$batch_alpha)
+# 
+# write_csv(batch_alpha_gpt2, '../Data/llama7_batch_alpha_binom_probs.csv')
+```
+
+Get nonalpha probs:
+
+```{python}
+input_texts_nonalpha = r.binomial_nonalpha
+
+n_batches = len(input_texts_nonalpha) / 50
+#input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
+
+
+
+input_texts_nonalpha = np.array_split(input_texts_nonalpha, n_batches)
+input_texts_nonalpha = [x.tolist() for x in [*input_texts_nonalpha]]
+
+
+
+batch_nonalpha = [[]]
+timer = 0
+for minibatch in input_texts_nonalpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_nonalpha.extend(batch_placeholder)
+  
+
+batch_nonalpha = batch_nonalpha[1:]
+
+#batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
+#batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+
+sentence_probs_nonalpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_nonalpha]
+
+# with open('binom_probs_nonalpha_llama7.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_nonalpha, f)
+```
+
+```{r}
+# batch_nonalpha_gpt2 = as.data.frame(py$batch_nonalpha)
+# 
+# write_csv(batch_alpha_gpt2, '../Data/llama7_batch_nonalpha_binom_probs.csv')
+```
+
+Combine them:
+
+```{python}
+#file_sentence_alpha = open('sentence_probs_alpha_gpt2.obj', 'r')
+#sentence_probls_alpha = pickle.load(file_sentence_alpha)
+
+#file_sentence_nonalpha = open('sentence_probs_nonalpha_gpt2.obj', 'r')
+#sentence_probs_nonalpha = pickle.load(file_sentence_nonalpha)
+
+binom_probs = {}
+
+for i,row in enumerate(r.data_for_analysis.itertuples()):
+  binom = row[1] + ' and ' + row[2]
+  binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
+
+
+binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
+binom_probs_df.reset_index(inplace=True)
+binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
+```
+
+```{r}
+binom = py$binom_probs_df
+
+binom = binom %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`))) %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`)
+
+
+write_csv(binom, '../Data/llama7_2afc_binom_ordering_prefs.csv')
+```
+
+## Llama 13-b
+### 2afc
+
+```{python}
+#load packages
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, logging
+from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
+import numpy as np
+from torch import nn
+from collections import defaultdict
+import pandas as pd
+import re
+
+model_name_or_path = "TheBloke/Llama-2-13B-GPTQ"
+model_basename = "model"
+
+use_triton = False
+
+tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
+tokenizer.pad_token = tokenizer.eos_token
+
+model = AutoGPTQForCausalLM.from_quantized(model_name_or_path,
+        model_basename=model_basename,
+        use_safetensors=True,
+        trust_remote_code=True,
+        device="cuda:0",
+        use_triton=use_triton,
+        quantize_config=None)
+        
+model.config.pad_token_id = model.config.eos_token_id
+
+#test_ids = tokenizer('this is a test', padding = True, return_tensors='pt').input_ids
+#test_output = model(test_ids)
+
+```
+
+Courtesy of this thread: <https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/17>
+
+```{python}
+from pprint import pprint
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+#device = 'cpu'
+model = model.to(device)
+
+def to_tokens_and_logprobs(model, tokenizer, input_texts):
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").input_ids
+    input_ids = input_ids.to(device)
+    
+    outputs = model(input_ids)
+    probs = torch.log_softmax(outputs.logits, dim=-1).detach()
+
+    # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
+    probs = probs[:, :-1, :]
+    input_ids = input_ids[:, 1:]
+    gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
+
+    batch = []
+    for input_sentence, input_probs in zip(input_ids, gen_probs):
+        text_sequence = []
+        for token, p in zip(input_sentence, input_probs):
+            if token not in tokenizer.all_special_ids:
+                text_sequence.append((tokenizer.decode(token), p.item()))
+        batch.append(text_sequence)
+    return batch
+
+
+#input_texts = ["The boy went outside to fly his kite.", "this is a test."]
+
+#batch = to_tokens_and_logprobs(model, tokenizer, input_texts)
+#sentence_probs = [sum(item[1] for item in inner_list) for inner_list in batch]
+
+#binom_probs = {}
+
+
+#pprint(batch)
+```
+
+get alpha probs:
+
+```{python}
+#R keeps crashing, maybe we need to run in smaller chunks
+
+input_texts_alpha = r.binomial_alpha
+
+n_batches = len(input_texts_alpha) / 50
+
+
+
+input_texts_alpha = np.array_split(input_texts_alpha, n_batches)
+input_texts_alpha = [x.tolist() for x in [*input_texts_alpha]]
+
+batch_alpha = [[]]
+timer = 0
+for minibatch in input_texts_alpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_alpha.extend(batch_placeholder)
+  
+
+batch_alpha = batch_alpha[1:]
+sentence_probs_alpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_alpha]
+
+# 
+# with open('binom_probs_alpha_llama7.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_alpha, f)
+
+
+
+
+#count = 0
+#for item in batch_alpha[1]: 
+    #count += item[1]
+
+
+#pprint(batch_alpha)
+#pprint(batch_nonalpha)
+```
+
+```{r}
+# batch_alpha_gpt2 = as.data.frame(py$batch_alpha)
+# 
+# write_csv(batch_alpha_gpt2, '../Data/llama7_batch_alpha_binom_probs.csv')
+```
+
+Get nonalpha probs:
+
+```{python}
+input_texts_nonalpha = r.binomial_nonalpha
+
+n_batches = len(input_texts_nonalpha) / 50
+#input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
+
+
+
+input_texts_nonalpha = np.array_split(input_texts_nonalpha, n_batches)
+input_texts_nonalpha = [x.tolist() for x in [*input_texts_nonalpha]]
+
+
+
+batch_nonalpha = [[]]
+timer = 0
+for minibatch in input_texts_nonalpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_nonalpha.extend(batch_placeholder)
+  
+
+batch_nonalpha = batch_nonalpha[1:]
+
+#batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
+#batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+
+sentence_probs_nonalpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_nonalpha]
+# 
+# with open('binom_probs_nonalpha_llama13b.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_nonalpha, f)
+```
+
+```{r}
+# batch_nonalpha_gpt2 = as.data.frame(py$batch_nonalpha)
+# 
+# write_csv(batch_alpha_gpt2, '../Data/llama7_batch_nonalpha_binom_probs.csv')
+```
+
+Combine them:
+
+```{python}
+#file_sentence_alpha = open('sentence_probs_alpha_gpt2.obj', 'r')
+#sentence_probls_alpha = pickle.load(file_sentence_alpha)
+
+#file_sentence_nonalpha = open('sentence_probs_nonalpha_gpt2.obj', 'r')
+#sentence_probs_nonalpha = pickle.load(file_sentence_nonalpha)
+
+binom_probs = {}
+
+for i,row in enumerate(r.data_for_analysis.itertuples()):
+  binom = row[1] + ' and ' + row[2]
+  binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
+
+
+binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
+binom_probs_df.reset_index(inplace=True)
+binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
+```
+
+```{r}
+binom = py$binom_probs_df
+
+binom = binom %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`))) %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`)
+
+
+write_csv(binom, '../Data/llama13b_2afc_binom_ordering_prefs.csv')
+```
