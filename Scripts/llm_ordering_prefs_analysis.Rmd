@@ -54,7 +54,10 @@ We also don't need a random intercept for "subject" because we don't have any su
 Load data:
 
 ```{r}
-gpt2_data_just_binoms = read_csv('../Data/gpt2_2afc_binom_ordering_prefs.csv')
+gpt2_data_just_binoms = read_csv('../Data/gpt2_2afc_binom_ordering_prefs.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  left_join(corpus)
 ```
 
 Quick and dirty historgram:
@@ -69,12 +72,51 @@ ggplot(data = corpus, aes(x=RelFreq, y = ..density..)) +
   theme_bw()
 ```
 
+Analysis:
+
+```{r}
+prior_probs = c(
+  prior(student_t(3, 0, 2.5), class = 'Intercept'),
+  prior(student_t(3, 0, 2.5), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+
+gpt2_2afc_model = brm(data = gpt2_data_just_binoms,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 20000,
+                       chains = 4,
+                       cores = 4,
+                       control = list(adapt_delta=0.99, max_treedepth = 15),
+                       file = '../Data/gpt2_2afc_model_just_binoms'
+                      )
+
+fixef(gpt2_2afc_model)
+```
+
 #### GPT2-XL
 
 Load data:
 
 ```{r}
-gpt2xl_data_just_binoms = read_csv('../Data/gpt2xl_2afc_binom_ordering_prefs.csv')
+gpt2xl_data_just_binoms = read_csv('../Data/gpt2xl_2afc_binom_ordering_prefs.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  left_join(corpus)
+```
+
+Analysis:
+
+```{r}
+gpt2xl_2afc_model = brm(data = gpt2xl_data_just_binoms,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 8000,
+                       chains = 4,
+                       cores = 4,
+                       control = list(adapt_delta=0.99, max_treedepth = 12),
+                       file = '../Data/gpt2xl_2afc_model_just_binoms'
+                      )
 ```
 
 #### Llama-7b
@@ -82,5 +124,24 @@ gpt2xl_data_just_binoms = read_csv('../Data/gpt2xl_2afc_binom_ordering_prefs.csv
 Load data:
 
 ```{r}
-llama7b_data_just_binoms = read_csv('../Data/llama7b_2afc_binom_ordering_prefs.csv')
+llama7b_data_just_binoms = read_csv('../Data/llama7b_2afc_binom_ordering_prefs.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  left_join(corpus)
 ```
+
+Analysis:
+
+```{r}
+llama7b_2afc_model = brm(data = llama7b_data_just_binoms,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 8000,
+                       chains = 4,
+                       cores = 4,
+                       control = list(adapt_delta=0.99, max_treedepth = 12),
+                       file = '../Data/llama7b_2afc_model_just_binoms'
+                      )
+```
+
+#### Llama-13b
