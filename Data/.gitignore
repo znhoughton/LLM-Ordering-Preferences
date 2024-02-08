@@ -1,3 +1,5 @@
 Misc
 *.rds
 *.RDS
+materials.csv
+corpus.csv

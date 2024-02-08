@@ -202,7 +202,63 @@ llama13b_2afc_model_just_binoms = brm(data = llama13b_data_just_binoms,
 fixef(llama13b_2afc_model_just_binoms)
 ```
 
-### GAMS
+### Reweighting generative preferences
+
+One possibility is that LLMs have learned to weight the generative constraints differently than humans. In this section, we re-weight the generative preferences per LLM preferences, and then run another set of models with the updated generative constraints.
+
+#### Re-weighted constraints
+
+##### GPT2
+
+```{r}
+
+```
+
+##### GPT2-XL
+
+```{r}
+
+```
+
+##### Llama-7b
+
+```{r}
+
+```
+
+##### Llama-13b
+
+```{r}
+
+```
+
+#### Analyses
+
+##### GPT2
+
+```{r}
+
+```
+
+##### GPT2-XL
+
+```{r}
+
+```
+
+##### Llama-7b
+
+```{r}
+
+```
+
+##### Llama-13b
+
+```{r}
+
+```
+
+### GAMMs
 
 #### GPT2
 
