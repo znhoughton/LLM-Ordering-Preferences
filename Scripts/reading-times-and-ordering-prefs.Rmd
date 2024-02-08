@@ -933,11 +933,7 @@ for minibatch in input_texts_alpha:
 batch_alpha = batch_alpha[1:]
 sentence_probs_alpha = [sum(item[1] for item in inner_list) for inner_list in batch_alpha]
 
-<<<<<<< HEAD
-# 
-=======
 
->>>>>>> 41e28855c125db35e9335f85cfdf9ac2edb20e21
 # with open('sentence_probs_alpha_llama7b.obj', 'wb') as f:
 #   pickle.dump(sentence_probs_alpha, f)
 
@@ -1296,7 +1292,7 @@ get alpha probs:
 ```{python}
 #R keeps crashing, maybe we need to run in smaller chunks
 input_texts_alpha = r.binomial_alpha
-n_batches = len(input_texts_alpha) / 50
+n_batches = len(input_texts_alpha) / 25
 print(n_batches)
 
 
@@ -1342,7 +1338,7 @@ Get nonalpha probs:
 ```{python}
 input_texts_nonalpha = r.binomial_nonalpha
 
-n_batches = len(input_texts_nonalpha) / 50
+n_batches = len(input_texts_nonalpha) / 25
 #input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
 
 
@@ -1405,7 +1401,7 @@ binom = py$binom_probs_df
 binom = binom %>%
   mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`)))
 
-write_csv(binom, '../Data/llama7b_2afc_ordering_prefs.csv')
+write_csv(binom, '../Data/llama13b_2afc_ordering_prefs.csv')
 
 #data = read_csv('../Data/llama7b_2afc_ordering_prefs.csv')
 ```
@@ -1577,9 +1573,8 @@ reading_time_data = reading_time_data[columns_to_keep]
 ```{r}
 reading_time_data = py$reading_time_data
 
-write_csv(reading_time_data, '../Data/llama7b_reading_time_data.csv')
+write_csv(reading_time_data, '../Data/llama13b_reading_time_data.csv')
 ```
-
 
 # Binomials only (no sentences)
 
@@ -2198,6 +2193,7 @@ write_csv(binom, '../Data/llama7_2afc_binom_ordering_prefs.csv')
 ```
 
 ## Llama 13-b
+
 ### 2afc
 
 ```{python}
