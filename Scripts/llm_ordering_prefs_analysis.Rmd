@@ -97,13 +97,26 @@ gpt2_2afc_model_just_binoms = brm(data = gpt2_data_just_binoms,
 
 fixef(gpt2_2afc_model_just_binoms)
 
-mcmc_plot(
-  gpt2_2afc_model_just_binoms,
-  type = 'pairs',
-  off_diag_fun = 'hex',
-  diag_fun = 'dens',
-  fixed = T
-)
+# mcmc_plot(
+#   gpt2_2afc_model_just_binoms,
+#   type = 'pairs',
+#   off_diag_fun = 'hex',
+#   diag_fun = 'dens',
+#   fixed = T
+# )
+```
+
+Checking posterior samples:
+
+```{r}
+post_samples_gpt2 = as.data.frame(fixef(gpt2_2afc_model_just_binoms, summary = F))
+
+post_samples_genpref = sum(post_samples_gpt2$GenPref < 0) / length(post_samples_gpt2$GenPref)
+  
+post_samples_genpref_freq = sum(post_samples_gpt2$`GenPref:OverallFreq` < 0) / length(post_samples_gpt2$`GenPref:OverallFreq`)
+
+print(post_samples_genpref)
+print(post_samples_genpref_freq)
 ```
 
 #### GPT2-XL
@@ -138,6 +151,22 @@ gpt2xl_2afc_model_just_binoms = brm(data = gpt2xl_data_just_binoms,
 fixef(gpt2xl_2afc_model_just_binoms)
 ```
 
+Checking posterior samples for some of the effects:
+
+```{r}
+post_samples_gpt2xl = as.data.frame(fixef(gpt2xl_2afc_model_just_binoms, summary = F))
+
+post_samples_genpref = sum(post_samples_gpt2xl$GenPref < 0) / length(post_samples_gpt2xl$GenPref)
+  
+post_samples_genpref_freq = sum(post_samples_gpt2xl$`GenPref:OverallFreq` < 0) / length(post_samples_gpt2xl$`GenPref:OverallFreq`)
+
+# post_samples_relfreq_freq = sum(post_samples_gpt2$`RelFreq:OverallFreq` > 0) / length(post_samples_gpt2$`RelFreq:OverallFreq`)
+
+print(post_samples_genpref)
+print(post_samples_genpref_freq)
+
+```
+
 #### Llama-7b
 
 Load data:
@@ -166,6 +195,22 @@ llama7b_2afc_model_just_binoms = brm(data = llama7b_data_just_binoms,
                       )
 
 fixef(llama7b_2afc_model_just_binoms)
+```
+
+Checking posterior:
+
+```{r}
+post_samples_llama7b = as.data.frame(fixef(llama7b_2afc_model_just_binoms, summary = F))
+
+post_samples_genpref = sum(post_samples_llama7b$GenPref < 0) / length(post_samples_llama7b$GenPref)
+  
+post_samples_genpref_freq = sum(post_samples_llama7b$`GenPref:OverallFreq` < 0) / length(post_samples_llama7b$`GenPref:OverallFreq`)
+
+post_samples_relfreq_freq = sum(post_samples_llama7b$`RelFreq:OverallFreq` < 0) / length(post_samples_llama7b$`RelFreq:OverallFreq`)
+
+print(post_samples_genpref)
+print(post_samples_genpref_freq)
+print(post_samples_relfreq_freq)
 ```
 
 #### Llama-13b
@@ -200,6 +245,21 @@ llama13b_2afc_model_just_binoms = brm(data = llama13b_data_just_binoms,
                       )
 
 fixef(llama13b_2afc_model_just_binoms)
+```
+
+Checking posterior:
+
+```{r}
+post_samples_llama13b = as.data.frame(fixef(llama13b_2afc_model_just_binoms, summary = F))
+
+# post_samples_genpref = sum(post_samples_llama13b$GenPref < 0) / length(post_samples_llama13b$GenPref)
+  
+post_samples_genpref_freq = sum(post_samples_llama13b$`GenPref:OverallFreq` < 0) / length(post_samples_llama13b$`GenPref:OverallFreq`)
+
+post_samples_relfreq_freq = sum(post_samples_llama13b$`RelFreq:OverallFreq` < 0) / length(post_samples_llama13b$`RelFreq:OverallFreq`)
+
+print(post_samples_genpref_freq)
+print(post_samples_relfreq_freq)
 ```
 
 ### Reweighting generative preferences
@@ -237,25 +297,77 @@ One possibility is that LLMs have learned to weight the generative constraints d
 ##### GPT2
 
 ```{r}
+options(contrasts = c("contr.sum","contr.sum"))
 
+gpt2_2afc_model_just_binoms_reweighted = brm(data = gpt2_data_just_binoms_reweighted,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 20000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       CC(max_treedepth = 20),
+                       file = '../Data/gpt2_2afc_model_just_binoms_reweighted'
+                      )
+
+fixef(gpt2_2afc_model_just_binoms_reweighted)
 ```
 
 ##### GPT2-XL
 
 ```{r}
 
+options(contrasts = c("contr.sum","contr.sum"))
+
+gpt2xl_2afc_model_just_binoms_reweighted = brm(data = gpt2xl_data_just_binoms_reweighted,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 20000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/gpt2xl_2afc_model_just_binoms_reweighted'
+                      )
+
+fixef(gpt2xl_2afc_model_just_binoms_reweighted)
 ```
 
 ##### Llama-7b
 
 ```{r}
+options(contrasts = c("contr.sum","contr.sum"))
 
+llama7b_2afc_model_just_binoms_reweighted = brm(data = llama7b_data_just_binoms_reweighted,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 20000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/llama7b_2afc_model_just_binoms_reweighted'
+                      )
+
+fixef(llama7b_2afc_model_just_binoms_reweighted)
 ```
 
 ##### Llama-13b
 
 ```{r}
+options(contrasts = c("contr.sum","contr.sum"))
+llama13b_2afc_model_just_binoms_reweighted = brm(data = llama13b_data_just_binoms_reweighted,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 20000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/llama13b_2afc_model_just_binoms_reweighted'
+                      )
 
+fixef(llama13b_2afc_model_just_binoms_reweighted)
 ```
 
 ### GAMMs
