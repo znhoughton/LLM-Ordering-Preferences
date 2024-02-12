@@ -306,7 +306,6 @@ gpt2_2afc_model_just_binoms_reweighted = brm(data = gpt2_data_just_binoms_reweig
                        chains = 4,
                        cores = 4,
                        #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       CC(max_treedepth = 20),
                        file = '../Data/gpt2_2afc_model_just_binoms_reweighted'
                       )
 
