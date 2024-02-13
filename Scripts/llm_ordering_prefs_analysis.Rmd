@@ -58,13 +58,29 @@ Load data:
 gpt2_data_just_binoms = read_csv('../Data/gpt2_2afc_binom_ordering_prefs.csv') %>%
   separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
   select(-and) %>%
-  left_join(corpus)
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
 ```
 
 Quick and dirty historgram:
 
 ```{r}
 ggplot(data = gpt2_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
+  geom_histogram() +
+  theme_bw()
+
+ggplot(data = gpt2xl_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
+  geom_histogram() +
+  theme_bw()
+
+ggplot(data = llama7b_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
+  geom_histogram() +
+  theme_bw()
+
+ggplot(data = llama13b_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
   geom_histogram() +
   theme_bw()
 
@@ -127,7 +143,11 @@ Load data:
 gpt2xl_data_just_binoms = read_csv('../Data/gpt2xl_2afc_binom_ordering_prefs.csv') %>%
   separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
   select(-and) %>%
-  left_join(corpus)
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
 
 
 ```
@@ -175,7 +195,11 @@ Load data:
 llama7b_data_just_binoms = read_csv('../Data/llama7b_2afc_binom_ordering_prefs.csv') %>%
   separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
   select(-and) %>%
-  left_join(corpus)
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
 ```
 
 Analysis:
@@ -226,7 +250,11 @@ llama13b_data_just_binoms = llama13b_data_just_binoms %>%
   mutate(WordA = tolower(WordA), WordB = tolower(WordB))
 
 llama13b_data_just_binoms = llama13b_data_just_binoms %>%
-  left_join(corpus)
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
 ```
 
 Analysis:
