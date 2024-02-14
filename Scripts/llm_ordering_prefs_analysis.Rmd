@@ -290,6 +290,74 @@ print(post_samples_genpref_freq)
 print(post_samples_relfreq_freq)
 ```
 
+## Plots
+
+```{r}
+gpt2_df = data.frame(fixef(gpt2_2afc_model_just_binoms))%>%
+  mutate(model = 'gpt-2') %>%
+  rownames_to_column('Beta Coefficient') %>%
+  mutate(Intercept = Estimate[1])
+
+gpt2xl_df = data.frame(fixef(gpt2xl_2afc_model_just_binoms)) %>%
+  mutate(model = 'gpt-2 XL') %>%
+  rownames_to_column('Beta Coefficient') %>%
+  mutate(Intercept = Estimate[1])
+
+llama7b_df = data.frame(fixef(llama7b_2afc_model_just_binoms)) %>%
+  mutate(model = 'Llama-2 7B') %>%
+  rownames_to_column('Beta Coefficient') %>%
+  mutate(Intercept = Estimate[1])
+
+llama13b_df = data.frame(fixef(llama13b_2afc_model_just_binoms)) %>%
+  mutate(model = 'Llama-2 13B') %>%
+  rownames_to_column('Beta Coefficient') %>%
+  mutate(Intercept = Estimate[1])
+
+
+all_models_data = gpt2_df %>%
+  full_join(gpt2xl_df) %>%
+  full_join(llama7b_df) %>%
+  full_join(llama13b_df)
+
+
+gen_pref_plot_data = all_models_data %>%
+  filter(`Beta Coefficient` == 'GenPref')
+
+observed_pref_plot_data = all_models_data %>%
+  filter(`Beta Coefficient` == 'RelFreq')
+
+gen_pref_plot_data$model = factor(gen_pref_plot_data$model, levels = c('gpt-2', 'gpt-2 XL', 'Llama-2 7B', 'Llama-2 13B'))
+
+observed_pref_plot_data$model = factor(observed_pref_plot_data$model, levels = c('gpt-2', 'gpt-2 XL', 'Llama-2 7B', 'Llama-2 13B'))
+
+gen_pref_plot = ggplot(data = gen_pref_plot_data, aes(x = model, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
+  geom_errorbar(width = 0.2) +
+  geom_point(size = 1.5) +
+  theme_bw() +
+  theme(axis.text=element_text(size=10),
+        axis.title=element_text(size=12,face="bold")) +
+  ylim(c(-2.5, 10)) +
+  ylab('Beta Coefficient for Generative Preferences') +
+  xlab('Language Model')
+
+
+observed_pref_plot = ggplot(data = observed_pref_plot_data, aes(x = model, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
+  geom_errorbar(width = 0.2) +
+  geom_point(size = 1.5) +
+  theme_bw() +
+  theme(axis.text=element_text(size=10),
+        axis.title=element_text(size=12,face="bold")) +
+  ylim(c(-2.5, 10)) +
+  ylab('Beta Coefficient for Observed Preferences') +
+  xlab('Language Model')
+  
+
+gen_pref_plot
+#ggsave('../Data/gen_pref_plot.png')
+observed_pref_plot
+#ggsave('../Data/observed_pref_plot.png')
+```
+
 ### Reweighting generative preferences
 
 One possibility is that LLMs have learned to weight the generative constraints differently than humans. In this section, we re-weight the generative preferences per LLM preferences, and then run another set of models with the updated generative constraints.
