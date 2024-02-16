@@ -68,25 +68,25 @@ gpt2_data_just_binoms = read_csv('../Data/gpt2_2afc_binom_ordering_prefs.csv') %
 Quick and dirty historgram:
 
 ```{r}
-ggplot(data = gpt2_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
-  geom_histogram() +
-  theme_bw()
-
-ggplot(data = gpt2xl_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
-  geom_histogram() +
-  theme_bw()
-
-ggplot(data = llama7b_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
-  geom_histogram() +
-  theme_bw()
-
-ggplot(data = llama13b_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
-  geom_histogram() +
-  theme_bw()
-
-ggplot(data = corpus, aes(x=RelFreq, y = ..density..)) +
-  geom_histogram() +
-  theme_bw()
+# ggplot(data = gpt2_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
+#   geom_histogram() +
+#   theme_bw()
+# 
+# ggplot(data = gpt2xl_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
+#   geom_histogram() +
+#   theme_bw()
+# 
+# ggplot(data = llama7b_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
+#   geom_histogram() +
+#   theme_bw()
+# 
+# ggplot(data = llama13b_data_just_binoms, aes(x=ProbAandB, y = ..density..)) +
+#   geom_histogram() +
+#   theme_bw()
+# 
+# ggplot(data = corpus, aes(x=RelFreq, y = ..density..)) +
+#   geom_histogram() +
+#   theme_bw()
 ```
 
 Analysis:
@@ -356,6 +356,37 @@ gen_pref_plot
 #ggsave('../Data/gen_pref_plot.png')
 observed_pref_plot
 #ggsave('../Data/observed_pref_plot.png')
+
+
+full_plot_data = all_models_data %>%
+  filter(`Beta Coefficient` != 'Intercept') %>%
+  mutate(color = ifelse( `Beta Coefficient` == 'GenPref', 'red', ifelse(`Beta Coefficient` == 'RelFreq', 'blue', ifelse(`Beta Coefficient` == 'OverallFreq', 'purple', ifelse(`Beta Coefficient` == 'GenPref:OverallFreq', 'darkgreen', 'orange')))))
+
+
+full_plot_data$model = factor(full_plot_data$model, levels = c('gpt-2', 'gpt-2 XL', 'Llama-2 7B', 'Llama-2 13B'))
+
+full_plot_data$`Beta Coefficient` = factor(full_plot_data$`Beta Coefficient`, levels = c('RelFreq', 'GenPref', 'OverallFreq', 'RelFreq:OverallFreq', 'GenPref:OverallFreq'))
+
+full_plot = ggplot(data = full_plot_data, aes(x = `Beta Coefficient`, y = Estimate, ymin = Q2.5, ymax = Q97.5, color = color)) +
+  geom_errorbar(width = 0.2) +
+  geom_point(size = 1.5) +
+  facet_wrap(~model, nrow = 1) +
+  theme_bw() +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14,face="bold"),
+        axis.text.x = element_text(hjust = 0, angle = -45),
+        legend.position = 'none',
+        plot.margin = margin(10, 50, 10, 10),
+        aspect.ratio = 2/1.5
+        ) +
+  scale_x_discrete(labels = c(expression('ObsPref'), expression('GenPref'), expression('Freq'), expression('ObsPref:Freq'), expression('GenPref:Freq'))) +
+ # ylim(c(-2.5, 10)) +
+  ylab('Estimate') +
+  xlab('Beta Coefficient Variable')
+
+full_plot
+
+#ggsave('../Data/full_plot.png')
 ```
 
 ### Reweighting generative preferences
