@@ -3,3 +3,4 @@ Misc
 *.RDS
 materials.csv
 corpus.csv
+corpus_sentences.csv
