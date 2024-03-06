@@ -511,7 +511,7 @@ reweighted_model_llama13b = brm(data = llama13b_data_just_binoms,
 fixef(reweighted_model_llama13b)
 ```
 
-#### Humans vs Modelsined
+#### Humans vs Models
 
 <!--# these models aren't converging, not sure what to do -->
 
@@ -825,7 +825,13 @@ olmo1b_main_model = brm(data = olmo1b_main,
                        file = '../Data/olmo1b_main'
                       )
 
+
+
 fixef(olmo1b_main_model)
+
+post_samples_olmo1b = as.data.frame(fixef(olmo1b_main_model, summary = F))
+post_samples_genpref = sum(post_samples_olmo1b$GenPref < 0) / length(post_samples_olmo1b$GenPref)
+post_samples_genpref
 ```
 
 ### 7B Model
