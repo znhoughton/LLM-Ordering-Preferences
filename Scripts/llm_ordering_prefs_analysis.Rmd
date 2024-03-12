@@ -10,6 +10,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(brms)
 library(mgcv)
+library(ggpubr)
+library(tidybayes)
 
 corpus = read_csv('../Data/corpus.csv')
 ```
@@ -577,6 +579,55 @@ human_data_llama13b = human_data %>%
   group_by(WordA, WordB) %>%
   mutate(Item = cur_group_id()) %>%
   select(-item)
+```
+
+##### Humans
+
+```{r}
+options(contrasts = c("contr.sum","contr.sum"))
+
+human_prefs = brm(data = human_data,
+                       AlphaPref ~ (Form + Percept + Power + Icon + Len + `Stress` + Freq) + (1|item) + (1|subj),
+                       family = bernoulli(link = 'logit'),
+                       #prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(max_treedepth = 15),
+                       prior = prior_probs,
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/human_prefs'
+                      )
+
+fixef(human_prefs)
+```
+
+Quick plot of human vs LLM results:
+
+```{r}
+
+
+
+human_data_coefs_plot = human_prefs %>%
+  gather_draws(b_Intercept, b_Form, b_Percept, b_Power, b_Icon, b_Len, b_Stress, b_Freq) %>%
+  ggplot(aes(x = .value, y = .variable)) +
+  stat_halfeye() +
+  xlab('Posterior Distribution') +
+  ylab('Beta Coefficent for each fixed-effect') +
+  #scale_y_discrete(labels = beta_coef_labels) + 
+  theme_bw()
+
+reweighted_model_llama13b_plot = reweighted_model_llama13b %>%
+  gather_draws(b_Intercept, b_Form, b_Percept, b_Power, b_Icon, b_Len, b_Stress, b_Freq) %>%
+  ggplot(aes(x = .value, y = .variable)) +
+  stat_halfeye() +
+  xlab('Posterior Distribution') +
+  ylab('Beta Coefficent for each fixed-effect') +
+  #scale_y_discrete(labels = beta_coef_labels) + 
+  theme_bw()
+
+ggarrange(human_data_coefs_plot, reweighted_model_llama13b_plot, nrow = 1)
 ```
 
 ##### GPT2
