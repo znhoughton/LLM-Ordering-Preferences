@@ -607,24 +607,26 @@ Quick plot of human vs LLM results:
 
 ```{r}
 
+beta_coef_labels = c('Intercept', 'Form', 'Freq', 'Icon', 'Len', 'Percept', 'Power', 'Stress')
+levels = c('b_Intercept', 'b_Form', 'b_Freq', 'b_Icon', 'b_Len', 'b_Percept', 'b_Power', 'b_Stress')
 
 
 human_data_coefs_plot = human_prefs %>%
   gather_draws(b_Intercept, b_Form, b_Percept, b_Power, b_Icon, b_Len, b_Stress, b_Freq) %>%
-  ggplot(aes(x = .value, y = .variable)) +
+  ggplot(aes(x = .value, y = factor(.variable, level = levels))) +
   stat_halfeye() +
   xlab('Posterior Distribution') +
   ylab('Beta Coefficent for each fixed-effect') +
-  #scale_y_discrete(labels = beta_coef_labels) + 
+  scale_y_discrete(labels = beta_coef_labels) + 
   theme_bw()
 
 reweighted_model_llama13b_plot = reweighted_model_llama13b %>%
   gather_draws(b_Intercept, b_Form, b_Percept, b_Power, b_Icon, b_Len, b_Stress, b_Freq) %>%
-  ggplot(aes(x = .value, y = .variable)) +
+  ggplot(aes(x = .value, y = factor(.variable, level = levels))) +
   stat_halfeye() +
   xlab('Posterior Distribution') +
   ylab('Beta Coefficent for each fixed-effect') +
-  #scale_y_discrete(labels = beta_coef_labels) + 
+  scale_y_discrete(labels = beta_coef_labels) + 
   theme_bw()
 
 ggarrange(human_data_coefs_plot, reweighted_model_llama13b_plot, nrow = 1)
