@@ -430,6 +430,8 @@ reweighted_model_gpt = brm(data = gpt2_data_just_binoms,
                       )
 
 fixef(reweighted_model_gpt)
+
+
 ```
 
 ##### GPT2-XL
@@ -618,6 +620,7 @@ human_data_coefs_plot = human_prefs %>%
   xlab('Posterior Distribution') +
   ylab('Beta Coefficent for each fixed-effect') +
   scale_y_discrete(labels = beta_coef_labels) + 
+  xlim(-2, 2) +
   theme_bw()
 
 reweighted_model_llama13b_plot = reweighted_model_llama13b %>%
@@ -627,9 +630,43 @@ reweighted_model_llama13b_plot = reweighted_model_llama13b %>%
   xlab('Posterior Distribution') +
   ylab('Beta Coefficent for each fixed-effect') +
   scale_y_discrete(labels = beta_coef_labels) + 
+  ggtitle('llama2 13b') +
+  xlim(-2, 2) +
   theme_bw()
 
 ggarrange(human_data_coefs_plot, reweighted_model_llama13b_plot, nrow = 1)
+```
+
+Human vs GPT-2
+
+```{r}
+beta_coef_labels = c('Intercept', 'Form', 'Freq', 'Icon', 'Len', 'Percept', 'Power', 'Stress')
+levels = c('b_Intercept', 'b_Form', 'b_Freq', 'b_Icon', 'b_Len', 'b_Percept', 'b_Power', 'b_Stress')
+
+
+human_data_coefs_plot = human_prefs %>%
+  gather_draws(b_Intercept, b_Form, b_Percept, b_Power, b_Icon, b_Len, b_Stress, b_Freq) %>%
+  ggplot(aes(x = .value, y = factor(.variable, level = levels))) +
+  stat_halfeye() +
+  xlab('Posterior Distribution') +
+  ylab('Beta Coefficent for each fixed-effect') +
+  scale_y_discrete(labels = beta_coef_labels) + 
+  ggtitle('human prefs') +
+  xlim(-2, 2) +
+  theme_bw()
+
+reweighted_model_gpt2_plot = reweighted_model_gpt %>%
+  gather_draws(b_Intercept, b_Form, b_Percept, b_Power, b_Icon, b_Len, b_Stress, b_Freq) %>%
+  ggplot(aes(x = .value, y = factor(.variable, level = levels))) +
+  stat_halfeye() +
+  xlab('Posterior Distribution') +
+  ylab('Beta Coefficent for each fixed-effect') +
+  scale_y_discrete(labels = beta_coef_labels) + 
+  ggtitle('gpt-2') +
+  xlim(-2, 2) +
+  theme_bw()
+
+ggarrange(human_data_coefs_plot, reweighted_model_gpt2_plot, reweighted_model_llama13b_plot, nrow = 1)
 ```
 
 ##### GPT2
