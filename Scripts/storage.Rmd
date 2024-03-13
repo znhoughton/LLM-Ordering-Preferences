@@ -12,11 +12,16 @@ library(brms)
 library(mgcv)
 library(ggpubr)
 library(tidybayes)
-
+library(reticulate)
+myenvs = conda_list()
+envname = myenvs$name[2]
+use_condaenv(envname, required = T)
 #corpus = read_csv('../Data/corpus.csv')
 ```
 
 ## Semantic Representations
+
+We'll need three functions. One that returns the mean values across each of the hidden layers for a target phrase, and one that gets the 
 
 ```{python}
 import torch
@@ -26,23 +31,190 @@ from transformers import BertTokenizer, BertModel
 tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 model = BertModel.from_pretrained("bert-base-uncased")
 
+model.eval()
+
 sentence = "I was mad and kicked the bucket"
+#inputs = tokenizer(sentence, return_tensors="pt", padding=True, truncation=True)
+
+
+
+sentence = sentence
 inputs = tokenizer(sentence, return_tensors="pt", padding=True, truncation=True)
 
-start_idx = (inputs['input_ids'][0] == tokenizer.convert_tokens_to_ids('kicked')).nonzero(as_tuple=True)[0]
+start_idx = (inputs['input_ids'][0] == tokenizer.convert_tokens_to_ids(first_word)).nonzero(as_tuple=True)[0]
 
-end_idx = (inputs['input_ids'][0] == tokenizer.convert_tokens_to_ids('bucket')).nonzero(as_tuple=True)[0] + 1
+end_idx = (inputs['input_ids'][0] == tokenizer.convert_tokens_to_ids(last_word)).nonzero(as_tuple=True)[0] + 1
 
 with torch.no_grad():
     outputs = model(**inputs)
-    last_hidden_states = outputs[0]
+    word_embeddings = outputs.last_hidden_state
 
-target_phrase_states = last_hidden_states[0, start_idx:end_idx, :]
+try:
+  target_phrase_states = word_embeddings[:, start_idx:end_idx, :]
 
+except:
+  target_phrase_states = word_embeddings[0, start_idx:, :]
 # Calculate the average of the hidden states
-phrase_embedding = torch.mean(target_phrase_states, dim=0)
+phrase_embedding = target_phrase_states.mean(dim=1)
+phrase_embedding.shape
+#torch.mean(target_phrase_states, dim=0)
 
 # Print the vector representation
-print(phrase_embedding)
+return(phrase_embedding)
+
+sentence = "I was mad and kicked the bucket"
+sentence2 = "I was sad because my grandpa kicked the bucket"
+sentence3 = "I was mad and kicked the pail quickly"
+sentence4 = "I was mad because my friend died under mysterious circumstances"
+
+vector1 = get_semantic_representation(sentence, 'kicked', 'bucket')
+vector2 = get_semantic_representation(sentence2, 'kicked', 'bucket')
+vector3 = get_semantic_representation(sentence3, 'kicked', 'pail')
+vector4 = get_semantic_representation(sentence4, 'died', 'died')
+```
+
+
+```{python}
+import torch
+from transformers import BertTokenizer, BertModel
+
+# Load BERT tokenizer and model
+tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+model = BertModel.from_pretrained("bert-base-uncased")
+
+model.eval()
+
+
+#inputs = tokenizer(sentence, return_tensors="pt", padding=True, truncation=True)
+
+def get_semantic_representation(sentence, first_word, last_word):
+  
+  sentence = sentence
+  inputs = tokenizer(sentence, return_tensors="pt", padding=True, truncation=True)
+
+  start_idx = (inputs['input_ids'][0] == tokenizer.convert_tokens_to_ids(first_word)).nonzero(as_tuple=True)[0]
+
+  end_idx = (inputs['input_ids'][0] == tokenizer.convert_tokens_to_ids(last_word)).nonzero(as_tuple=True)[0] + 1
+
+  with torch.no_grad():
+      outputs = model(**inputs)
+      word_embeddings = outputs.last_hidden_state
+  
+  try:
+    target_phrase_states = word_embeddings[:, start_idx:end_idx, :]
+  
+  except:
+    target_phrase_states = word_embeddings[:, start_idx:, :]
+  # Calculate the average of the hidden states
+  phrase_embedding = target_phrase_states.mean(dim=1)
+  #torch.mean(target_phrase_states, dim=0)
+  
+  # Print the vector representation
+  return(phrase_embedding)
+
+sentence = "I was mad and kicked the bucket"
+sentence2 = "John's ambition to become an architect finally kicked the bucket after he failed his college entry exams"
+sentence3 = "I was mad and kicked the pail loudly"
+sentence4 = "My ambition died after I failed the exam"
+
+#vector1 should be more similar to vector 3 than vector2
+#vector2 should be more similar to vector4 than vector1
+vector1 = get_semantic_representation(sentence, 'kicked', 'bucket')
+vector2 = get_semantic_representation(sentence2, 'kicked', 'bucket')
+vector3 = get_semantic_representation(sentence3, 'kicked', 'pail')
+vector4 = get_semantic_representation(sentence4, 'died', 'died')
+
+sentence5 = 'I saw the bank robber last night'
+sentence6 = 'I saw the beautiful river bank yesterday'
+sentence7 = 'I withdrew money from the financial institution yesterday'
+
+vector5 = get_semantic_representation(sentence5, 'bank', 'bank')
+vector6 = get_semantic_representation(sentence6, 'bank', 'bank')
+vector7 = get_semantic_representation(sentence7, 'financial', 'institution')
 
 ```
+
+
+```{python}
+import numpy as np
+import itertools
+from sklearn.metrics.pairwise import cosine_similarity
+
+vectors = [vector1, vector2, vector3, vector4]
+
+pair1 = cosine_similarity(vector1, vector2) 
+pair2 = cosine_similarity(vector1, vector3)
+#pair3 = cosine_similarity(vector1, vector4)
+pair4 = cosine_similarity(vector2, vector4)
+#pair5 = cosine_similarity(vector2, vector3)
+
+pair1 < pair2
+pair4 > pair1
+
+pair5 = cosine_similarity(vector5, vector6)
+pair6 = cosine_similarity(vector5, vector7)
+
+print(pair1)
+print(pair2)
+#print(pair3)
+print(pair4)
+print(pair5)
+print(pair6)
+
+
+# data = np.array(vectors)
+# pairwise_cosine_distances = cosine_distances(data)
+# 
+# print(pairwise_cosine_distances)
+# 
+# vectors = [vector1, vector2, vector3, vector4]
+# 
+# # Compute cosine similarity for each pair of vectors
+# cosine_similarity_scores = []
+# for pair in itertools.combinations(vectors, 2):
+#     cosine_similarity_score = cosine_similarity([pair[0]], [pair[1]])[0][0]
+#     cosine_similarity_scores.append(cosine_similarity_score)
+# 
+# # Print or use cosine similarity scores
+# print(cosine_similarity_scores)
+```
+
+
+
+
+
+Plotting in 2D:
+
+```{python}
+import matplotlib.pyplot as plt
+
+# Your list of vectors
+vectors = [vector1, vector2, vector3, vector4]
+
+# Extract x and y components of each vector
+x_values = [v[0] for v in vectors]
+y_values = [v[1] for v in vectors]
+
+# Plot the vectors
+plt.figure(figsize=(6, 6))
+plt.quiver([0] * len(vectors), [0] * len(vectors), x_values, y_values, angles='xy', scale_units='xy', scale=1, color='blue')
+
+for i, (x, y) in enumerate(zip(x_values, y_values)):
+    plt.text(x, y, f"Vector {i+1}", verticalalignment='bottom', horizontalalignment='right')
+    
+# Add labels
+plt.xlabel('X-axis')
+plt.ylabel('Y-axis')
+
+
+
+
+# Set the aspect ratio to be equal
+plt.gca().set_aspect('equal', adjustable='box')
+
+# Show the plot
+plt.grid()
+plt.title('2D Vector Plot')
+plt.show()
+```
+
