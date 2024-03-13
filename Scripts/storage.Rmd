@@ -1,0 +1,48 @@
+---
+title: "Storage"
+author: "Zach"
+date: "2024-03-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(brms)
+library(mgcv)
+library(ggpubr)
+library(tidybayes)
+
+#corpus = read_csv('../Data/corpus.csv')
+```
+
+## Semantic Representations
+
+```{python}
+import torch
+from transformers import BertTokenizer, BertModel
+
+# Load BERT tokenizer and model
+tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+model = BertModel.from_pretrained("bert-base-uncased")
+
+sentence = "I was mad and kicked the bucket"
+inputs = tokenizer(sentence, return_tensors="pt", padding=True, truncation=True)
+
+start_idx = (inputs['input_ids'][0] == tokenizer.convert_tokens_to_ids('kicked')).nonzero(as_tuple=True)[0]
+
+end_idx = (inputs['input_ids'][0] == tokenizer.convert_tokens_to_ids('bucket')).nonzero(as_tuple=True)[0] + 1
+
+with torch.no_grad():
+    outputs = model(**inputs)
+    last_hidden_states = outputs[0]
+
+target_phrase_states = last_hidden_states[0, start_idx:end_idx, :]
+
+# Calculate the average of the hidden states
+phrase_embedding = torch.mean(target_phrase_states, dim=0)
+
+# Print the vector representation
+print(phrase_embedding)
+
+```
