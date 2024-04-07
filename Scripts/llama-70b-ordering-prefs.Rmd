@@ -1,0 +1,435 @@
+---
+title: "llama2 70b ordering prefs"
+author: "Zachary Houghton"
+date: "2024-04-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(reticulate)
+myenvs = conda_list()
+envname = myenvs$name[2]
+use_condaenv(envname, required = T)
+```
+
+## Loading Data
+
+```{r}
+data_just_binoms = read_csv('../Data/corpus_sentences.csv') %>%
+  filter(!`Too weird?` %in% c('maybe', 'too weird', 'yes')) %>%
+  filter(!is.na(Sentence)) %>%
+  mutate('AandB' = paste0('Next item: ', WordA, ' and ', WordB)) %>%
+  mutate('BandA' = paste0('Next item: ', WordB, ' and ', WordA))
+
+binomial_alpha = data_just_binoms$AandB
+binomial_nonalpha = data_just_binoms$BandA
+
+data_for_analysis = data_just_binoms
+# data = read_csv('../Data/materials.csv') %>%
+#   left_join(data2, by = c('WordA', 'WordB'))
+# data_novel = read_csv('../Data/corpus_novel.csv') %>%
+#   filter(`Experimental sentence` != 'x') %>%
+#   select(WordA, WordB, AlphaN, Freq, OverallFreq, RelFreq, `Experimental sentence`, `...21`, `...22`, model.prop) %>%
+#   rename('Sentence (WordA and WordB)' = `...21`, 'Sentence (WordB and WordA)' = `...22`, "Sentence" = `Experimental sentence`, 'GenPref' = model.prop) %>%
+#   mutate(CollegeFreq = OverallFreq / 323592921465 * 350000000)
+# 
+# data_for_analysis = data %>%
+#   full_join(data_novel)
+# 
+# binomial_alpha = data_for_analysis$`Sentence (WordA and WordB)`
+# binomial_nonalpha = data_for_analysis$`Sentence (WordB and WordA)`
+```
+
+## Testing with 13b unquantized
+
+```{python}
+#load packages
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, logging
+from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
+import numpy as np
+from torch import nn
+from collections import defaultdict
+import pandas as pd
+import re
+
+model_name_or_path = "meta-llama/Llama-2-13b-hf"
+#model_basename = "model"
+
+#use_triton = False
+
+tokenizer = AutoTokenizer.from_pretrained(model_name_or_path) #we'll use chat-gpt2, but we could use another model if we wanted
+tokenizer.pad_token = tokenizer.eos_token
+
+model = AutoModelForCausalLM.from_pretrained(model_name_or_path, return_dict_in_generate=True) #load the model
+model.config.pad_token_id = model.config.eos_token_id
+model.config.pad_token_id = model.config.eos_token_id
+tokenizer.pad_token = tokenizer.eos_token
+
+#test_ids = tokenizer('this is a test', padding = True, return_tensors='pt').input_ids
+#test_output = model(test_ids)
+
+```
+
+Courtesy of this thread: <https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/17>
+
+```{python}
+from pprint import pprint
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+#device = 'cpu'
+model = model.to(device)
+
+def to_tokens_and_logprobs(model, tokenizer, input_texts):
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").input_ids
+    input_ids = input_ids.to(device)
+    
+    outputs = model(input_ids)
+    probs = torch.log_softmax(outputs.logits, dim=-1).detach()
+
+    # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
+    probs = probs[:, :-1, :]
+    input_ids = input_ids[:, 1:]
+    gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
+
+    batch = []
+    for input_sentence, input_probs in zip(input_ids, gen_probs):
+        text_sequence = []
+        for token, p in zip(input_sentence, input_probs):
+            if token not in tokenizer.all_special_ids:
+                text_sequence.append((tokenizer.decode(token), p.item()))
+        batch.append(text_sequence)
+    return batch
+
+
+#input_texts = ["The boy went outside to fly his kite.", "this is a test."]
+
+#batch = to_tokens_and_logprobs(model, tokenizer, input_texts)
+#sentence_probs = [sum(item[1] for item in inner_list) for inner_list in batch]
+
+#binom_probs = {}
+
+
+#pprint(batch)
+```
+
+get alpha probs:
+
+```{python}
+#R keeps crashing, maybe we need to run in smaller chunks
+
+input_texts_alpha = r.binomial_alpha
+
+n_batches = len(input_texts_alpha) / 50
+
+
+
+input_texts_alpha = np.array_split(input_texts_alpha, n_batches)
+input_texts_alpha = [x.tolist() for x in [*input_texts_alpha]]
+
+batch_alpha = [[]]
+timer = 0
+for minibatch in input_texts_alpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_alpha.extend(batch_placeholder)
+  
+
+batch_alpha = batch_alpha[1:]
+sentence_probs_alpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_alpha]
+
+# 
+# with open('binom_probs_alpha_llama7.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_alpha, f)
+
+
+
+
+#count = 0
+#for item in batch_alpha[1]: 
+    #count += item[1]
+
+
+#pprint(batch_alpha)
+#pprint(batch_nonalpha)
+```
+
+```{r}
+# batch_alpha_gpt2 = as.data.frame(py$batch_alpha)
+# 
+# write_csv(batch_alpha_gpt2, '../Data/llama7_batch_alpha_binom_probs.csv')
+```
+
+Get nonalpha probs:
+
+```{python}
+input_texts_nonalpha = r.binomial_nonalpha
+
+n_batches = len(input_texts_nonalpha) / 50
+#input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
+
+
+
+input_texts_nonalpha = np.array_split(input_texts_nonalpha, n_batches)
+input_texts_nonalpha = [x.tolist() for x in [*input_texts_nonalpha]]
+
+
+
+batch_nonalpha = [[]]
+timer = 0
+for minibatch in input_texts_nonalpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_nonalpha.extend(batch_placeholder)
+  
+
+batch_nonalpha = batch_nonalpha[1:]
+
+#batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
+#batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+
+sentence_probs_nonalpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_nonalpha]
+# 
+# with open('binom_probs_nonalpha_llama13b.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_nonalpha, f)
+```
+
+```{r}
+# batch_nonalpha_gpt2 = as.data.frame(py$batch_nonalpha)
+# 
+# write_csv(batch_alpha_gpt2, '../Data/llama7_batch_nonalpha_binom_probs.csv')
+```
+
+Combine them:
+
+```{python}
+#file_sentence_alpha = open('sentence_probs_alpha_gpt2.obj', 'r')
+#sentence_probls_alpha = pickle.load(file_sentence_alpha)
+
+#file_sentence_nonalpha = open('sentence_probs_nonalpha_gpt2.obj', 'r')
+#sentence_probs_nonalpha = pickle.load(file_sentence_nonalpha)
+
+binom_probs = {}
+
+for i,row in enumerate(r.data_for_analysis.itertuples()):
+  binom = row[1] + ' and ' + row[2]
+  binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
+
+
+binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
+binom_probs_df.reset_index(inplace=True)
+binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
+```
+
+```{r}
+binom = py$binom_probs_df
+
+binom = binom %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`))) %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`)
+
+
+write_csv(binom, '../Data/llama13b_unquantized_2afc_binom_ordering_prefs.csv')
+```
+
+## 70b
+
+```{python}
+#load packages
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, logging
+from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
+import numpy as np
+from torch import nn
+from collections import defaultdict
+import pandas as pd
+import re
+
+model_name_or_path = "meta-llama/Llama-2-70b-hf"
+#model_basename = "model"
+
+#use_triton = False
+
+tokenizer = AutoTokenizer.from_pretrained(model_name_or_path) #we'll use chat-gpt2, but we could use another model if we wanted
+tokenizer.pad_token = tokenizer.eos_token
+
+model = AutoModelForCausalLM.from_pretrained(model_name_or_path, return_dict_in_generate=True) #load the model
+model.config.pad_token_id = model.config.eos_token_id
+model.config.pad_token_id = model.config.eos_token_id
+tokenizer.pad_token = tokenizer.eos_token
+
+#test_ids = tokenizer('this is a test', padding = True, return_tensors='pt').input_ids
+#test_output = model(test_ids)
+
+```
+
+Courtesy of this thread: <https://discuss.huggingface.co/t/announcement-generation-get-probabilities-for-generated-output/30075/17>
+
+```{python}
+from pprint import pprint
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+#device = 'cpu'
+model = model.to(device)
+
+def to_tokens_and_logprobs(model, tokenizer, input_texts):
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").input_ids
+    input_ids = input_ids.to(device)
+    
+    outputs = model(input_ids)
+    probs = torch.log_softmax(outputs.logits, dim=-1).detach()
+
+    # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
+    probs = probs[:, :-1, :]
+    input_ids = input_ids[:, 1:]
+    gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
+
+    batch = []
+    for input_sentence, input_probs in zip(input_ids, gen_probs):
+        text_sequence = []
+        for token, p in zip(input_sentence, input_probs):
+            if token not in tokenizer.all_special_ids:
+                text_sequence.append((tokenizer.decode(token), p.item()))
+        batch.append(text_sequence)
+    return batch
+
+
+#input_texts = ["The boy went outside to fly his kite.", "this is a test."]
+
+#batch = to_tokens_and_logprobs(model, tokenizer, input_texts)
+#sentence_probs = [sum(item[1] for item in inner_list) for inner_list in batch]
+
+#binom_probs = {}
+
+
+#pprint(batch)
+```
+
+get alpha probs:
+
+```{python}
+#R keeps crashing, maybe we need to run in smaller chunks
+
+input_texts_alpha = r.binomial_alpha
+
+n_batches = len(input_texts_alpha) / 50
+
+
+
+input_texts_alpha = np.array_split(input_texts_alpha, n_batches)
+input_texts_alpha = [x.tolist() for x in [*input_texts_alpha]]
+
+batch_alpha = [[]]
+timer = 0
+for minibatch in input_texts_alpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_alpha.extend(batch_placeholder)
+  
+
+batch_alpha = batch_alpha[1:]
+sentence_probs_alpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_alpha]
+
+# 
+# with open('binom_probs_alpha_llama7.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_alpha, f)
+
+
+
+
+#count = 0
+#for item in batch_alpha[1]: 
+    #count += item[1]
+
+
+#pprint(batch_alpha)
+#pprint(batch_nonalpha)
+```
+
+```{r}
+# batch_alpha_gpt2 = as.data.frame(py$batch_alpha)
+# 
+# write_csv(batch_alpha_gpt2, '../Data/llama7_batch_alpha_binom_probs.csv')
+```
+
+Get nonalpha probs:
+
+```{python}
+input_texts_nonalpha = r.binomial_nonalpha
+
+n_batches = len(input_texts_nonalpha) / 50
+#input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
+
+
+
+input_texts_nonalpha = np.array_split(input_texts_nonalpha, n_batches)
+input_texts_nonalpha = [x.tolist() for x in [*input_texts_nonalpha]]
+
+
+
+batch_nonalpha = [[]]
+timer = 0
+for minibatch in input_texts_nonalpha:
+  timer += 1
+  print(timer)
+  batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
+  batch_nonalpha.extend(batch_placeholder)
+  
+
+batch_nonalpha = batch_nonalpha[1:]
+
+#batch_alpha = to_tokens_and_logprobs(model, tokenizer, input_texts_alpha)
+#batch_nonalpha = to_tokens_and_logprobs(model, tokenizer, input_texts_nonalpha)
+
+sentence_probs_nonalpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_nonalpha]
+# 
+# with open('binom_probs_nonalpha_llama13b.obj', 'wb') as f:
+#   pickle.dump(sentence_probs_nonalpha, f)
+```
+
+```{r}
+# batch_nonalpha_gpt2 = as.data.frame(py$batch_nonalpha)
+# 
+# write_csv(batch_alpha_gpt2, '../Data/llama7_batch_nonalpha_binom_probs.csv')
+```
+
+Combine them:
+
+```{python}
+#file_sentence_alpha = open('sentence_probs_alpha_gpt2.obj', 'r')
+#sentence_probls_alpha = pickle.load(file_sentence_alpha)
+
+#file_sentence_nonalpha = open('sentence_probs_nonalpha_gpt2.obj', 'r')
+#sentence_probs_nonalpha = pickle.load(file_sentence_nonalpha)
+
+binom_probs = {}
+
+for i,row in enumerate(r.data_for_analysis.itertuples()):
+  binom = row[1] + ' and ' + row[2]
+  binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
+
+
+binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
+binom_probs_df.reset_index(inplace=True)
+binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
+```
+
+```{r}
+binom = py$binom_probs_df
+
+binom = binom %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`))) %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`)
+
+
+write_csv(binom, '../Data/llama70b_2afc_binom_ordering_prefs.csv')
+```
