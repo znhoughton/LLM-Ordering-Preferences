@@ -293,6 +293,131 @@ print(post_samples_genpref_freq)
 print(post_samples_relfreq_freq)
 ```
 
+#### Llama3 8b
+
+Load data:
+
+```{r}
+llama3_8b_data_just_binoms = read_csv('../Data/llama3_8b_2afc_binom_ordering_prefs.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) 
+
+llama3_8b_data_just_binoms = llama3_8b_data_just_binoms %>%
+  mutate(WordA = tolower(WordA), WordB = tolower(WordB))
+
+llama3_8b_data_just_binoms = llama3_8b_data_just_binoms %>%
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
+```
+
+Analysis:
+
+```{r}
+options(contrasts = c("contr.sum","contr.sum"))
+llama3_8b_2afc_model_just_binoms = brm(data = llama3_8b_data_just_binoms,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 20000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/llama3_8b_2afc_model_just_binoms'
+                      )
+
+fixef(llama3_8b_2afc_model_just_binoms)
+
+llama3_8b_2afc_model_only_genpref = brm(data = llama3_8b_data_just_binoms,
+                       log_odds ~ GenPref,
+                       prior = prior_probs,
+                       iter = 20000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/llama3_8b_2afc_model_only_genpref'
+                      )
+
+fixef(llama3_8b_2afc_model_only_genpref)
+```
+
+Checking posterior:
+
+```{r}
+post_samples_llama3_8b = as.data.frame(fixef(llama3_8b_2afc_model_just_binoms, summary = F))
+
+# post_samples_genpref = sum(post_samples_llama13b$GenPref < 0) / length(post_samples_llama13b$GenPref)
+  
+post_samples_genpref_freq = sum(post_samples_llama3_8b$`GenPref:OverallFreq` < 0) / length(post_samples_llama3_8b$`GenPref:OverallFreq`)
+
+post_samples_relfreq_freq = sum(post_samples_llama3_8b$`RelFreq:OverallFreq` < 0) / length(post_samples_llama3_8b$`RelFreq:OverallFreq`)
+
+post_samples_genpref = sum(post_samples_llama3_8b$`GenPref` < 0) / length(post_samples_llama3_8b$`GenPref`)
+
+print(post_samples_genpref_freq)
+print(post_samples_relfreq_freq)
+print(post_samples_genpref)
+
+```
+
+
+#### Phi-3
+
+Load data:
+
+```{r}
+phi3_data_just_binoms = read_csv('../Data/phi3_2afc_binom_ordering_prefs.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) 
+
+phi3_data_just_binoms = phi3_data_just_binoms %>%
+  mutate(WordA = tolower(WordA), WordB = tolower(WordB))
+
+phi3_data_just_binoms = phi3_data_just_binoms %>%
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
+```
+
+Analysis:
+
+```{r}
+options(contrasts = c("contr.sum","contr.sum"))
+phi3_2afc_model_just_binoms = brm(data = phi3_data_just_binoms,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 20000,
+                       warmup = 10000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/phi3_2afc_model_just_binoms'
+                      )
+
+fixef(phi3_2afc_model_just_binoms)
+```
+
+Checking posterior:
+
+```{r}
+post_samples_phi3 = as.data.frame(fixef(phi3_2afc_model_just_binoms, summary = F))
+
+# post_samples_genpref = sum(post_samples_llama13b$GenPref < 0) / length(post_samples_llama13b$GenPref)
+  
+post_samples_genpref_freq = sum(post_samples_phi3$`GenPref:OverallFreq` < 0) / length(post_samples_phi3$`GenPref:OverallFreq`)
+
+post_samples_relfreq_freq = sum(post_samples_phi3$`RelFreq:OverallFreq` < 0) / length(post_samples_phi3$`RelFreq:OverallFreq`)
+
+print(post_samples_genpref_freq)
+print(post_samples_relfreq_freq)
+```
+
 ## Plots
 
 ```{r}
@@ -391,6 +516,8 @@ full_plot
 
 #ggsave('../Data/full_plot.png')
 ```
+
+
 
 ### Reweighting generative preferences
 
