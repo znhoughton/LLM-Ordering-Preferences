@@ -64,7 +64,7 @@ def to_tokens_and_logprobs(model, tokenizer, input_texts):
 #get alphabetical orderings
 input_texts_alpha = binomial_alpha
 
-n_batches = len(input_texts_alpha) / 50
+n_batches = len(input_texts_alpha) / 10
 
 
 
@@ -87,7 +87,7 @@ sentence_probs_alpha = [sum(item[1] for item in inner_list[2:]) for inner_list i
 
 input_texts_nonalpha = binomial_nonalpha
 
-n_batches = len(input_texts_nonalpha) / 50
+n_batches = len(input_texts_nonalpha) / 10
 #input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
 
 
