@@ -322,6 +322,7 @@ llama3_8b_2afc_model_just_binoms = brm(data = llama3_8b_data_just_binoms,
                        log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
                        prior = prior_probs,
                        iter = 20000,
+                       warmup = 10000,
                        chains = 4,
                        cores = 4,
                        #control = list(adapt_delta=0.99, max_treedepth = 15),
@@ -343,6 +344,21 @@ llama3_8b_2afc_model_only_genpref = brm(data = llama3_8b_data_just_binoms,
                       )
 
 fixef(llama3_8b_2afc_model_only_genpref)
+
+llama3_simple_model = brm(data = llama3_8b_data_just_binoms,
+                       log_odds ~ GenPref + RelFreq,
+                       prior = prior_probs,
+                       iter = 20000,
+                       warmup = 10000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/llama3_8b_simple_model_just_binoms'
+                      )
+
+fixef(llama3_simple_model)
+
 ```
 
 Checking posterior:
@@ -455,10 +471,24 @@ llama3_70b_2afc_model_only_genpref = brm(data = llama3_70b_data_just_binoms,
                        cores = 4,
                        #control = list(adapt_delta=0.99, max_treedepth = 15),
                        control = list(max_treedepth = 20),
-                       file = '../Data/llama_70b_2afc_model_only_genpref'
+                       file = '../Data/llama3_70b_2afc_model_only_genpref'
                       )
 
-fixef(llama_70b_2afc_model_only_genpref)
+fixef(llama3_70b_2afc_model_only_genpref)
+
+llama3_70B_simple_model = brm(data = llama3_70b_data_just_binoms,
+                       log_odds ~ GenPref + RelFreq,
+                       prior = prior_probs,
+                       iter = 20000,
+                       warmup = 10000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/llama3_70b_simple_model_just_binoms'
+                      )
+
+fixef(llama3_70B_simple_model)
 ```
 
 Post-samples:
