@@ -30,7 +30,7 @@ binomial_nonalpha = df['Sentence (WordB and WordA)']
 from torch import cuda, bfloat16
 import transformers
 
-model_id = 'meta-llama/Llama-2-70b-hf'
+model_id = 'meta-llama/Meta-Llama-3-70B'
 
 device = f'cuda:{cuda.current_device()}' if cuda.is_available() else 'cpu'
 
@@ -64,6 +64,7 @@ print(f"Model loaded on {device}")
 tokenizer = transformers.AutoTokenizer.from_pretrained(
     model_id,
 )
+
 tokenizer.pad_token = tokenizer.eos_token
 
 def to_tokens_and_logprobs(model, tokenizer, input_texts):
@@ -90,7 +91,7 @@ def to_tokens_and_logprobs(model, tokenizer, input_texts):
 #get alphabetical orderings
 input_texts_alpha = binomial_alpha
 
-n_batches = 1
+n_batches = 20
 
 
 
@@ -113,7 +114,7 @@ sentence_probs_alpha = [sum(item[1] for item in inner_list[2:]) for inner_list i
 
 input_texts_nonalpha = binomial_nonalpha
 
-n_batches = 1
+n_batches = 20
 #input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
 
 
@@ -157,4 +158,4 @@ binom_probs_df['log_odds'] = binom_probs_df['Alpha Probs'] - binom_probs_df['Non
 #write into csv
 
 
-binom_probs_df.to_csv('llama70b_2afc_binom_ordering_prefs.csv', index = False)
+binom_probs_df.to_csv('llama3_70b_2afc_binom_ordering_prefs.csv', index = False)
