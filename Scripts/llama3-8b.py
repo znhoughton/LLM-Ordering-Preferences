@@ -29,7 +29,6 @@ binomial_nonalpha = df['Sentence (WordB and WordA)']
 
 from torch import cuda, bfloat16
 import transformers
-hf_token = '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'
 
 model_id = 'meta-llama/Meta-Llama-3-8B'
 
