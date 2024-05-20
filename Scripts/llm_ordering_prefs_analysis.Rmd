@@ -379,6 +379,7 @@ print(post_samples_relfreq_freq)
 print(post_samples_genpref)
 
 ```
+
 #### Lama2 70B
 
 ```{r}
@@ -396,7 +397,6 @@ llama2_70b_data_just_binoms = llama2_70b_data_just_binoms %>%
   mutate(GenPref = GenPref - 0.5) %>%
   mutate(RelFreq = RelFreq - 0.5)
 ```
-
 
 ```{r}
 options(contrasts = c("contr.sum","contr.sum"))
@@ -445,7 +445,6 @@ llama3_70b_data_just_binoms = llama3_70b_data_just_binoms %>%
   mutate(GenPref = GenPref - 0.5) %>%
   mutate(RelFreq = RelFreq - 0.5)
 ```
-
 
 ```{r}
 options(contrasts = c("contr.sum","contr.sum"))
@@ -509,7 +508,6 @@ print(post_samples_relfreq_freq)
 print(post_samples_genpref)
 ```
 
-
 #### Phi-3
 
 Load data:
@@ -564,7 +562,6 @@ print(post_samples_genpref_freq)
 print(post_samples_relfreq_freq)
 ```
 
-
 #### Yi 34b
 
 ```{r}
@@ -584,7 +581,6 @@ yi34b_data_just_binoms = yi34b_data_just_binoms %>%
 
 ```
 
-
 Analysis:
 
 ```{r}
@@ -603,6 +599,7 @@ yi34b_2afc_model_just_binoms = brm(data = yi34b_data_just_binoms,
 
 fixef(yi34b_2afc_model_just_binoms)
 ```
+
 ```{r}
 post_samples_yi34b = as.data.frame(fixef(yi34b_2afc_model_just_binoms, summary = F))
 
@@ -616,9 +613,7 @@ print(post_samples_genpref_freq)
 print(post_samples_genpref)
 ```
 
-
-
-#### Yi 1.5 9B 
+#### Yi 1.5 9B
 
 ```{r}
 yi1.5_9b_data_just_binoms = read_csv('../Data/yi1.5_9b_2afc_binom_ordering_prefs.csv') %>%
@@ -636,7 +631,6 @@ yi1.5_9b_data_just_binoms = yi1.5_9b_data_just_binoms %>%
   mutate(RelFreq = RelFreq - 0.5)
 
 ```
-
 
 Analysis:
 
@@ -665,7 +659,6 @@ post_samples_genpref = sum(post_samples_yi9b$GenPref > 0) / length(post_samples_
 post_samples_genpref
  
 ```
-
 
 ## Plots
 
@@ -765,8 +758,6 @@ full_plot
 
 #ggsave('../Data/full_plot.png')
 ```
-
-
 
 ### Reweighting generative preferences
 
@@ -1048,92 +1039,92 @@ ggarrange(human_data_coefs_plot, reweighted_model_gpt2_plot, reweighted_model_ll
 ##### GPT2
 
 ```{r}
-options(contrasts = c("contr.sum","contr.sum"))
-
-human_llm_gpt2 = brm(data = human_data_gpt2,
-                       AlphaPref ~ (Form + Percept + Power + Icon + Len + `Stress` + Freq) * data_type + (1|data_type) + (1|Item),
-                       family = bernoulli(link = 'logit'),
-                       #prior = prior_probs,
-                       iter = 10000,
-                       warmup = 5000,
-                       chains = 4,
-                       cores = 4,
-                       control = list(max_treedepth = 15),
-                       prior = prior_probs,
-                       #control = list(max_treedepth = 20),
-                       file = '../Data/human_llm_gpt2'
-                      )
-
-fixef(human_llm_gpt2)
+# options(contrasts = c("contr.sum","contr.sum"))
+# 
+# human_llm_gpt2 = brm(data = human_data_gpt2,
+#                        AlphaPref ~ (Form + Percept + Power + Icon + Len + `Stress` + Freq) * data_type + (1|data_type) + (1|Item),
+#                        family = bernoulli(link = 'logit'),
+#                        #prior = prior_probs,
+#                        iter = 10000,
+#                        warmup = 5000,
+#                        chains = 4,
+#                        cores = 4,
+#                        control = list(max_treedepth = 15),
+#                        prior = prior_probs,
+#                        #control = list(max_treedepth = 20),
+#                        file = '../Data/human_llm_gpt2'
+#                       )
+# 
+# fixef(human_llm_gpt2)
 ```
 
 ##### GPT2-XL
 
 ```{r}
-options(contrasts = c("contr.sum","contr.sum"))
-
-human_llm_gpt2xl = brm(data = human_data_gpt2xl,
-                       AlphaPref ~ (Form + Percept + Power + Icon + Len + `Stress` + Freq) * data_type + (1 + Item|data_type) + (1|Item),
-                       family = bernoulli(link = 'logit'),
-                       #prior = prior_probs,
-                       iter = 10000,
-                       warmup = 5000,
-                       chains = 4,
-                       cores = 4,
-                       #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       prior = prior_probs,
-                       #control = list(max_treedepth = 20),
-                       file = '../Data/human_llm_gpt2xl'
-                      )
-
-fixef(human_llm_gpt2xl)
+# options(contrasts = c("contr.sum","contr.sum"))
+# 
+# human_llm_gpt2xl = brm(data = human_data_gpt2xl,
+#                        AlphaPref ~ (Form + Percept + Power + Icon + Len + `Stress` + Freq) * data_type + (1 + Item|data_type) + (1|Item),
+#                        family = bernoulli(link = 'logit'),
+#                        #prior = prior_probs,
+#                        iter = 10000,
+#                        warmup = 5000,
+#                        chains = 4,
+#                        cores = 4,
+#                        #control = list(adapt_delta=0.99, max_treedepth = 15),
+#                        prior = prior_probs,
+#                        #control = list(max_treedepth = 20),
+#                        file = '../Data/human_llm_gpt2xl'
+#                       )
+# 
+# fixef(human_llm_gpt2xl)
 ```
 
 ##### Llama-7b
 
 ```{r}
-options(contrasts = c("contr.sum","contr.sum"))
-
-human_llm_llama7b = brm(data = human_data_llama7b,
-                       AlphaPref ~ (Form + Percept + Power + Icon + Len + `Stress` + Freq) * data_type + (1 + Item|data_type) + (1|Item),
-                       family = bernoulli(link = 'logit'),
-                       #prior = prior_probs,
-                       iter = 10000,
-                       warmup = 5000,
-                       chains = 4,
-                       cores = 4,
-                       #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       prior = prior_probs,
-                       #control = list(max_treedepth = 20),
-                       file = '../Data/human_llm_llama7b'
-                      )
-
-fixef(human_llm_llama7b)
+# options(contrasts = c("contr.sum","contr.sum"))
+# 
+# human_llm_llama7b = brm(data = human_data_llama7b,
+#                        AlphaPref ~ (Form + Percept + Power + Icon + Len + `Stress` + Freq) * data_type + (1 + Item|data_type) + (1|Item),
+#                        family = bernoulli(link = 'logit'),
+#                        #prior = prior_probs,
+#                        iter = 10000,
+#                        warmup = 5000,
+#                        chains = 4,
+#                        cores = 4,
+#                        #control = list(adapt_delta=0.99, max_treedepth = 15),
+#                        prior = prior_probs,
+#                        #control = list(max_treedepth = 20),
+#                        file = '../Data/human_llm_llama7b'
+#                       )
+# 
+# fixef(human_llm_llama7b)
 ```
 
 ##### Llama-13b
 
 ```{r}
-options(contrasts = c("contr.sum","contr.sum"))
-
-human_llm_llama13b = brm(data = human_data_llama13b,
-                       AlphaPref ~ (Form + Percept + Power + Icon + Len + `Stress` + Freq) * data_type+ (1|data_type),# + (1 + Item||data_type) + (1||Item),
-                       family = bernoulli(link = 'logit'),
-                       #prior = prior_probs,
-                       iter = 10000,
-                       warmup = 5000,
-                       chains = 4,
-                       cores = 4,
-                       #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       prior = prior_probs,
-                       #control = list(max_treedepth = 15),
-                       file = '../Data/human_llm_llama13b'
-                      )
-
-fixef(human_llm_llama13b)
-
-
-mcmc_plot(human_llm_llama13b, type = 'trace')
+# options(contrasts = c("contr.sum","contr.sum"))
+# 
+# human_llm_llama13b = brm(data = human_data_llama13b,
+#                        AlphaPref ~ (Form + Percept + Power + Icon + Len + `Stress` + Freq) * data_type+ (1|data_type),# + (1 + Item||data_type) + (1||Item),
+#                        family = bernoulli(link = 'logit'),
+#                        #prior = prior_probs,
+#                        iter = 10000,
+#                        warmup = 5000,
+#                        chains = 4,
+#                        cores = 4,
+#                        #control = list(adapt_delta=0.99, max_treedepth = 15),
+#                        prior = prior_probs,
+#                        #control = list(max_treedepth = 15),
+#                        file = '../Data/human_llm_llama13b'
+#                       )
+# 
+# fixef(human_llm_llama13b)
+# 
+# 
+# mcmc_plot(human_llm_llama13b, type = 'trace')
 #mcmc_plot(reweighted_model_llama13b, type = 'dens')
 ```
 
