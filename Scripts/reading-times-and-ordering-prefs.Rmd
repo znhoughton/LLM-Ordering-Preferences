@@ -2244,15 +2244,12 @@ model = model.to(device)
 def to_tokens_and_logprobs(model, tokenizer, input_texts):
     input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").input_ids
     input_ids = input_ids.to(device)
-    
     outputs = model(input_ids)
     probs = torch.log_softmax(outputs.logits, dim=-1).detach()
-
     # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
     probs = probs[:, :-1, :]
     input_ids = input_ids[:, 1:]
     gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
-
     batch = []
     for input_sentence, input_probs in zip(input_ids, gen_probs):
         text_sequence = []
@@ -2392,7 +2389,7 @@ binom = binom %>%
   mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`)
 
 
-write_csv(binom, '../Data/llama13b_2afc_binom_ordering_prefs.csv')
+write_csv(binom, '../Data/llama13b_2afc_binom_ordering_prefs_test.csv')
 ```
 
 ## Llama3 8-b
