@@ -296,7 +296,7 @@ print(post_samples_genpref_freq)
 print(post_samples_relfreq_freq)
 ```
 
-#### Llama13B 
+#### Llama13B
 
 Load data:
 
@@ -350,23 +350,21 @@ llama13b_2afc_model_just_binoms = brm(data = llama13b_data_just_binoms,
                       )
 
 fixef(llama13b_2afc_model_just_binoms)
-
-options(contrasts = c("contr.sum","contr.sum"))
-llama13b_2afc_model_just_binoms_sim2 = brm(data = llama13b_sim2,
-                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
-                       prior = prior_probs,
-                       iter = 20000,
-                       chains = 4,
-                       cores = 4,
-                       #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       control = list(max_treedepth = 20),
-                       file = '../Data/llama13b_2afc_model_just_binoms_sim5'
-                      )
-
-fixef(llama13b_2afc_model_just_binoms_sim2)
+# 
+# options(contrasts = c("contr.sum","contr.sum"))
+# llama13b_2afc_model_just_binoms_sim2 = brm(data = llama13b_sim2,
+#                        log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+#                        prior = prior_probs,
+#                        iter = 20000,
+#                        chains = 4,
+#                        cores = 4,
+#                        #control = list(adapt_delta=0.99, max_treedepth = 15),
+#                        control = list(max_treedepth = 20),
+#                        file = '../Data/llama13b_2afc_model_just_binoms_sim5'
+#                       )
+# 
+# fixef(llama13b_2afc_model_just_binoms_sim2)
 ```
-
-
 
 Checking posterior:
 
@@ -383,7 +381,6 @@ print(post_samples_genpref_freq)
 print(post_samples_relfreq_freq)
 ```
 
-
 ##### Plot of quantized vs unquantized results
 
 ```{r}
@@ -395,6 +392,7 @@ ggplot(data = quant_unquantized_plot_data) +
   
 
 ```
+
 #### Llama 13b Bits and bytes
 
 Load data:
@@ -465,8 +463,6 @@ fixef(llama13b_2afc_model_just_binoms)
 # fixef(llama13b_2afc_model_just_binoms_sim2)
 ```
 
-
-
 Checking posterior:
 
 ```{r}
@@ -481,8 +477,6 @@ post_samples_relfreq_freq = sum(post_samples_llama13b$`RelFreq:OverallFreq` < 0)
 print(post_samples_genpref_freq)
 print(post_samples_relfreq_freq)
 ```
-
-
 
 #### Llama3 8b
 
@@ -618,7 +612,7 @@ llama_70b_2afc_model_only_genpref = brm(data = llama2_70b_data_just_binoms,
 fixef(llama_70b_2afc_model_only_genpref)
 ```
 
-#### Llama2 70B GPTQ 
+#### Llama2 70B GPTQ
 
 ```{r}
 llama2_70bgptq_data_just_binoms = read_csv('../Data/llama70b_gptq.csv') %>%
@@ -886,7 +880,6 @@ post_samples_genpref
  
 ```
 
-
 #### Falcon 7b
 
 ```{r}
@@ -934,10 +927,7 @@ post_samples_genpref
  
 ```
 
-
-
 #### Falcon 11b
-
 
 ```{r}
 falcon_11b_just_binoms = read_csv('../Data/falcon11b_2afc_just_binom_ordering_prefs.csv') %>%
@@ -984,10 +974,7 @@ post_samples_genpref
  
 ```
 
-
-
 #### Falcon 40b
-
 
 ```{r}
 falcon_40b_just_binoms = read_csv('../Data/falcon40b_2afc_just_binom_ordering_prefs.csv') %>%
@@ -1033,7 +1020,6 @@ post_samples_genpref = sum(post_samples_falcon40b$GenPref > 0) / length(post_sam
 post_samples_genpref
  
 ```
-
 
 Analysis:
 
@@ -1361,7 +1347,6 @@ print(post_samples_genpref_freq)
 print(post_samples_relfreq_freq)
 ```
 
-
 #### Llama3 8b
 
 Load data:
@@ -1496,7 +1481,7 @@ llama_70b_2afc_model_only_genpref = brm(data = llama2_70b_data_just_binoms,
 fixef(llama_70b_2afc_model_only_genpref)
 ```
 
-#### Llama2 70B GPTQ 
+#### Llama2 70B GPTQ
 
 #### Lama3 70B
 
@@ -1704,7 +1689,6 @@ post_samples_genpref
  
 ```
 
-
 #### Falcon 7b
 
 ```{r}
@@ -1752,10 +1736,7 @@ post_samples_genpref
  
 ```
 
-
-
 #### Falcon 11b
-
 
 ```{r}
 falcon_11b = read_csv('../Data/falcon11b_2afc_binom_ordering_prefs.csv') %>%
@@ -1802,10 +1783,7 @@ post_samples_genpref
  
 ```
 
-
-
 #### Falcon 40b
-
 
 ```{r}
 falcon_40b_just_binoms = read_csv('../Data/falcon40b_2afc_binom_ordering_prefs.csv') %>%
@@ -1901,6 +1879,331 @@ post_samples_genpref
 
 
 
+## Olmo Models
+
+### 1B Model
+
+#### Step20000 - 86B tokens
+
+```{python}
+#from huggingface_hub import list_repo_refs
+
+#out = list_repo_refs("allenai/OLMo-7B")
+#branches = [b.name for b in out.branches]
+```
+
+```{r}
+olmo1b_20000_86B = read_csv('../Data/olmo1b_step20000_tokens84B.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
+
+
+prior_probs = c(
+  prior(student_t(3, 0, 1), class = 'Intercept'),
+  prior(student_t(3, 0, 1), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+
+options(contrasts = c("contr.sum","contr.sum"))
+
+olmo1b_20000_86B_model = brm(data = olmo1b_20000_86B,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/olmo1b_20000_86B'
+                      )
+
+fixef(olmo1b_20000_86B_model)
+```
+
+#### Step30000 - 126B Tokens
+
+```{r}
+olmo1b_30000_126B = read_csv('../Data/olmo1b_step30000_tokens126B.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
+
+prior_probs = c(
+  prior(student_t(3, 0, 1), class = 'Intercept'),
+  prior(student_t(3, 0, 1), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+
+options(contrasts = c("contr.sum","contr.sum"))
+
+olmo1b_30000_126B_model = brm(data = olmo1b_30000_126B,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/olmo1b_30000_126B'
+                      )
+
+fixef(olmo1b_30000_126B_model)
+```
+
+#### Step 4000 168B Tokens
+
+```{r}
+olmo1b_40000_168B = read_csv('../Data/olmo1b_step40000_tokens168B.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
+
+prior_probs = c(
+  prior(student_t(3, 0, 1), class = 'Intercept'),
+  prior(student_t(3, 0, 1), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+
+options(contrasts = c("contr.sum","contr.sum"))
+
+olmo1b_40000_168B_model = brm(data = olmo1b_40000_168B,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/olmo1b_40000_168B'
+                      )
+
+fixef(olmo1b_40000_168B_model)
+```
+
+#### Full Model
+
+```{r}
+olmo1b_main = read_csv('../Data/olmo1b_main.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
+
+
+prior_probs = c(
+  prior(student_t(3, 0, 1), class = 'Intercept'),
+  prior(student_t(3, 0, 1), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+
+options(contrasts = c("contr.sum","contr.sum"))
+
+olmo1b_main_model = brm(data = olmo1b_main,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/olmo1b_main'
+                      )
+
+
+
+fixef(olmo1b_main_model)
+
+post_samples_olmo1b = as.data.frame(fixef(olmo1b_main_model, summary = F))
+post_samples_genpref = sum(post_samples_olmo1b$GenPref < 0) / length(post_samples_olmo1b$GenPref)
+post_samples_genpref
+```
+
+### 7B Model
+
+#### Step20000 - 84B tokens
+
+```{python}
+#from huggingface_hub import list_repo_refs
+
+#out = list_repo_refs("allenai/OLMo-7B")
+#branches = [b.name for b in out.branches]
+```
+
+```{r}
+olmo7b_20000_86B = read_csv('../Data/olmo7b_step20000_tokens84B.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
+
+
+prior_probs = c(
+  prior(student_t(3, 0, 1), class = 'Intercept'),
+  prior(student_t(3, 0, 1), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+
+options(contrasts = c("contr.sum","contr.sum"))
+
+olmo7b_20000_86B_model = brm(data = olmo7b_20000_86B,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/olmo7b_20000_86B'
+                      )
+
+fixef(olmo7b_20000_86B_model)
+```
+
+#### Step30000 - 126B Tokens
+
+```{r}
+olmo7b_30000_126B = read_csv('../Data/olmo7b_step30000_tokens128B.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
+
+prior_probs = c(
+  prior(student_t(3, 0, 1), class = 'Intercept'),
+  prior(student_t(3, 0, 1), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+
+options(contrasts = c("contr.sum","contr.sum"))
+
+olmo7b_30000_126B_model = brm(data = olmo7b_30000_126B,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/olmo7b_30000_126B'
+                      )
+
+fixef(olmo7b_30000_126B_model)
+```
+
+#### Step 40000 168B Tokens
+
+```{r}
+olmo7b_40000_168B = read_csv('../Data/olmo7b_step40000_tokens168B.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
+
+prior_probs = c(
+  prior(student_t(3, 0, 1), class = 'Intercept'),
+  prior(student_t(3, 0, 1), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+
+options(contrasts = c("contr.sum","contr.sum"))
+
+olmo7b_40000_168B_model = brm(data = olmo1b_40000_168B,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/olmo7b_40000_168B'
+                      )
+
+fixef(olmo7b_40000_168B_model)
+```
+
+#### Full Model
+
+```{r}
+olmo7b_main = read_csv('../Data/olmo7b_main.csv') %>%
+  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(log_freq = log(OverallFreq)) %>%
+  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
+  mutate(GenPref = GenPref - 0.5) %>%
+  mutate(RelFreq = RelFreq - 0.5)
+
+
+prior_probs = c(
+  prior(student_t(3, 0, 1), class = 'Intercept'),
+  prior(student_t(3, 0, 1), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+
+options(contrasts = c("contr.sum","contr.sum"))
+
+olmo7b_main_model = brm(data = olmo7b_main,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/olmo7b_main'
+                      )
+
+fixef(olmo7b_main_model)
+
+
+post_samples_olmo7b = as.data.frame(fixef(olmo7b_main_model, summary = F))
+
+post_samples_genpref = sum(post_samples_olmo7b$GenPref < 0) / length(post_samples_olmo7b$GenPref)
+post_samples_genpref
+```
+
+
 ## Plots
 
 ```{r}
@@ -1919,8 +2222,29 @@ llama7b_df = data.frame(fixef(llama7b_2afc_model_just_binoms)) %>%
   rownames_to_column('Beta Coefficient') %>%
   mutate(Intercept = Estimate[1])
 
-llama13b_df = data.frame(fixef(llama13b_2afc_model_just_binoms)) %>%
+llama13b_df = data.frame(fixef(llama13b_unquantized_2afc_model)) %>%
   mutate(model = 'Llama-2 13B') %>%
+  rownames_to_column('Beta Coefficient') %>%
+  mutate(Intercept = Estimate[1])
+
+llama3_8b_df = data.frame(fixef(llama3_8b_2afc_model_just_binoms)) %>%
+  mutate(model = 'Llama-3 8B') %>%
+  rownames_to_column('Beta Coefficient') %>%
+  mutate(Intercept = Estimate[1])
+
+llama3_70b_df = data.frame(fixef(llama3_70b_2afc_model_just_binoms)) %>%
+  mutate(model = 'Llama-3 70B') %>%
+  rownames_to_column('Beta Coefficient') %>%
+  mutate(Intercept = Estimate[1])
+
+
+OlmO_1b_df = data.frame(fixef(olmo1b_main_model)) %>%
+  mutate(model = 'OlmO 1B') %>%
+  rownames_to_column('Beta Coefficient') %>%
+  mutate(Intercept = Estimate[1])
+
+OlmO_7b_df = data.frame(fixef(olmo7b_main_model)) %>%
+  mutate(model = 'OlmO 7B') %>%
   rownames_to_column('Beta Coefficient') %>%
   mutate(Intercept = Estimate[1])
 
@@ -1928,7 +2252,11 @@ llama13b_df = data.frame(fixef(llama13b_2afc_model_just_binoms)) %>%
 all_models_data = gpt2_df %>%
   full_join(gpt2xl_df) %>%
   full_join(llama7b_df) %>%
-  full_join(llama13b_df)
+  full_join(llama13b_df) %>%
+  full_join(llama3_8b_df) %>%
+  full_join(llama3_70b_df) %>%
+  full_join(OlmO_1b_df) %>%
+  full_join(OlmO_7b_df)
 
 
 gen_pref_plot_data = all_models_data %>%
@@ -1937,9 +2265,9 @@ gen_pref_plot_data = all_models_data %>%
 observed_pref_plot_data = all_models_data %>%
   filter(`Beta Coefficient` == 'RelFreq')
 
-gen_pref_plot_data$model = factor(gen_pref_plot_data$model, levels = c('gpt-2', 'gpt-2 XL', 'Llama-2 7B', 'Llama-2 13B'))
+gen_pref_plot_data$model = factor(gen_pref_plot_data$model, levels = c('gpt-2', 'OlmO 1B', 'gpt-2 XL', 'Llama-2 7B',  'OlmO 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B', ))
 
-observed_pref_plot_data$model = factor(observed_pref_plot_data$model, levels = c('gpt-2', 'gpt-2 XL', 'Llama-2 7B', 'Llama-2 13B'))
+observed_pref_plot_data$model = factor(observed_pref_plot_data$model, levels = c('gpt-2', 'OlmO 1B', 'gpt-2 XL', 'Llama-2 7B',  'OlmO 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B', ))
 
 gen_pref_plot = ggplot(data = gen_pref_plot_data, aes(x = model, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
   geom_errorbar(width = 0.2) +
@@ -1974,14 +2302,14 @@ full_plot_data = all_models_data %>%
   mutate(color = ifelse( `Beta Coefficient` == 'GenPref', 'red', ifelse(`Beta Coefficient` == 'RelFreq', 'blue', ifelse(`Beta Coefficient` == 'OverallFreq', 'purple', ifelse(`Beta Coefficient` == 'GenPref:OverallFreq', 'darkgreen', 'orange')))))
 
 
-full_plot_data$model = factor(full_plot_data$model, levels = c('gpt-2', 'gpt-2 XL', 'Llama-2 7B', 'Llama-2 13B'))
+full_plot_data$model = factor(full_plot_data$model, levels = c('gpt-2', 'OlmO 1B', 'gpt-2 XL', 'Llama-2 7B',  'OlmO 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B', ))
 
 full_plot_data$`Beta Coefficient` = factor(full_plot_data$`Beta Coefficient`, levels = c('RelFreq', 'GenPref', 'OverallFreq', 'RelFreq:OverallFreq', 'GenPref:OverallFreq'))
 
 full_plot = ggplot(data = full_plot_data, aes(x = `Beta Coefficient`, y = Estimate, ymin = Q2.5, ymax = Q97.5, color = color)) +
   geom_errorbar(width = 0.2) +
   geom_point(size = 1.5) +
-  facet_wrap(~model, nrow = 1) +
+  facet_wrap(~model, nrow = 2) +
   theme_bw() +
   theme(axis.text=element_text(size=12),
         axis.title=element_text(size=14,face="bold"),
@@ -2367,328 +2695,4 @@ ggarrange(human_data_coefs_plot, reweighted_model_gpt2_plot, reweighted_model_ll
 # 
 # mcmc_plot(human_llm_llama13b, type = 'trace')
 #mcmc_plot(reweighted_model_llama13b, type = 'dens')
-```
-
-## Olmo Models
-
-### 1B Model
-
-#### Step20000 - 86B tokens
-
-```{python}
-#from huggingface_hub import list_repo_refs
-
-#out = list_repo_refs("allenai/OLMo-7B")
-#branches = [b.name for b in out.branches]
-```
-
-```{r}
-olmo1b_20000_86B = read_csv('../Data/olmo1b_step20000_tokens84B.csv') %>%
-  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
-  select(-and) %>%
-  mutate(across(2:3, tolower)) %>%
-  left_join(corpus) %>%
-  mutate(log_freq = log(OverallFreq)) %>%
-  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
-  mutate(GenPref = GenPref - 0.5) %>%
-  mutate(RelFreq = RelFreq - 0.5)
-
-
-prior_probs = c(
-  prior(student_t(3, 0, 1), class = 'Intercept'),
-  prior(student_t(3, 0, 1), class = 'sigma'),
-  prior(student_t(3, 0, 1), class = 'b')
-)
-
-options(contrasts = c("contr.sum","contr.sum"))
-
-olmo1b_20000_86B_model = brm(data = olmo1b_20000_86B,
-                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
-                       prior = prior_probs,
-                       iter = 10000,
-                       warmup = 5000,
-                       chains = 4,
-                       cores = 4,
-                       #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       #control = list(max_treedepth = 20),
-                       file = '../Data/olmo1b_20000_86B'
-                      )
-
-fixef(olmo1b_20000_86B_model)
-```
-
-#### Step30000 - 126B Tokens
-
-```{r}
-olmo1b_30000_126B = read_csv('../Data/olmo1b_step30000_tokens126B.csv') %>%
-  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
-  select(-and) %>%
-  mutate(across(2:3, tolower)) %>%
-  left_join(corpus) %>%
-  mutate(log_freq = log(OverallFreq)) %>%
-  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
-  mutate(GenPref = GenPref - 0.5) %>%
-  mutate(RelFreq = RelFreq - 0.5)
-
-prior_probs = c(
-  prior(student_t(3, 0, 1), class = 'Intercept'),
-  prior(student_t(3, 0, 1), class = 'sigma'),
-  prior(student_t(3, 0, 1), class = 'b')
-)
-
-options(contrasts = c("contr.sum","contr.sum"))
-
-olmo1b_30000_126B_model = brm(data = olmo1b_30000_126B,
-                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
-                       prior = prior_probs,
-                       iter = 10000,
-                       warmup = 5000,
-                       chains = 4,
-                       cores = 4,
-                       #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       control = list(max_treedepth = 20),
-                       file = '../Data/olmo1b_30000_126B'
-                      )
-
-fixef(olmo1b_30000_126B_model)
-```
-
-#### Step 4000 168B Tokens
-
-```{r}
-olmo1b_40000_168B = read_csv('../Data/olmo1b_step40000_tokens168B.csv') %>%
-  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
-  select(-and) %>%
-  mutate(across(2:3, tolower)) %>%
-  left_join(corpus) %>%
-  mutate(log_freq = log(OverallFreq)) %>%
-  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
-  mutate(GenPref = GenPref - 0.5) %>%
-  mutate(RelFreq = RelFreq - 0.5)
-
-prior_probs = c(
-  prior(student_t(3, 0, 1), class = 'Intercept'),
-  prior(student_t(3, 0, 1), class = 'sigma'),
-  prior(student_t(3, 0, 1), class = 'b')
-)
-
-options(contrasts = c("contr.sum","contr.sum"))
-
-olmo1b_40000_168B_model = brm(data = olmo1b_40000_168B,
-                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
-                       prior = prior_probs,
-                       iter = 10000,
-                       warmup = 5000,
-                       chains = 4,
-                       cores = 4,
-                       #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       control = list(max_treedepth = 20),
-                       file = '../Data/olmo1b_40000_168B'
-                      )
-
-fixef(olmo1b_40000_168B_model)
-```
-
-#### Full Model
-
-```{r}
-olmo1b_main = read_csv('../Data/olmo1b_main.csv') %>%
-  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
-  select(-and) %>%
-  mutate(across(2:3, tolower)) %>%
-  left_join(corpus) %>%
-  mutate(log_freq = log(OverallFreq)) %>%
-  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
-  mutate(GenPref = GenPref - 0.5) %>%
-  mutate(RelFreq = RelFreq - 0.5)
-
-
-prior_probs = c(
-  prior(student_t(3, 0, 1), class = 'Intercept'),
-  prior(student_t(3, 0, 1), class = 'sigma'),
-  prior(student_t(3, 0, 1), class = 'b')
-)
-
-options(contrasts = c("contr.sum","contr.sum"))
-
-olmo1b_main_model = brm(data = olmo1b_main,
-                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
-                       prior = prior_probs,
-                       iter = 10000,
-                       warmup = 5000,
-                       chains = 4,
-                       cores = 4,
-                       #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       control = list(max_treedepth = 20),
-                       file = '../Data/olmo1b_main'
-                      )
-
-
-
-fixef(olmo1b_main_model)
-
-post_samples_olmo1b = as.data.frame(fixef(olmo1b_main_model, summary = F))
-post_samples_genpref = sum(post_samples_olmo1b$GenPref < 0) / length(post_samples_olmo1b$GenPref)
-post_samples_genpref
-```
-
-### 7B Model
-
-#### Step20000 - 84B tokens
-
-```{python}
-#from huggingface_hub import list_repo_refs
-
-#out = list_repo_refs("allenai/OLMo-7B")
-#branches = [b.name for b in out.branches]
-```
-
-```{r}
-olmo7b_20000_86B = read_csv('../Data/olmo7b_step20000_tokens84B.csv') %>%
-  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
-  select(-and) %>%
-  mutate(across(2:3, tolower)) %>%
-  left_join(corpus) %>%
-  mutate(log_freq = log(OverallFreq)) %>%
-  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
-  mutate(GenPref = GenPref - 0.5) %>%
-  mutate(RelFreq = RelFreq - 0.5)
-
-
-prior_probs = c(
-  prior(student_t(3, 0, 1), class = 'Intercept'),
-  prior(student_t(3, 0, 1), class = 'sigma'),
-  prior(student_t(3, 0, 1), class = 'b')
-)
-
-options(contrasts = c("contr.sum","contr.sum"))
-
-olmo7b_20000_86B_model = brm(data = olmo7b_20000_86B,
-                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
-                       prior = prior_probs,
-                       iter = 10000,
-                       warmup = 5000,
-                       chains = 4,
-                       cores = 4,
-                       #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       control = list(max_treedepth = 20),
-                       file = '../Data/olmo7b_20000_86B'
-                      )
-
-fixef(olmo7b_20000_86B_model)
-```
-
-#### Step30000 - 126B Tokens
-
-```{r}
-olmo7b_30000_126B = read_csv('../Data/olmo7b_step30000_tokens128B.csv') %>%
-  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
-  select(-and) %>%
-  mutate(across(2:3, tolower)) %>%
-  left_join(corpus) %>%
-  mutate(log_freq = log(OverallFreq)) %>%
-  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
-  mutate(GenPref = GenPref - 0.5) %>%
-  mutate(RelFreq = RelFreq - 0.5)
-
-prior_probs = c(
-  prior(student_t(3, 0, 1), class = 'Intercept'),
-  prior(student_t(3, 0, 1), class = 'sigma'),
-  prior(student_t(3, 0, 1), class = 'b')
-)
-
-options(contrasts = c("contr.sum","contr.sum"))
-
-olmo7b_30000_126B_model = brm(data = olmo7b_30000_126B,
-                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
-                       prior = prior_probs,
-                       iter = 10000,
-                       warmup = 5000,
-                       chains = 4,
-                       cores = 4,
-                       #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       control = list(max_treedepth = 20),
-                       file = '../Data/olmo7b_30000_126B'
-                      )
-
-fixef(olmo7b_30000_126B_model)
-```
-
-#### Step 40000 168B Tokens
-
-```{r}
-olmo7b_40000_168B = read_csv('../Data/olmo7b_step40000_tokens168B.csv') %>%
-  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
-  select(-and) %>%
-  mutate(across(2:3, tolower)) %>%
-  left_join(corpus) %>%
-  mutate(log_freq = log(OverallFreq)) %>%
-  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
-  mutate(GenPref = GenPref - 0.5) %>%
-  mutate(RelFreq = RelFreq - 0.5)
-
-prior_probs = c(
-  prior(student_t(3, 0, 1), class = 'Intercept'),
-  prior(student_t(3, 0, 1), class = 'sigma'),
-  prior(student_t(3, 0, 1), class = 'b')
-)
-
-options(contrasts = c("contr.sum","contr.sum"))
-
-olmo7b_40000_168B_model = brm(data = olmo1b_40000_168B,
-                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
-                       prior = prior_probs,
-                       iter = 10000,
-                       warmup = 5000,
-                       chains = 4,
-                       cores = 4,
-                       #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       control = list(max_treedepth = 20),
-                       file = '../Data/olmo7b_40000_168B'
-                      )
-
-fixef(olmo7b_40000_168B_model)
-```
-
-#### Full Model
-
-```{r}
-olmo7b_main = read_csv('../Data/olmo7b_main.csv') %>%
-  separate(binom, c('WordA', 'and', 'WordB'), remove = F, sep = ' ') %>%
-  select(-and) %>%
-  mutate(across(2:3, tolower)) %>%
-  left_join(corpus) %>%
-  mutate(log_freq = log(OverallFreq)) %>%
-  mutate(OverallFreq = log_freq - mean(log_freq)) %>%
-  mutate(GenPref = GenPref - 0.5) %>%
-  mutate(RelFreq = RelFreq - 0.5)
-
-
-prior_probs = c(
-  prior(student_t(3, 0, 1), class = 'Intercept'),
-  prior(student_t(3, 0, 1), class = 'sigma'),
-  prior(student_t(3, 0, 1), class = 'b')
-)
-
-options(contrasts = c("contr.sum","contr.sum"))
-
-olmo7b_main_model = brm(data = olmo7b_main,
-                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
-                       prior = prior_probs,
-                       iter = 10000,
-                       warmup = 5000,
-                       chains = 4,
-                       cores = 4,
-                       #control = list(adapt_delta=0.99, max_treedepth = 15),
-                       control = list(max_treedepth = 20),
-                       file = '../Data/olmo7b_main'
-                      )
-
-fixef(olmo7b_main_model)
-
-
-post_samples_olmo7b = as.data.frame(fixef(olmo7b_main_model, summary = F))
-
-post_samples_genpref = sum(post_samples_olmo7b$GenPref < 0) / length(post_samples_olmo7b$GenPref)
-post_samples_genpref
 ```

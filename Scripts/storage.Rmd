@@ -21,7 +21,7 @@ use_condaenv(envname, required = T)
 
 ## Semantic Representations
 
-We'll need three functions. One that returns the mean values across each of the hidden layers for a target phrase, and one that gets the 
+We'll need three functions. One that returns the mean values across each of the hidden layers for a target phrase, and one that gets the
 
 ```{python}
 import torch
@@ -72,7 +72,6 @@ vector2 = get_semantic_representation(sentence2, 'kicked', 'bucket')
 vector3 = get_semantic_representation(sentence3, 'kicked', 'pail')
 vector4 = get_semantic_representation(sentence4, 'died', 'died')
 ```
-
 
 ```{python}
 import torch
@@ -134,7 +133,6 @@ vector7 = get_semantic_representation(sentence7, 'financial', 'institution')
 
 ```
 
-
 ```{python}
 import numpy as np
 import itertools
@@ -179,10 +177,6 @@ print(pair6)
 # print(cosine_similarity_scores)
 ```
 
-
-
-
-
 Plotting in 2D:
 
 ```{python}
@@ -217,4 +211,3 @@ plt.grid()
 plt.title('2D Vector Plot')
 plt.show()
 ```
-
