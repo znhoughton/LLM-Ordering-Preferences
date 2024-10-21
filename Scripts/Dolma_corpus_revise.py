@@ -20,6 +20,8 @@ import logging
 from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED, TimeoutError, as_completed, ALL_COMPLETED
 from pebble import ProcessPool, ProcessExpired
 import sys
+from concurrent.futures import ProcessPoolExecutor
+from collections import defaultdict
 
 ###need to test if timeout works if set to e.g., 5mins
 
@@ -134,23 +136,48 @@ def process_bigram_files():
     result_df.to_csv('full_bigram_corpus.csv.gz', index=False, compression = 'gzip')
     
     
+#def process_trigram_files():
+#    print("Currently processing trigram_files", flush=True)
+#    trigram_files = glob.glob('./trigram_files/*.csv.gz')
+#    intermediate_dfs = []
+#    batch_size = 2
+    
+#    for i in range(0, len(trigram_files), batch_size):
+#        now = datetime.datetime.now()
+#        print(f"Currently processing batch {i // batch_size + 1} / {len(trigram_files) // batch_size + 1} at: {now}")
+#        batch = trigram_files[i:i + batch_size]
+#        batch_dfs = [pd.read_csv(file, compression='gzip', encoding = 'utf-8') for file in batch]
+#        batch_df = pd.concat(batch_dfs).groupby('ngram', as_index=False).sum()
+#        intermediate_dfs.append(batch_df)
+    
+#    result_df = pd.concat(intermediate_dfs).groupby('ngram', as_index=False).sum()
+#    result_df = result_df.sort_values(by=['count'], ascending=False)
+#    result_df.to_csv('full_trigram_corpus.csv.gz', index=False, compression = 'gzip')
+
+
+
+def process_file(file):
+    print(f"Processing: {file}")
+    # Read the gzip file in chunks to avoid high memory usage
+    df = pd.read_csv(file, compression='gzip', encoding='utf-8', chunksize=100000000)  # Adjust chunksize as necessary
+    return df
+
 def process_trigram_files():
-    print("Currently processing trigram_files", flush=True)
-    trigram_files = glob.glob('./trigram_files/*.csv.gz')
-    intermediate_dfs = []
-    batch_size = 2
-    
-    for i in range(0, len(trigram_files), batch_size):
-        now = datetime.datetime.now()
-        print(f"Currently processing batch {i // batch_size + 1} / {len(trigram_files) // batch_size + 1} at: {now}")
-        batch = trigram_files[i:i + batch_size]
-        batch_dfs = [pd.read_csv(file, compression='gzip', encoding = 'utf-8') for file in batch]
-        batch_df = pd.concat(batch_dfs).groupby('ngram', as_index=False).sum()
-        intermediate_dfs.append(batch_df)
-    
-    result_df = pd.concat(intermediate_dfs).groupby('ngram', as_index=False).sum()
-    result_df = result_df.sort_values(by=['count'], ascending=False)
-    result_df.to_csv('full_trigram_corpus.csv.gz', index=False, compression = 'gzip')
+    trigram_files = glob.glob('./test_trigram_files/*.csv.gz')
+    final_counts = defaultdict(int)  # Use defaultdict to simplify summation of counts
+
+    for file in trigram_files:
+        #print(f"Processing {file}...")
+        for chunk in process_file(file):
+            for index, row in chunk.iterrows():
+                final_counts[row['ngram']] += row['count']  # Sum counts for each unique n-gram
+
+    # Convert the defaultdict back to a DataFrame
+    final_result = pd.DataFrame(final_counts.items(), columns=['ngram', 'count'])
+
+    # Save the final result to a single CSV file
+    final_result.to_csv('full_trigram_corpus.csv.gz', index=False, compression='gzip')
+
 
 
 def check_and_process_trigrams_corpus(): #for some reason sometimes all of the files aren't being processed, so this script will check to see if they've been downloaded and try again if they haven't. I wonder if there's a better way, since the process_gzip_file_parallel() function seems to slow down significantly after a few hours. I wonder if manually restarting it after a certain number of hours would increase the speed of processing the files. 
@@ -160,14 +187,13 @@ def check_and_process_trigrams_corpus(): #for some reason sometimes all of the f
     gzip_files_source = [f.split('.')[0] for f in listdir(path_source)]
     #gzip_files_destination = [(path_destination + f) for f in listdir(path_destination) if isfile(join(path_destination, f))]
     gzip_files_destination = [f.split('.')[0] for f in listdir(path_destination)]
-    if len(gzip_files_source) == len(gzip_files_destination):
-        print(f'Number of files in source match the number of files in destination: {len(gzip_files_source)}\nProcessing files now')
-        process_trigram_files()
-        return True #to break the while loop if everything downloaded correctly
+    files_not_downloaded = list(set(gzip_files_source) - set(gzip_files_destination))
+    if len(files_not_downloaded) == 0:
+            print(f'Files downloaded properly')
+            process_trigram_files()
+            #return True #to break the while loop if everything downloaded correctly
     else:
-        files_not_downloaded = list(set(gzip_files_source) - set(gzip_files_destination))
         print(f'{len(files_not_downloaded)} files not downloaded. Attempting to download them.')
-        
         files_to_process = [path_source + filename + '.json.gz' for filename in files_not_downloaded]
         process_gzip_file_parallel(files_to_process)
         
