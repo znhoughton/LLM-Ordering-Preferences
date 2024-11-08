@@ -99,16 +99,16 @@ def process_individual_file_trigram(gzip_file):
     print(f"Finished writing {gzip_file} at: {now}", flush = True)
     
 
-def process_gzip_file_parallel(ngram_type, gzip_files, num_workers=5, timeout=30000):
+def process_gzip_file_parallel(ngram_type, gzip_files, num_workers=50, timeout=30000):
     with ProcessPool(max_workers=num_workers) as pool:
         
         processing_functions = {
         'onegram': process_individual_file_onegram,
         'twogram': process_individual_file_bigram,
         'threegram': process_individual_file_trigram
-        
+        }
         if ngram_type in processing_functions:
-            process_file_function = processing_functions[ngram_type]()  # Call the corresponding function
+            process_file_function = processing_functions[ngram_type]  # Call the corresponding function
         else:
             raise ValueError("Invalid n-gram type specified.")
         
@@ -145,73 +145,73 @@ def write_file_to_csv(counter_file, file, ngram_type):
                 writer.writerow([ngram_identity, v])
 
 
-def process_file(file):
-    print(f"Processing: {file}")
-    # Read the gzip file in chunks to avoid high memory usage
-    df = pd.read_csv(file, compression='gzip', encoding='utf-8', chunksize=100000000)  # Adjust chunksize as necessary
-    return df
+# def process_file(file):
+    # print(f"Processing: {file}")
+    #Read the gzip file in chunks to avoid high memory usage
+    # df = pd.read_csv(file, compression='gzip', encoding='utf-8', chunksize=100000000)  # Adjust chunksize as necessary
+    # return df
 
 
            
-process_onegram_files():
-    onegram_files = glob.glob('./onegram_files/*.csv.gz')
-    final_counts = defaultdict(int)  # Use defaultdict to simplify summation of counts
+# def process_onegram_files():
+    # onegram_files = glob.glob('./onegram_files/*.csv.gz')
+    # final_counts = defaultdict(int)  # Use defaultdict to simplify summation of counts
 
-    for file in onegram_files:
+    # for file in onegram_files:
         #print(f"Processing {file}...")
-        for chunk in process_file(file):
-            for index, row in chunk.iterrows():
-                final_counts[row['ngram']] += row['count']  # Sum counts for each unique n-gram
+        # for chunk in process_file(file):
+            # for index, row in chunk.iterrows():
+                # final_counts[row['ngram']] += row['count']  # Sum counts for each unique n-gram
 
-    # Convert the defaultdict back to a DataFrame
-    final_result = pd.DataFrame(final_counts.items(), columns=['ngram', 'count'])
+    #Convert the defaultdict back to a DataFrame
+    # final_result = pd.DataFrame(final_counts.items(), columns=['ngram', 'count'])
 
-    # Save the final result to a single CSV file
-    final_result.to_csv('full_onegram_corpus.csv.gz', index=False, compression='gzip') 
+    #Save the final result to a single CSV file
+    # final_result.to_csv('full_onegram_corpus.csv.gz', index=False, compression='gzip') 
     
-process_bigram_files():
-    bigram_files = glob.glob('./bigram_files/*.csv.gz')
-    final_counts = defaultdict(int)  # Use defaultdict to simplify summation of counts
+# def process_bigram_files():
+    # bigram_files = glob.glob('./bigram_files/*.csv.gz')
+    # final_counts = defaultdict(int)  # Use defaultdict to simplify summation of counts
 
-    for file in bigram_files:
+    # for file in bigram_files:
         #print(f"Processing {file}...")
-        for chunk in process_file(file):
-            for index, row in chunk.iterrows():
-                final_counts[row['ngram']] += row['count']  # Sum counts for each unique n-gram
+        # for chunk in process_file(file):
+            # for index, row in chunk.iterrows():
+                # final_counts[row['ngram']] += row['count']  # Sum counts for each unique n-gram
 
-    # Convert the defaultdict back to a DataFrame
-    final_result = pd.DataFrame(final_counts.items(), columns=['ngram', 'count'])
+    #Convert the defaultdict back to a DataFrame
+    # final_result = pd.DataFrame(final_counts.items(), columns=['ngram', 'count'])
 
-    # Save the final result to a single CSV file
-    final_result.to_csv('full_bigram_corpus.csv.gz', index=False, compression='gzip') 
+    #Save the final result to a single CSV file
+    # final_result.to_csv('full_bigram_corpus.csv.gz', index=False, compression='gzip') 
  
-process_trigram_files():
-    trigram_files = glob.glob('./test_trigram_files/*.csv.gz')
-    final_counts = defaultdict(int)  # Use defaultdict to simplify summation of counts
+# def process_trigram_files():
+    # trigram_files = glob.glob('./test_trigram_files/*.csv.gz')
+    # final_counts = defaultdict(int)  # Use defaultdict to simplify summation of counts
 
-    for file in trigram_files:
+    # for file in trigram_files:
         #print(f"Processing {file}...")
-        for chunk in process_file(file):
-            for index, row in chunk.iterrows():
-                final_counts[row['ngram']] += row['count']  # Sum counts for each unique n-gram
+        # for chunk in process_file(file):
+            # for index, row in chunk.iterrows():
+                # final_counts[row['ngram']] += row['count']  # Sum counts for each unique n-gram
 
-    # Convert the defaultdict back to a DataFrame
-    final_result = pd.DataFrame(final_counts.items(), columns=['ngram', 'count'])
+    #Convert the defaultdict back to a DataFrame
+    # final_result = pd.DataFrame(final_counts.items(), columns=['ngram', 'count'])
 
-    # Save the final result to a single CSV file
-    final_result.to_csv('full_trigram_corpus.csv.gz', index=False, compression='gzip') 
+    #Save the final result to a single CSV file
+    # final_result.to_csv('full_trigram_corpus.csv.gz', index=False, compression='gzip') 
     
 
-def process_ngram_files(ngram_type):
-    processing_functions = {
-        'onegram': process_onegram_files,
-        'twogram': process_bigram_files,
-        'threegram': process_trigram_files
+# def process_ngram_files(ngram_type):
+    # processing_functions = {
+        # 'onegram': process_onegram_files,
+        # 'twogram': process_bigram_files,
+        # 'threegram': process_trigram_files
         
-    if ngram_type in processing_functions:
-        processing_functions[ngram_type]()  # Call the corresponding function
-    else:
-        raise ValueError("Invalid n-gram type specified.")
+    # if ngram_type in processing_functions:
+        # processing_functions[ngram_type]()  # Call the corresponding function
+    # else:
+        # raise ValueError("Invalid n-gram type specified.")
         
 
 
@@ -228,16 +228,16 @@ def check_and_process_corpus(ngram = 'onegram'): #for some reason sometimes all 
     files_not_downloaded = list(set(gzip_files_source) - set(gzip_files_destination))
     if len(files_not_downloaded) == 0:
             print(f'Files downloaded properly')
-            process_ngram_files(ngram_type = ngram)
+            #process_ngram_files(ngram_type = ngram)
             #return True #to break the while loop if everything downloaded correctly
     else:
         print(f'{len(files_not_downloaded)} files not downloaded. Attempting to download them.')
         files_to_process = [path_source + filename + '.json.gz' for filename in files_not_downloaded]
         process_gzip_file_parallel(ngram_type='onegram', gzip_files=files_to_process)
         
-        if len(files_not_downloaded == 0):
+        if len(files_not_downloaded) == 0:
             print(f'Files downloaded properly\nProcessing Now')
-            process_ngram_files(ngram_type = ngram)
+            #process_ngram_files(ngram_type = ngram) #we're going to keep them as separate csvs, for memory reasons 
         
 def main():
     if __name__ == "__main__":

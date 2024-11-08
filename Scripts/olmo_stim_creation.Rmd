@@ -1,0 +1,56 @@
+---
+title: "nonce_binomial_stimuli_creation"
+author: "Zachary Houghton"
+date: "2024-10-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## Stimuli Creation
+
+```{r}
+binomial_list = read_csv('../data/binomials.csv') 
+olmo_freqs = read_csv('../data/olmo_binomial_freqs.csv') %>%
+  mutate(across(everything(), ~ str_replace_all(.x, "\t", " ")))
+  
+```
+
+```{r}
+binomial_list = binomial_list %>%
+  pivot_longer(c('Alpha', 'Nonalpha'), names_to = 'Alpha', values_to = 'Binomial')
+
+
+binomial_list = binomial_list %>% 
+  left_join(olmo_freqs, by = c('Binomial' = 'trigram'))
+
+binomial_list$count = as.numeric(binomial_list$count)
+
+binomial_freqs = binomial_list %>%
+  group_by(Word1, Word2) %>%
+  summarize(rel_freq = count[Alpha == 'Alpha'] / sum(count[Alpha == 'Alpha'], count[Alpha == 'Nonalpha']), OverallFreq = sum(`count`))
+  
+# rel_freqs = binomial_list %>%
+#   group_by(Word1, Word2) %>%
+#   summarize()
+```
+
+```{r}
+list_of_binoms = binomial_list = read_csv('../data/binomials.csv') %>%
+  left_join(binomial_freqs, by = c('Word1', 'Word2')) %>%
+  select(-'Overall Freq')
+
+
+word_freqs = read_csv('../data/olmo_onegram_freqs.csv')
+```
+
+```{r}
+list_of_binoms = list_of_binoms %>%
+  left_join(word_freqs, by = c('Word1'='ngram')) %>%
+  rename('Word1_freq' = 'count') %>%
+  left_join(word_freqs, by = c('Word2'='ngram')) %>%
+  rename('Word2_freq' = 'count')
+```
