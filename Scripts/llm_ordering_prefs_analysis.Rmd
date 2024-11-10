@@ -2304,6 +2304,14 @@ full_plot_data = all_models_data %>%
 
 full_plot_data$model = factor(full_plot_data$model, levels = c('gpt-2', 'OlmO 1B', 'gpt-2 XL', 'Llama-2 7B',  'OlmO 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B'))
 
+full_plot_data = full_plot_data %>%
+  mutate(`Beta Coefficient` = case_when(`Beta Coefficient` == 'GenPref' ~ 'AbsPref',
+                                        `Beta Coefficient` == 'GenPref:OverallFreq' ~ 'AbsPref:OverallFreq',
+                                        `Beta Coefficient` == 'RelFreq' ~ 'RelFreq',
+                                        `Beta Coefficient` == 'OverallFreq' ~ 'OverallFreq',
+                                        `Beta Coefficient` == 'RelFreq:OverallFreq' ~ 'RelFreq:OverallFreq'
+                                      ))
+
 full_plot_data$`Beta Coefficient` = factor(full_plot_data$`Beta Coefficient`, levels = c('RelFreq', 'AbsPref', 'OverallFreq', 'RelFreq:OverallFreq', 'AbsPref:OverallFreq'))
 
 full_plot = ggplot(data = full_plot_data, aes(x = `Beta Coefficient`, y = Estimate, ymin = Q2.5, ymax = Q97.5, color = color)) +
@@ -2318,7 +2326,7 @@ full_plot = ggplot(data = full_plot_data, aes(x = `Beta Coefficient`, y = Estima
         plot.margin = margin(10, 50, 10, 10),
         aspect.ratio = 2/1.5
         ) +
-  scale_x_discrete(labels = c(expression('ObsPref'), expression('AbsPref'), expression('Freq'), expression('ObsPref:Freq'), expression('GenPref:Freq'))) +
+  scale_x_discrete(labels = c(expression('ObsPref'), expression('AbsPref'), expression('Freq'), expression('ObsPref:Freq'), expression('AbsPref:Freq'))) +
  # ylim(c(-2.5, 10)) +
   ylab('Estimate') +
   xlab('Beta Coefficient Variable')
