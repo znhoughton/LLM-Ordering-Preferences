@@ -25,7 +25,7 @@ binomial_list = binomial_list %>%
 
 
 binomial_list = binomial_list %>% 
-  left_join(olmo_freqs, by = c('Binomial' = 'trigram'))
+  left_join(olmo_freqs, by = c('Binomial' = 'trigram'))##or trigram 
 
 binomial_list$count = as.numeric(binomial_list$count)
 
@@ -39,7 +39,7 @@ binomial_freqs = binomial_list %>%
 ```
 
 ```{r}
-list_of_binoms = binomial_list = read_csv('../data/binomials.csv') %>%
+list_of_binoms  = read_csv('../data/binomials.csv') %>%
   left_join(binomial_freqs, by = c('Word1', 'Word2')) %>%
   select(-'Overall Freq')
 
@@ -54,3 +54,14 @@ list_of_binoms = list_of_binoms %>%
   left_join(word_freqs, by = c('Word2'='ngram')) %>%
   rename('Word2_freq' = 'count')
 ```
+
+```{r}
+nonce_binoms = list_of_binoms %>%
+  filter(OverallFreq == 0) %>%
+  select(-rel_freq)
+```
+
+```{r}
+clipr::write_clip(nonce_binoms)
+```
+
