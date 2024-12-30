@@ -1,0 +1,335 @@
+---
+title: "nonce_binoms_analysis"
+author: "Zachary Houghton"
+date: "2024-12-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(brms)
+library(purrr)
+options(contrasts = c("contr.sum","contr.sum"))
+```
+
+Analaysis of ordering prefs for nonce binomials
+
+# Load Data
+
+```{r}
+
+data_main_model = read_csv('../Data/allenai_OLMo-7B-0424-hf.csv')
+corpus = read_csv('../Data/nonce_binoms.csv')
+
+data_main_model = data_main_model %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`))) %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`)
+
+
+data_main_model = data_main_model %>%
+  separate(binom, c('Word1', 'and', 'Word2'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  #mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(checkpoint = 'main') %>%
+  mutate(y_vals = 0.02191943 + 0.23925834*Form +  0.24889543*Percept +  0.41836997*Culture +   0.25967334*Power +  0.01867604*Intense +  1.30365980*Icon +   0.08553552*Freq +  0.15241566*Len - 0.19381657*Lapse +  0.36019221*`*BStress`) %>%
+  mutate(GenPref = 1/(1+exp(-1*y_vals)))
+  #mutate(log_freq = log(OverallFreq))# %>%
+  #mutate(OverallFreq = log_freq - mean(log_freq))# %>%
+  #mutate(GenPref = GenPref - 0.5) %>%
+  #mutate(RelFreq = RelFreq - 0.5)
+
+data_main_model = data_main_model %>%
+  rename(no_final_stress = `*BStress`)
+
+# data_main_model = data_main_model %>%
+#   mutate(Form = factor(Form), Percept = factor(Percept), Culture = factor(Culture), Power = factor(Power), Intense = factor(Intense), Icon = factor(Icon), Freq = as.numeric(as.character(Freq)), Len = factor(Len), Lapse = factor(Lapse), no_final_stress = factor(no_final_stress))
+
+
+```
+
+## Load Data for checkpoints (not main)
+
+```{r message = F}
+data_path = "../Data"
+
+# List all CSV files matching the desired pattern in the directory
+file_list = list.files(path = data_path, pattern = "allenai_OLMo-7B-0424-hf_step.*\\.csv$", full.names = TRUE)
+
+# Function to read a file and add the 'checkpoint' column
+read_and_add_checkpoint = function(file) {
+  # Extract the checkpoint from the filename
+  checkpoint = str_extract(basename(file), "step[0-9]+.*(?=\\.csv)")
+  
+  # Read the file and add the checkpoint column
+  read_csv(file) %>%
+    mutate(checkpoint = checkpoint)
+}
+
+# Read all files and combine into a single data frame
+combined_df = file_list %>%
+  map_df(read_and_add_checkpoint) %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`))) %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`) %>%
+  separate(binom, c('Word1', 'and', 'Word2'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  #mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(y_vals = 0.02191943 + 0.23925834*Form +  0.24889543*Percept +  0.41836997*Culture +   0.25967334*Power +  0.01867604*Intense +  1.30365980*Icon +   0.08553552*Freq +  0.15241566*Len - 0.19381657*Lapse +  0.36019221*`*BStress`) %>%
+  mutate(GenPref = 1/(1+exp(-1*y_vals))) %>%
+  rename(no_final_stress = `*BStress`) %>%
+  mutate(num_tokens = str_extract(checkpoint, "(?<=tokens).*")) %>%
+  mutate(n_billion_tokens = as.numeric(str_remove(num_tokens, "B"))) %>%
+  arrange(n_billion_tokens) 
+
+combined_df = combined_df %>%
+  mutate(n_billion_tokens = case_when(checkpoint == 'main' ~ 2050,
+                                      checkpoint != 'main' ~ n_billion_tokens))
+  
+
+checkpoint_tokens_key = combined_df %>%
+  group_by(checkpoint) %>%
+  slice_head(n=1) %>%
+  select(checkpoint, num_tokens, n_billion_tokens)
+
+# combined_df = combined_df %>%
+#   mutate(Form = factor(Form), Percept = factor(Percept), Culture = factor(Culture), Power = factor(Power), Intense = factor(Intense), Icon = factor(Icon), Freq = as.numeric(as.character(Freq)), Len = factor(Len), Lapse = factor(Lapse), no_final_stress = factor(no_final_stress))
+
+
+prior_probs = c(
+  prior(student_t(3, 0, 1), class = 'Intercept'),
+  prior(student_t(3, 0, 1), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+
+#function to run the model for all of the checkpoints
+fit_model1 = function(data, checkpoint) {
+  brm(log_odds ~ GenPref,
+      data = data,
+      family = gaussian(),
+      warmup = 2000,
+      iter = 4000,
+      prior = prior_probs,
+      cores = 4,
+      chains = 4,
+      file = paste0('../Data/model1_olmo7b_', checkpoint))
+}
+
+#function to run the second model for all of the checkpoints
+#in the future, there's probably a way to save time by not re-compiling the model each time and instead just swapping out the dataset. That being said, these models compile fairly quickly so it's not worth wasting time on it right now
+fit_model2 = function(data, checkpoint) {
+  brm(log_odds ~ Percept + Culture + Power + Intense + Icon + Freq + Len + Lapse + no_final_stress, #Icon and Form removed because it has only one value, so it is meaningless
+      data = data,
+      family = gaussian(),
+      warmup = 5000,
+      iter = 10000,
+      prior = prior_probs,
+      cores = 4,
+      chains = 4,
+      file = paste0('../Data/model2_olmo7b_', checkpoint))
+}
+
+data_list = combined_df %>%
+  arrange(n_billion_tokens) %>%
+  split(.$checkpoint)
+
+
+# Apply the model fitting function to each dataframe in the list
+
+checkpoint_list = names(data_list)
+
+models1 = map2(data_list, checkpoint_list, fit_model1)
+models2 = map2(data_list, checkpoint_list, fit_model2)
+
+extract_model_summary = function(model, checkpoint) {
+  # Get the fixed effects summary
+  fixef_summary = as.data.frame(fixef(model))
+  fixef_summary$checkpoint = checkpoint
+
+  # Add rownames (parameter names) as a column
+  fixef_summary$Parameter = rownames(fixef_summary)
+  
+  # Reset rownames and return the result
+  rownames(fixef_summary) <- NULL
+  return(fixef_summary)
+}
+
+results_list1 = map2(models1, checkpoint_list, extract_model_summary)
+fixefs_m1 = bind_rows(results_list1)
+
+results_list2 = map2(models2, checkpoint_list, extract_model_summary)
+fixefs_m2 = bind_rows(results_list2)
+
+
+```
+
+
+
+# Main Models
+
+## Main Model
+
+### Model1
+
+```{r}
+
+prior_probs = c(
+  prior(student_t(3, 0, 1), class = 'Intercept'),
+  prior(student_t(3, 0, 1), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+
+
+
+Olmo_main_genpref = brm(log_odds ~ GenPref,
+                       data = data_main_model,
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/model1_main'
+                      )
+
+fixef(Olmo_main_genpref)
+```
+
+### Model2
+
+```{r}
+
+prior_probs = c(
+  prior(student_t(3, 0, 1), class = 'Intercept'),
+  prior(student_t(3, 0, 1), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+
+Olmo_main_individual_constraints = brm(data = data_main_model,
+                       log_odds ~ Percept + Culture + Power + Intense + Freq + Len + Lapse + no_final_stress, #Icon and Form removed for only having one value
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/model2_main'
+                      )
+
+
+fixef(Olmo_main_individual_constraints)
+```
+
+```{r}
+coeffs = as.data.frame(fixef(Olmo_main_individual_constraints, summary = F))
+fixefs = as.data.frame(fixef(Olmo_main_individual_constraints))[2:9,] %>%
+  mutate(percent_greater_zero = c(
+  sum(coeffs$Percept > 0) / length(coeffs$Percept),
+  sum(coeffs$Culture > 0) / length(coeffs$Culture),
+  sum(coeffs$Power > 0) / length(coeffs$Power),
+  sum(coeffs$Intense > 0) / length(coeffs$Intense),
+  sum(coeffs$Freq > 0) / length(coeffs$Freq),
+  sum(coeffs$Len > 0) / length(coeffs$Len),
+  sum(coeffs$Lapse > 0) / length(coeffs$Lapse),
+  sum(coeffs$no_final_stress > 0) / length(coeffs$no_final_stress))) %>%
+  mutate(percent_greater_zer = percent_greater_zero * 100)
+```
+
+# Plots
+
+```{r}
+fixefs_main_model = as.data.frame(fixef(Olmo_main_genpref)) %>%
+  mutate(checkpoint = 'main')
+  
+fixefs_main_model$Parameter = rownames(fixefs_main_model)
+rownames(fixefs_main_model) = NULL
+
+
+models_all = fixefs_m1 %>%
+  full_join(fixefs_main_model) %>%
+  left_join(checkpoint_tokens_key)
+
+models_all$checkpoint = factor(models_all$checkpoint, levels = c('step0-tokens0B', 'step500-tokens2B', 'step1000-tokens4B', 'step1500-tokens6B', 'step2000-tokens8B', 'step2500-tokens10B', 'step3000-tokens12B', 'step3500-tokens14B', 'step4000-tokens16B', 'step5000-tokens20B', 'step5500-tokens23B', 'step6000-tokens25B', 'step6500-tokens27B', 'step7000-tokens29B', 'step7500-tokens31B', 'step8000-tokens33B', 'step8500-tokens35B', 'step9000-tokens37B', 'step9500-tokens39B', 'step10000-tokens41B', 'step20000-tokens83B', 'step30000-tokens125B', 'step40000-tokens167B', 'step50000-tokens209B', 'step100000-tokens419B', 'step200000-tokens838B', 'step400000-tokens1677B', 'main'))
+
+
+models_for_plotting = models_all %>%
+  filter(Parameter == 'GenPref') %>%
+  filter(n_billion_tokens %in% c(0, 2, 41, 209, 419, 838, 1677)) %>%
+  mutate(checkpoint_numeric = as.numeric(factor(checkpoint))) 
+
+
+
+plot_all_m1 = ggplot(data = models_for_plotting, aes(x=checkpoint_numeric, y = Estimate)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  geom_errorbar(aes(ymin=Q2.5, ymax = Q97.5), position=position_dodge(0.05)) +
+  scale_x_continuous(breaks = unique(models_for_plotting$checkpoint_numeric), labels = models_for_plotting$num_tokens) +
+  theme_bw() #+
+  #theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+  
+
+plot_all_m1
+```
+
+```{r}
+library(ggh4x)
+data_main_model2 = data_main_model %>%
+  mutate(checkpoint = 'main') %>%
+  mutate(n_billion_tokens = 2050)
+
+models_for_plotting2 = combined_df %>%
+  full_join(data_main_model2) %>%
+  pivot_longer(c(Percept, Culture, Power, Intense, Freq, Len, Lapse, no_final_stress), names_to = 'constraint', values_to = 'constraint_value') %>%
+  filter(n_billion_tokens %in% c(0, 10, 20, 35, 125, 419, 1677, 2050))
+
+
+
+models_for_plotting2$n_billion_tokens = factor(models_for_plotting2$n_billion_tokens, levels = c(0, 10, 20, 35, 125, 419, 1677, 2050),
+                           labels = c('0 Tokens', '10 Billion Tokens', '20 Billion Tokens', '35 Billion Tokens', '125 Billion Tokens', '419 Billion Tokens', '1677 Billion Tokens', '2050 Billion Tokens'))
+
+models_for_plotting2$constraint = factor(models_for_plotting2$constraint, levels = c("Percept", "Culture", "Power", "Intense", "Freq", "Len", "Lapse", "no_final_stress"), labels = c("Percept", "Culture", "Power", "Intense", "Freq", "Len", "Lapse", "No Final Stress"))
+
+main_model_plot2 = ggplot(data = models_for_plotting2, aes(x=constraint_value, y = log_odds)) +
+  geom_point(alpha=0.5, color = 'darkblue') +
+  geom_smooth(method = 'lm', formula = y ~ x, se = TRUE, linewidth = 1) +
+  facet_nested(constraint~n_billion_tokens) +
+  #ggtitle('Number of Billions of Tokens') +
+  theme_bw() +
+  theme(axis.title.x = element_text(size = 10, face = 'bold'),
+        axis.title.y = element_text(size = 10, face = 'bold')) +
+  xlab('Constraint Value') +
+  ylab('Log Odds') +
+  scale_x_continuous(limits = c(-3, 3))
+
+main_model_plot2
+```
+
+
+
+```{r}
+main_model = data_main_model %>%
+  pivot_longer(c(Percept, Culture, Power, Intense, Freq, Len, Lapse, no_final_stress), names_to = 'constraint', values_to = 'constraint_value')
+
+main_model_plot = ggplot(data = main_model, aes(x=constraint_value, y = log_odds)) +
+  geom_point(alpha=0.5, color = 'darkblue') +
+  geom_smooth(method = 'lm', formula = y ~ x, se = TRUE, linewidth = 1) +
+  facet_wrap(~constraint) +
+  theme_bw()
+
+main_model_plot
+```
+
+```{r}
+gen_pref_data = data_main_model
+
+main_model_plot = ggplot(data = gen_pref_data, aes(x=GenPref, y = log_odds)) +
+  geom_point(alpha=0.5, color = 'darkblue') +
+  geom_smooth(method = 'lm', formula = y ~ x, se = TRUE, linewidth = 1) +
+  #facet_wrap(~constraint) +
+  theme_bw()
+
+main_model_plot
+```

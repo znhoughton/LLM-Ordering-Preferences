@@ -1877,8 +1877,6 @@ post_samples_genpref
  
 ```
 
-
-
 ## Olmo Models
 
 ### 1B Model
@@ -2203,10 +2201,15 @@ post_samples_genpref = sum(post_samples_olmo7b$GenPref < 0) / length(post_sample
 post_samples_genpref
 ```
 
-
 ## Plots
 
 ```{r}
+library(extrafont) 
+#font_import()
+
+# Only three fonts seem to have been imported...
+loadfonts(); windowsFonts()
+
 gpt2_df = data.frame(fixef(gpt2_2afc_model_just_binoms))%>%
   mutate(model = 'gpt-2') %>%
   rownames_to_column('Beta Coefficient') %>%
@@ -2315,16 +2318,20 @@ full_plot_data = full_plot_data %>%
 full_plot_data$`Beta Coefficient` = factor(full_plot_data$`Beta Coefficient`, levels = c('RelFreq', 'AbsPref', 'OverallFreq', 'RelFreq:OverallFreq', 'AbsPref:OverallFreq'))
 
 full_plot = ggplot(data = full_plot_data, aes(x = `Beta Coefficient`, y = Estimate, ymin = Q2.5, ymax = Q97.5, color = color)) +
-  geom_errorbar(width = 0.2) +
+  geom_errorbar(width = 0.25) +
   geom_point(size = 1.5) +
   facet_wrap(~model, nrow = 2) +
   theme_bw() +
-  theme(axis.text=element_text(size=12),
-        axis.title=element_text(size=14,face="bold"),
-        axis.text.x = element_text(hjust = 0, angle = -45),
+  theme(axis.text=element_text(size=10),
+        axis.title=element_text(size=10,face="bold"),
+        axis.text.x = element_text(hjust = 0, angle = -45, color = 'black', size = 10),
+        axis.text.y = element_text(hjust = 0, color = 'black'),
         legend.position = 'none',
         plot.margin = margin(10, 50, 10, 10),
-        aspect.ratio = 2/1.5
+        aspect.ratio = 2/1.5,
+        strip.text.x = element_text(size = 8, color = 'black',face="bold"),
+        #panel.background = element_rect(fill = "white"),
+        #text = element_text(family = 'Times New Roman')
         ) +
   scale_x_discrete(labels = c(expression('ObsPref'), expression('AbsPref'), expression('Freq'), expression('ObsPref:Freq'), expression('AbsPref:Freq'))) +
  # ylim(c(-2.5, 10)) +
