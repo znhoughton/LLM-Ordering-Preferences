@@ -43,6 +43,12 @@ data_for_analysis = data
 
 binomial_alpha = data_for_analysis$`Sentence (WordA and WordB)`
 binomial_nonalpha = data_for_analysis$`Sentence (WordB and WordA)`
+
+
+nonce_binoms = read_csv('../Data/nonce_binoms.csv')
+
+nonce_binoms_alpha = nonce_binoms$Alpha
+nonce_binoms_nonalpha = nonce_binoms$Nonalpha
 ```
 
 ## GPTXL
