@@ -99,12 +99,12 @@ def process_individual_file_trigram(gzip_file):
     print(f"Finished writing {gzip_file} at: {now}", flush = True)
     
 
-def process_gzip_file_parallel(ngram_type, gzip_files, num_workers=50, timeout=30000):
+def process_gzip_file_parallel(ngram_type, gzip_files, num_workers=15, timeout=30000):
     with ProcessPool(max_workers=num_workers) as pool:
         
         processing_functions = {
         'onegram': process_individual_file_onegram,
-        'twogram': process_individual_file_bigram,
+        'bigram': process_individual_file_bigram,
         'threegram': process_individual_file_trigram
         }
         if ngram_type in processing_functions:
@@ -233,7 +233,7 @@ def check_and_process_corpus(ngram = 'onegram'): #for some reason sometimes all 
     else:
         print(f'{len(files_not_downloaded)} files not downloaded. Attempting to download them.')
         files_to_process = [path_source + filename + '.json.gz' for filename in files_not_downloaded]
-        process_gzip_file_parallel(ngram_type='onegram', gzip_files=files_to_process)
+        process_gzip_file_parallel(ngram_type=ngram, gzip_files=files_to_process)
         
         if len(files_not_downloaded) == 0:
             print(f'Files downloaded properly\nProcessing Now')
@@ -244,7 +244,7 @@ def main():
             #set_start_method("spawn")
             t1 = time.perf_counter()
             path = 'Dolma/'
-            check_and_process_corpus(ngram = 'onegram')  #onegram, twogram, or threegram -- admittedly a bit confusing, should change to onegram, bigram, trigram later
+            check_and_process_corpus(ngram = 'bigram')  #onegram, twogram, or threegram -- admittedly a bit confusing, should change to onegram, bigram, trigram later
             t2 = time.perf_counter()
             print(t2 - t1)
             #check to make sure the number of gzip_files created are equal to the number of files in the path

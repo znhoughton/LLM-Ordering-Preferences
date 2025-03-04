@@ -199,24 +199,23 @@
 
 \section{Introduction}\label{sec-introduction}
 
-It is uncontroversial that large language models (LLMs) have
-demonstrated better language proficiency than any other computational
-model of language in history. Their historic rise to fame has brought
-with it many heated debates regarding whether large language models
-constitute human-like models of language or whether what they are doing
-is completely different from humans
+Large language models have stormed the media in the last few years and
+become a popular topic in the scientific literature. Their historic rise
+to fame has brought with them many heated debates regarding whether
+large language models constitute human-like models of language or
+whether what they are doing is completely different from humans
 (\citeproc{ref-benderDangersStochasticParrots2021}{Bender et al., 2021};
 \citeproc{ref-piantadosiChapterModernLanguage}{Piantadosi, 2023};
 \citeproc{ref-piantadosiMeaningReferenceLarge2022}{Piantadosi \& Hill,
 2022}).
 
 Many of these debates have centered around the tradeoff between
-computation and storage, that is, how much these models are simply
-reproducing from their training data vs how much of their productions
-are novel utterances using learned linguistic patterns. On one hand,
-there is no doubt that large language models store and reproduce large
-chunks of language. In fact, OpenAI has even been sued by the \emph{New
-York Times} for allegedly reproducing entire articles verbatim
+computation and storage: how much are these models simply reproducing
+from their training data vs how much of their productions are novel
+utterances using learned linguistic patterns. On one hand, there is no
+doubt that large language models store and reproduce large chunks of
+language. In fact, OpenAI is even being sued by \emph{The New York
+Times} for allegedly reproducing entire articles verbatim
 (\citeproc{ref-nyt_v_openai}{\emph{{The New York Times Company v.
 Microsoft Corporation, OpenAI, Inc., OpenAI LP, OpenAI GP, LLC, OpenAI,
 LLC, OpenAI OpCo LLC, OpenAI Global LLC, OAI Corporation, LLC, and
@@ -234,25 +233,27 @@ trillions of tokens
 (\citeproc{ref-groeneveldOLMoAcceleratingScience2024}{Groeneveld et al.,
 2024})\footnote{This is magnitudes larger than the 350 million words
   that the average college-aged speaker has seen in their lifetime
-  (\citeproc{ref-levy2012}{Levy et al., 2012})}. As such, it is
-extremely difficult to determine whether utterances by an LLM are truly
-novel, or whether they are reproduced from their training data. This is
-further complicated by the fact that training data for LLMs is typically
-either not publicly available, or so huge that it's incredibly difficult
-to work with. On the other hand, it is clear that large language models
-are learning some linguistic patterns. For example, McCoy et al.
-(\citeproc{ref-mccoy2023much}{2023}) demonstrated that Chat GPT-2 is
-able to generate well-formed novel words as well as well-formed novel
-syntactic structures, despite also finding that it still copies
-extensively.
+  (\citeproc{ref-levy2012}{Levy et al., 2012}).}. As such, it is
+extremely difficult to determine whether utterances produced by an LLM
+are truly novel, or whether they are simply reproduced from their
+training data. This is further complicated by the fact that training
+data for LLMs is typically either not publicly available, or so huge
+that it's incredibly difficult to work with. On the other hand, it is
+clear that large language models are learning at least some linguistic
+patterns. For example, McCoy et al. (\citeproc{ref-mccoy2023much}{2023})
+demonstrated that Chat GPT-2 is able to generate well-formed novel words
+as well as well-formed novel syntactic structures, however they found
+that it still copies extensively.
 
 A similar debate in the field has centered around whether large language
 models learn any knowledge about the meaning of words. For example,
 Bender \& Koller (\citeproc{ref-bender2020climbing}{2020}) have argued
 that large language models, which are only trained on the form, have no
-way of learning anything about meaning. However, Piantadosi \& Hill
+way of learning anything about meaning. They pointed out that large
+language models do not have the rich information that humans receive,
+such as the referent of the form. However, Piantadosi \& Hill
 (\citeproc{ref-piantadosiMeaningReferenceLarge2022}{2022}) have
-countered by pointing out that co-occurrence statistics can be extremely
+countered by arguing that co-occurrence statistics can be extremely
 informative about a word's meaning. For example, they argued that many
 words, such as ``justice'', contain no clear referent and instead have
 to be learned by humans based on the context that they occur in. It
@@ -261,11 +262,11 @@ information about meanings similarly.
 
 These debates, however, have been highly theoretical and speculative and
 very few empirical studies have been done to actually investigate these
-questions (c.f., \citeproc{ref-lebrun2022evaluating}{LeBrun et al.,
-2022}; \citeproc{ref-mccoy2023much}{McCoy et al., 2023};
-\citeproc{ref-wei2022emergent}{Wei et al., 2022}). Thus in the present
+questions (\citeproc{ref-lasri2022subject}{Lasri et al., 2022}; c.f.,
+\citeproc{ref-lebrun2022evaluating}{LeBrun et al., 2022};
+\citeproc{ref-mccoy2023much}{McCoy et al., 2023}). Thus in the present
 paper we address these debates by taking an in-depth look at large
-language models' abilities to abstract across their training.
+language models' abilities to abstract across their training data.
 
 Our specific contributions are as follows: We make a 3-grams corpus of
 Dolma (\citeproc{ref-soldainiDolmaOpenCorpus2024}{Soldaini et al.,
@@ -297,17 +298,18 @@ BERT was able to perform better-than-chance on novel nouns,
 cross-linguistically it failed to use information about the prime
 sentence to achieve better performance.
 
-On the other hand, Wei et al. (\citeproc{ref-wei2022emergent}{2022})
+On the other hand, Lasri et al. (\citeproc{ref-lasri2022subject}{2022})
 demonstrated that BERT can generalize well to novel subject-verb pairs.
 Specifically, they tested BERT's performance on novel sentences along
 with semantically incoherent but syntactically sensible sentences (e.g.,
 \emph{colorless green ideas sleep furiously}). They found that BERT
-performs well on items it wasn't trained on but still struggles with
-low-frequency lexical items. Similarly, as mentioned earlier, McCoy et
-al. (\citeproc{ref-mccoy2023much}{2023}) examined to what extent GPT-2
-was simply copying its training data vs producing novel utterances. They
-found that while GPT-2 copies extensively, it also produces both novel
-words as well as novel syntactic structures.
+performs well on items it wasn't trained on but struggles more on
+semantically incoherent sentences than humans do. Similarly, as
+mentioned earlier, McCoy et al. (\citeproc{ref-mccoy2023much}{2023})
+examined to what extent GPT-2 was simply copying its training data vs
+producing novel utterances. They found that while GPT-2 copies
+extensively, it also produces both novel words as well as novel
+syntactic structures.
 
 Finally, there is evidence that transformer models can learn
 abstractions from other domains as well. For example, Tartaglini et al.
@@ -318,7 +320,7 @@ found that certain models can reach near perfect accuracy on items they
 have never seen before. They argued that this demonstrates their
 abilities to learn abstract representations.
 
-\subsection{Abstractions In Humans}\label{abstractions-in-humans}
+\subsection{Abstractions in Humans}\label{abstractions-in-humans}
 
 Abstractions have been a part of just about every linguistic theory out
 there, including both generativist and non-generativist theories. This
@@ -347,13 +349,14 @@ before female-coded words). They coded a list of binomials for a variety
 of semantic constraints, phonological constraints, and metric
 constraints that affect human ordering preferences for binomials
 (\citeproc{ref-benorChickenEggProbabilistic2006}{Benor \& Levy, 2006}).
-They found that humans ordering preferences were driven by abstract
+They found that human ordering preferences were driven by abstract
 ordering preferences, such as a preference to place short words before
-longer words, even after accounting for the relative frequency (which
-ordering preference occurs more in corpus data). In other words, human
-ordering preferences are driven by both the observed preferences in
-corpus data (i.e., the number of times they've encountered each ordering
-of the binomial) as well as by abstract ordering preferences
+longer words, even after accounting for the relative frequency (the
+proportion of each ordering that a binomial occurs in corpus data). In
+other words, human ordering preferences are driven by both the observed
+preferences in corpus data (i.e., the number of times they've
+encountered each ordering of the binomial) as well as by abstract
+ordering preferences
 (\citeproc{ref-morganAbstractKnowledgeDirect2016}{Morgan \& Levy,
 2016}). Specifically, they developed a model to quantify the abstract
 ordering preferences of humans for a given binomial in English. The
@@ -383,17 +386,20 @@ copying their input, or whether they are learning more abstract
 linguistics patterns. We use binomials as a test case because human
 ordering preferences deviate from the observed preferences for them
 (that is, humans don't simply prefer the more frequent ordering).
+Further, we use novel binomials that OLMo has never seen before.
+Therefore any preference the model has cannot be driven by experience
+with the specific item.
 
 Specifically, in Experiment 1 we examine whether OLMo's 7B model
 (\citeproc{ref-groeneveldOLMoAcceleratingScience2024}{Groeneveld et al.,
-2024}) is sensitive to abstract ordering preferences overall. We also
-examine the individual constraints that go into calculating abstract
-ordering preference, such as the preference for short words before long
-words, to determine whether OLMo is sensitive to the same specific
-constraints as humans. In Experiment 2, we examine the same questions at
-different learning stages of the model's learning in order to determine
-how these abstract ordering preferences emerge as a function of the
-training.
+2024}) is sensitive to abstract ordering preferences for novel binomials
+that the model has never seen before. We also examine the individual
+constraints that drive abstract ordering preferences in humans, such as
+the preference for short words before long words, to determine whether
+OLMo is sensitive to the same constraints in the same way as humans. In
+Experiment 2, we examine the same questions at different stages of the
+model's learning in order to determine how these abstract ordering
+preferences emerge as a function of the training.
 
 \section{Dataset}\label{dataset}
 
@@ -403,14 +409,13 @@ For both experiments, we use the dataset described in this section. In
 order to examine whether large language models learn preferences above
 and beyond simply memorizing co-occurrence rates, we created a 3-grams
 corpus of Dolma (\citeproc{ref-soldainiDolmaOpenCorpus2024}{Soldaini et
-al., 2024}). Specifically, we used Dolma version 1\_7, which was used to
-train OLMo-7B-v1.7
+al., 2024}). Specifically, we used Dolma version 1\_7 (2.05 trillion
+tokens), which was used to train OLMo-7B-v1.7
 (\citeproc{ref-groeneveldOLMoAcceleratingScience2024}{Groeneveld et al.,
-2024}), a large language model trained on 2.05 trillion tokens. Our
-corpus contains every 3-gram (ignoring punctuation and capitalization)
-in the Dolma corpus, as well as the number of times that 3-gram
-appeared. Similarly, in order to calculate individual word-frequencies
-we also created a 1-gram corpus of Dolma.
+2024}). Our corpus contains every 3-gram (ignoring punctuation and
+capitalization) in the Dolma corpus, as well as the number of times that
+3-gram appeared. Similarly, in order to calculate individual
+word-frequencies we also created a 1-gram corpus of Dolma.
 
 We then created a list of binomials and searched the corpus to find a
 list of binomials that did not occur in the Dolma corpus. We eliminated
@@ -419,10 +424,13 @@ alphabetical or nonalphabetical orderings. Thus, OLMo has had no
 experience with either ordering of any of our binomials. Individual word
 frequencies were also calculated for these items using the 1-grams
 corpus of Dolma. Our full list of items is presented in full in the
-appendix section (Section Section~\ref{sec-full-list-of-stimuli}).
+appendix section\footnote{Our code for the corpus and the analyses run
+  in this paper can also be found at:
+  \url{github.com/\%5Banonymous\%5D}.} (Section
+Section~\ref{sec-full-list-of-stimuli}).
 
-\subsection{Abstract Ordering
-Preferences}\label{abstract-ordering-preferences}
+\subsection{Abstract Ordering Preferences
+Corpus}\label{abstract-ordering-preferences-corpus}
 
 In order to examine whether large language models are learning
 preferences similar to humans, we calculated the abstract ordering
@@ -431,19 +439,18 @@ preference value for each of our binomials (following
 Morgan \& Levy (\citeproc{ref-morganAbstractKnowledgeDirect2016}{2016})
 demonstrated that their model's estimated abstract ordering preference
 value is a significant predictor of human binomial ordering preferences,
-even after accounting for the frequency of the binomial. abstract
-ordering preference is calculated from a mix of semantic and
+even after accounting for the frequency of the binomial. Abstract
+ordering preferences are calculated from a mix of semantic and
 phonological properties that human binomial ordering preferences have
 been shown to be sensitive to
 (\citeproc{ref-benorChickenEggProbabilistic2006}{Benor \& Levy, 2006}).
 For each of these constraints, a positive value indicates a preference
-for the alphabetical word to be placed first (following the given
-constraint). A negative value indicates a preference for the
-nonalphabetical word to be placed first. For example, a positive value
-of \emph{Freq} indicates that the alphabetical word is more frequent and
-thus is predicted to be placed first, while a negative value indicates
-that the nonalphabetical word is more frequent. The constraints are as
-follows:
+for the alphabeticaly first word to be placed first (a neutral reference
+order). A negative value indicates a preference for the nonalphabetical
+word to be placed first. For example, a positive value of \emph{Freq}
+indicates that the alphabetical word is more frequent and thus is
+predicted to be placed first, while a negative value indicates that the
+nonalphabetical word is more frequent. The constraints are as follows:
 
 \begin{itemize}
 \item
@@ -477,23 +484,26 @@ follows:
 \item
   \textbf{Length}: The shorter word should appear first.
 \item
-  \textbf{Lapse:} Avoid multiple unstressed syllables.
+  \textbf{Lapse:} The ordering that avoids multiple unstressed syllables
+  is preferred.
 \item
-  \textbf{Final Stress}: The final syllable of the second word should
-  not be stressed.
+  \textbf{Final Stress}: The ordering that avoids the final syllable of
+  the second word being stressed is preferred.
 \end{itemize}
 
 \section{Experiment 1}\label{experiment-1}
 
-In Experiment 1, we examine the extent to which OLMo-7B's ordering
-preferences are driven by abstract ordering preferences for novel
-binomials. In order to do so, we obtain ordering preferences for each of
-the binomials in our dataset which have been coded for the abstract
-ordering preference constraints. If OLMo has learned any abstract
-ordering preferences, it should order binomials non-randomly. If it is
-just reproducing the binomials in ordering based purely off the
-frequency of the items in its input, we should see only an effect of
-frequency (i.e., it should simply place the more frequent word first).
+In Experiment 1, we examine whether OLMo-7B's ordering preferences are
+driven by abstract ordering preferences for novel binomials. In order to
+do so, we obtain ordering preferences for each of the binomials in our
+dataset which have been coded for the abstract ordering preference
+constraints from Morgan \& Levy
+(\citeproc{ref-morganAbstractKnowledgeDirect2016}{2016}). If OLMo has
+developed any abstract ordering preferences, it should show prefer some
+orderings over others. If it is just reproducing the binomials in
+ordering based purely off the frequency of the items in its input, we
+should see only an effect of frequency (i.e., it should simply place the
+more frequent word first).
 
 \subsection{Methods}\label{methods}
 
@@ -511,7 +521,9 @@ and B,} is:
 
 \begin{equation}\phantomsection\label{eq-probalpha}{
 \begin{aligned}
-P_{alphabetical} & = P(A|Next\:item: )\\      & \times P(and|Next\:item: A)\\      & \times P(B|Next\:item: A\: and)
+    P_{alphabetical} & = P(A|\text{`Next item:'} )\\      
+    & \times P(and|\text{`Next item: A'})\\      
+    & \times P(B|\text{`Next item: A and'})
 \end{aligned}
 }\end{equation}
 
@@ -521,9 +533,9 @@ the nonalphabetical form, \emph{B and A}, is:
 
 \begin{equation}\phantomsection\label{eq-probnonalpha}{
 \begin{aligned}    
-P_{nonalphabetical} & = P(B|Next\:item: )\\
-& \times P(and|Next\:item: B)\\
-& \times P(A|Next\:item: B\: and)
+P_{nonalphabetical} & = P(B|\text{`Next item:'})\\
+& \times P(and|\text{`Next item: B'})\\
+& \times P(A|\text{`Next item: B and'})
 \end{aligned}
 }\end{equation}
 
@@ -551,28 +563,40 @@ interval for that estimate excludes zero.
 
 For both analyses, the dependent variable is \(LogOdds(AandB)\), which
 was described above. Our dependent variable in the first analysis is the
-abstract ordering preference for each binomial (\(AbsPref\)). Our
-dependent variables in the second analysis are the individual
-constraints that are used to calculate \(AbsPref\). The model equations
-are below in Equation~\ref{eq-m1} and Equation~\ref{eq-m2}. Note that
-Formal Markedness and Iconicity were dropped from the second model
-because the constraint values were zero for all of the binomials.
+abstract ordering preference for each binomial (\(AbsPref\))\footnote{We
+  also ran a model examining whether the ordering preferences were
+  driven by the bigram probabilities of the trigram, however bigram
+  probabilities turned out not to be a good predictor of ordering
+  preferences.}. Our dependent variables in the second analysis are the
+individual constraints that are used to calculate \(AbsPref\). The model
+equations are below in Equation~\ref{eq-m1} and Equation~\ref{eq-m2}.
+Note that Formal Markedness and Iconicity were dropped from the second
+model because the constraint values were zero for all of the binomials.
+Further, our constraints demonstrated a level of co-linearity.
+Co-linearity can result in poor model estimates and inflated credible
+intervals. In order to deal with this, we dropped the constraint with
+the highest variance inflation factor (which turned out to be the lapse
+constraint). We then performed backward model selection and dropped the
+predictors whose credible intervals were most centered around zero. This
+resulted in dropping the no final stress, intense, and percept
+constraints. We acknowledge that this approach is quite exploratory and
+thus interpretations at the level of the individual constraint must be
+taken with a grain of salt.
 
 \begin{equation}\phantomsection\label{eq-m1}{
 LogOdds(AandB) \sim AbsPref
 }\end{equation}
 
 \begin{equation}\phantomsection\label{eq-m2}{
-LogOdds(AandB) \sim Percept + Culture + Power + Intense + Freq + Len + Lapse + FinalStress
+LogOdds(AandB) \sim Culture + Power + Freq + Len + Lapse + FinalStress
 }\end{equation}
 
 \subsection{Results}\label{results}
 
 The results for the first analysis are presented below in
 Table~\ref{tbl-exp1m1}. Our results suggest that there is a main-effect
-(\(\beta\)=2.538, CI-2.5 = 0.273, CI-97.5 = 5.171) of abstract ordering
-preference for OLMo's 7B model. A visualization of these results can be
-found below in Figure~\ref{fig-exp1m1}.
+of abstract ordering preference for OLMo's 7B model. A visualization of
+these results can be found below in Figure~\ref{fig-exp1m1}.
 
 \begin{longtable}[]{@{}lllll@{}}
 
@@ -582,8 +606,8 @@ found below in Figure~\ref{fig-exp1m1}.
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Intercept & -1.368 & 0.633 & -2.673 & -0.223 \\
-AbsPref & 2.538 & 1.275 & 0.273 & 5.171 \\
+Intercept & -1.370 & 0.636 & -2.672 & -0.222 \\
+AbsPref & 2.547 & 1.274 & 0.291 & 5.151 \\
 
 
 \caption{\label{tbl-exp1m1}Model results examining the effect of AbsPref
@@ -625,15 +649,11 @@ Figure~\ref{fig-exp1m2}.
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Intercept & -0.100 & 0.172 & -0.440 & 0.235 & 27.940 \\
-Percept & 0.185 & 0.253 & -0.314 & 0.682 & 76.890 \\
-Culture & 0.341 & 0.276 & -0.198 & 0.888 & 89.260 \\
-Power & 0.723 & 0.293 & 0.155 & 1.302 & 99.390 \\
-Intense & 0.120 & 0.422 & -0.713 & 0.962 & 61.170 \\
-Freq & 0.093 & 0.091 & -0.085 & 0.268 & 84.580 \\
-Len & -0.204 & 0.153 & -0.502 & 0.098 & 9.105 \\
-Lapse & -0.110 & 0.307 & -0.721 & 0.485 & 36.395 \\
-Final Stress & 0.170 & 0.383 & -0.577 & 0.931 & 67.175 \\
+Intercept & -0.132 & 0.163 & -0.451 & 0.185 & 20.750 \\
+Culture & 0.414 & 0.254 & -0.078 & 0.916 & 94.945 \\
+Power & 0.720 & 0.263 & 0.204 & 1.236 & 99.665 \\
+Freq & 0.091 & 0.087 & -0.079 & 0.263 & 85.170 \\
+Len & -0.209 & 0.134 & -0.476 & 0.052 & 5.870 \\
 
 
 \caption{\label{tbl-exp1m2}Model results examining the effect of each
@@ -648,8 +668,9 @@ however there appears to be a weak effect of Culture as well, since 89\%
 of the posterior samples are greater than zero despite the credible
 interval crossing zero (\(\beta\) = 0.341, CI-2.5 = 0.276, CI-97.5 =
 -0.198). Surprisingly, there also appears to be a negative effect of
-length, with a slight preference to place the longer word first, which
-is the opposite direction from what we see in humans.
+length (\(\beta\) = -0.204, CI-2.5 = -0.502, CI-97.5 = 0.098), with a
+slight preference to place the longer word first, which is the opposite
+direction from what we see in humans.
 
 \begin{figure}
 
@@ -666,13 +687,15 @@ individual constraint on LogOdds(AandB).}
 
 \subsection{Discussion}\label{discussion}
 
-Our results demonstrate that OLMo-7B has learned abstract ordering
-preferences for binomials beyond simply the frequencies of the
-individual words. Specifically, we find a main-effect of abstract
-ordering preferences on the model's binomial ordering preferences.
-Additionally, we find a strong preference to place the more powerful
-word first, a weak preference to place the more culturally central word
-first, and a weak preference to place the longer word first.
+The present experiment found that OLMo-7B has learned abstract ordering
+preferences even for novel binomials that it has never seen before.
+Further, these ordering preferences aren't simply based on the
+individual word frequencies. Specifically, we find a main-effect of
+abstract ordering preferences on the model's binomial ordering
+preferences. Additionally, we find a strong preference to place the more
+powerful word first, a weak preference to place the more culturally
+central word first, and a weak preference to place the longer word
+first.
 
 These results together suggest that the model is learning abstract
 ordering preferences but these are not identical to humans. For example,
@@ -684,8 +707,8 @@ Levy, 2015}, \citeproc{ref-morganAbstractKnowledgeDirect2016}{2016}).
 However, we find the opposite finding: large language models prefer to
 place the longer word first. One explanation for this is a difference in
 terms of the input between humans and large language models. The length
-constraint is determined by the number of syllables. This is salient
-information in the audio cues that humans receive during learning
+constraint is determined by the number of syllables. Syllables are
+salient cues in the audio that humans receive during learning
 {[}\textbf{NEED CITATION{]}}, but it's less clear how salient of a cue
 this is for large language models, who receive sub-word tokens (which
 vary in their size, from being individual orthographic symbols to being
@@ -751,13 +774,13 @@ Number of Tokens & Estimate & Est.Error & Q2.5 & Q97.5 \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-0B & 0.396 & 1.149 & -1.912 & 2.606 \\
-2B & 1.226 & 1.375 & -0.956 & 4.569 \\
-41B & 0.869 & 1.157 & -1.066 & 3.482 \\
-209B & 1.046 & 1.052 & -0.765 & 3.379 \\
-419B & 1.699 & 1.229 & -0.313 & 4.415 \\
-838B & 1.776 & 1.248 & -0.322 & 4.505 \\
-1677B & 3.872 & 1.520 & 0.956 & 6.872 \\
+0B & 0.189 & 0.789 & -1.303 & 1.787 \\
+2B & 1.210 & 1.346 & -0.944 & 4.404 \\
+41B & 0.869 & 1.167 & -1.119 & 3.472 \\
+209B & 1.051 & 1.040 & -0.776 & 3.375 \\
+419B & 1.700 & 1.216 & -0.355 & 4.326 \\
+838B & 1.770 & 1.267 & -0.320 & 4.585 \\
+1677B & 3.858 & 1.516 & 0.948 & 6.825 \\
 
 
 \caption{\label{tbl-exp2m1}Model results examining the effect of AbsPref
@@ -922,6 +945,11 @@ Task-dependent consequences of disfluency in perception of native and
 non-native speech. \emph{Applied Psycholinguistics}, 1--17.
 \url{https://doi.org/10.1017/S0142716423000486}
 
+\bibitem[\citeproctext]{ref-lasri2022subject}
+Lasri, K., Seminck, O., Lenci, A., \& Poibeau, T. (2022). Subject verb
+agreement error patterns in meaningless sentences: Humans vs. BERT.
+\emph{arXiv Preprint arXiv:2209.10538}.
+
 \bibitem[\citeproctext]{ref-lebrun2022evaluating}
 LeBrun, B., Sordoni, A., \& O'Donnell, T. J. (2022). Evaluating
 distributional distortion in neural language modeling. \emph{arXiv
@@ -977,12 +1005,6 @@ Inc., OpenAI LP, OpenAI GP, LLC, OpenAI, LLC, OpenAI OpCo LLC, OpenAI
 Global LLC, OAI Corporation, LLC, and OpenAI Holdings, LLC}}. (2024).
 Civil Action No. 1:23-cv-11195-SHS, United States District Court,
 Southern District of New York, May 31, 2024.
-
-\bibitem[\citeproctext]{ref-wei2022emergent}
-Wei, J., Tay, Y., Bommasani, R., Raffel, C., Zoph, B., Borgeaud, S.,
-Yogatama, D., Bosma, M., Zhou, D., Metzler, D., et al. (2022). Emergent
-abilities of large language models. \emph{arXiv Preprint
-arXiv:2206.07682}.
 
 \bibitem[\citeproctext]{ref-yu2007rapid}
 Yu, C., \& Smith, L. B. (2007). Rapid word learning under uncertainty
@@ -1314,76 +1336,41 @@ Parameter & num\_tokens & Estimate & Est.Error & Q2.5 & Q97.5 \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Intercept & 0B & 0.214 & 0.160 & -0.102 & 0.526 \\
-Percept & 0B & -0.099 & 0.237 & -0.564 & 0.365 \\
-Culture & 0B & 0.212 & 0.259 & -0.292 & 0.725 \\
-Power & 0B & 0.180 & 0.273 & -0.357 & 0.713 \\
-Intense & 0B & 0.621 & 0.415 & -0.178 & 1.440 \\
-Icon & 0B & -0.013 & 1.576 & -3.169 & 3.035 \\
-Freq & 0B & -0.080 & 0.084 & -0.246 & 0.083 \\
-Len & 0B & 0.035 & 0.144 & -0.250 & 0.317 \\
-Lapse & 0B & -0.095 & 0.293 & -0.671 & 0.480 \\
-no\_final\_stress & 0B & 0.101 & 0.365 & -0.609 & 0.821 \\
-Intercept & 2B & -0.019 & 0.262 & -0.527 & 0.498 \\
-Percept & 2B & 0.466 & 0.371 & -0.256 & 1.203 \\
-Culture & 2B & -0.530 & 0.407 & -1.337 & 0.253 \\
-Power & 2B & 0.418 & 0.418 & -0.392 & 1.238 \\
-Intense & 2B & 0.036 & 0.597 & -1.151 & 1.198 \\
-Icon & 2B & 0.007 & 1.739 & -3.224 & 3.284 \\
-Freq & 2B & 0.266 & 0.139 & -0.008 & 0.536 \\
-Len & 2B & 0.427 & 0.233 & -0.031 & 0.882 \\
-Lapse & 2B & 0.526 & 0.439 & -0.324 & 1.405 \\
-no\_final\_stress & 2B & -0.715 & 0.552 & -1.832 & 0.346 \\
-Intercept & 41B & 0.165 & 0.232 & -0.292 & 0.620 \\
-Percept & 41B & -0.202 & 0.327 & -0.850 & 0.438 \\
-Culture & 41B & -0.277 & 0.363 & -0.996 & 0.446 \\
-Power & 41B & 1.027 & 0.398 & 0.260 & 1.818 \\
-Intense & 41B & 1.258 & 0.603 & 0.125 & 2.473 \\
-Icon & 41B & 0.036 & 1.695 & -3.109 & 3.226 \\
-Freq & 41B & -0.027 & 0.123 & -0.267 & 0.216 \\
-Len & 41B & 0.733 & 0.209 & 0.322 & 1.144 \\
-Lapse & 41B & 0.005 & 0.387 & -0.757 & 0.765 \\
-no\_final\_stress & 41B & 0.252 & 0.483 & -0.694 & 1.218 \\
-Intercept & 209B & 0.191 & 0.190 & -0.180 & 0.564 \\
-Percept & 209B & 0.223 & 0.270 & -0.308 & 0.757 \\
-Culture & 209B & 0.214 & 0.297 & -0.366 & 0.794 \\
-Power & 209B & 0.775 & 0.323 & 0.143 & 1.410 \\
-Intense & 209B & -0.155 & 0.458 & -1.061 & 0.754 \\
-Icon & 209B & 0.007 & 1.644 & -3.022 & 3.081 \\
-Freq & 209B & -0.057 & 0.099 & -0.251 & 0.137 \\
-Len & 209B & -0.061 & 0.170 & -0.395 & 0.273 \\
-Lapse & 209B & 0.086 & 0.331 & -0.561 & 0.736 \\
-no\_final\_stress & 209B & -0.180 & 0.414 & -1.000 & 0.635 \\
-Intercept & 419B & -0.383 & 0.185 & -0.747 & -0.023 \\
-Percept & 419B & 0.242 & 0.268 & -0.280 & 0.771 \\
-Culture & 419B & -0.269 & 0.302 & -0.857 & 0.316 \\
-Power & 419B & 0.513 & 0.315 & -0.101 & 1.132 \\
-Intense & 419B & 0.220 & 0.455 & -0.667 & 1.121 \\
-Icon & 419B & -0.013 & 1.944 & -3.262 & 3.270 \\
-Freq & 419B & 0.284 & 0.099 & 0.090 & 0.478 \\
-Len & 419B & -0.371 & 0.166 & -0.697 & -0.045 \\
-Lapse & 419B & -0.197 & 0.336 & -0.877 & 0.459 \\
-no\_final\_stress & 419B & 0.767 & 0.421 & -0.057 & 1.619 \\
-Intercept & 838B & -0.029 & 0.191 & -0.406 & 0.349 \\
-Percept & 838B & 0.196 & 0.277 & -0.345 & 0.742 \\
-Culture & 838B & -0.158 & 0.303 & -0.741 & 0.446 \\
-Power & 838B & 0.695 & 0.322 & 0.064 & 1.327 \\
-Intense & 838B & 0.364 & 0.473 & -0.547 & 1.302 \\
-Icon & 838B & -0.002 & 1.641 & -3.124 & 3.178 \\
-Freq & 838B & 0.141 & 0.100 & -0.057 & 0.336 \\
-Len & 838B & 0.161 & 0.169 & -0.168 & 0.498 \\
-Lapse & 838B & 0.418 & 0.336 & -0.234 & 1.082 \\
-no\_final\_stress & 838B & -0.426 & 0.421 & -1.263 & 0.389 \\
-Intercept & 1677B & -0.084 & 0.177 & -0.433 & 0.261 \\
-Percept & 1677B & 0.488 & 0.260 & -0.018 & 0.998 \\
-Culture & 1677B & 0.619 & 0.281 & 0.061 & 1.170 \\
-Power & 1677B & 0.708 & 0.298 & 0.130 & 1.291 \\
-Intense & 1677B & -0.372 & 0.437 & -1.237 & 0.480 \\
-Icon & 1677B & -0.006 & 1.647 & -3.031 & 3.047 \\
-Freq & 1677B & 0.081 & 0.093 & -0.101 & 0.265 \\
-Len & 1677B & -0.445 & 0.158 & -0.758 & -0.134 \\
-Lapse & 1677B & -0.227 & 0.319 & -0.854 & 0.393 \\
-no\_final\_stress & 1677B & 0.568 & 0.400 & -0.212 & 1.366 \\
+Intercept & 0B & 0.223 & 0.159 & -0.087 & 0.539 \\
+Culture & 0B & 0.149 & 0.244 & -0.327 & 0.623 \\
+Power & 0B & 0.286 & 0.249 & -0.207 & 0.777 \\
+Freq & 0B & -0.070 & 0.082 & -0.232 & 0.091 \\
+Len & 0B & 0.030 & 0.127 & -0.220 & 0.278 \\
+Intercept & 2B & -0.027 & 0.256 & -0.529 & 0.478 \\
+Culture & 2B & -0.399 & 0.390 & -1.161 & 0.361 \\
+Power & 2B & 0.531 & 0.404 & -0.250 & 1.334 \\
+Freq & 2B & 0.258 & 0.135 & -0.008 & 0.524 \\
+Len & 2B & 0.492 & 0.212 & 0.076 & 0.909 \\
+Intercept & 41B & 0.179 & 0.229 & -0.268 & 0.628 \\
+Culture & 41B & -0.377 & 0.347 & -1.065 & 0.305 \\
+Power & 41B & 1.290 & 0.373 & 0.568 & 2.037 \\
+Freq & 41B & -0.035 & 0.121 & -0.274 & 0.202 \\
+Len & 41B & 0.807 & 0.188 & 0.438 & 1.179 \\
+Intercept & 209B & 0.176 & 0.182 & -0.186 & 0.537 \\
+Culture & 209B & 0.290 & 0.283 & -0.268 & 0.847 \\
+Power & 209B & 0.760 & 0.289 & 0.194 & 1.327 \\
+Freq & 209B & -0.056 & 0.096 & -0.244 & 0.132 \\
+Len & 209B & -0.063 & 0.150 & -0.358 & 0.234 \\
+Intercept & 419B & -0.458 & 0.183 & -0.816 & -0.099 \\
+Culture & 419B & -0.125 & 0.282 & -0.679 & 0.437 \\
+Power & 419B & 0.508 & 0.289 & -0.056 & 1.073 \\
+Freq & 419B & 0.240 & 0.096 & 0.053 & 0.431 \\
+Len & 419B & -0.298 & 0.150 & -0.591 & -0.005 \\
+Intercept & 838B & -0.022 & 0.184 & -0.381 & 0.335 \\
+Culture & 838B & -0.111 & 0.284 & -0.661 & 0.446 \\
+Power & 838B & 0.865 & 0.297 & 0.283 & 1.456 \\
+Freq & 838B & 0.127 & 0.099 & -0.068 & 0.319 \\
+Len & 838B & 0.247 & 0.154 & -0.055 & 0.552 \\
+Intercept & 1677B & -0.181 & 0.176 & -0.527 & 0.159 \\
+Culture & 1677B & 0.861 & 0.273 & 0.326 & 1.394 \\
+Power & 1677B & 0.562 & 0.275 & 0.031 & 1.108 \\
+Freq & 1677B & 0.052 & 0.091 & -0.125 & 0.230 \\
+Len & 1677B & -0.431 & 0.142 & -0.708 & -0.156 \\
 
 
 \caption{\label{tbl-exp2m2}Model results examining the effect of each
