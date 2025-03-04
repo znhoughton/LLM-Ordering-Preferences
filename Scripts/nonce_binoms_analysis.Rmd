@@ -15,12 +15,21 @@ options(contrasts = c("contr.sum","contr.sum"))
 
 Analaysis of ordering prefs for nonce binomials
 
+
+Note that Lapse was removed for having a very high VIF.
+
 # Load Data
 
 ```{r}
 
 data_main_model = read_csv('../Data/allenai_OLMo-7B-0424-hf.csv')
 corpus = read_csv('../Data/nonce_binoms.csv')
+bigram_counts = read_csv('../Data/olmo_bigram_freqs.csv')
+onegram_corpus_size = 1560674367427
+count_and = 43378012800
+
+bigram_counts = bigram_counts %>%
+  mutate(ngram = str_replace_all(ngram, '\t', ' '))
 
 data_main_model = data_main_model %>%
   mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`))) %>%
@@ -42,6 +51,36 @@ data_main_model = data_main_model %>%
 
 data_main_model = data_main_model %>%
   rename(no_final_stress = `*BStress`)
+
+
+
+data_main_model = data_main_model %>%
+  mutate(bigram1_alpha = paste0(Word1, ' and'),
+         bigram2_alpha = paste0('and ', Word2),
+         bigram1_nonalpha = paste0(Word2, ' and'),
+         bigram2_nonalpha = paste0('and ', Word1)
+         )
+
+data_main_model = data_main_model %>%
+  left_join(bigram_counts, by = c('bigram1_alpha' = 'ngram')) %>%
+  rename(count_bigram1_alpha = count) %>%
+  left_join(bigram_counts, by = c('bigram2_alpha' = 'ngram')) %>%
+  rename(count_bigram2_alpha = count) %>%
+  left_join(bigram_counts, by = c('bigram1_nonalpha' = 'ngram')) %>%
+  rename(count_bigram1_nonalpha = count) %>%
+  left_join(bigram_counts, by = c('bigram2_nonalpha' = 'ngram')) %>%
+  rename(count_bigram2_nonalpha = count) %>%
+  mutate(corpus_size = onegram_corpus_size) %>%
+  mutate(count_and = count_and)
+
+
+data_main_model = data_main_model %>%
+  mutate(bigram_prob_alpha = (Word1_freq / corpus_size) * (count_bigram1_alpha / Word1_freq) * (count_bigram2_alpha / count_and),
+         bigram_prob_nonalpha = (Word2_freq / corpus_size) * (count_bigram1_nonalpha / Word2_freq) * (count_bigram2_nonalpha / count_and),
+         log_bigram_prob_alpha = log(bigram_prob_alpha),
+         log_bigram_prob_nonalpha = log(bigram_prob_nonalpha),
+         log_bigram_odds_ratio = log_bigram_prob_alpha - log_bigram_prob_nonalpha)
+
 
 # data_main_model = data_main_model %>%
 #   mutate(Form = factor(Form), Percept = factor(Percept), Culture = factor(Culture), Power = factor(Power), Intense = factor(Intense), Icon = factor(Icon), Freq = as.numeric(as.character(Freq)), Len = factor(Len), Lapse = factor(Lapse), no_final_stress = factor(no_final_stress))
@@ -81,12 +120,39 @@ combined_df = file_list %>%
   rename(no_final_stress = `*BStress`) %>%
   mutate(num_tokens = str_extract(checkpoint, "(?<=tokens).*")) %>%
   mutate(n_billion_tokens = as.numeric(str_remove(num_tokens, "B"))) %>%
-  arrange(n_billion_tokens) 
+  arrange(n_billion_tokens) %>%
+  mutate(bigram1_alpha = paste0(Word1, ' and'),
+         bigram2_alpha = paste0('and ', Word2),
+         bigram1_nonalpha = paste0(Word2, ' and'),
+         bigram2_nonalpha = paste0('and ', Word1)
+         ) %>%
+  left_join(bigram_counts, by = c('bigram1_alpha' = 'ngram')) %>%
+  rename(count_bigram1_alpha = count) %>%
+  left_join(bigram_counts, by = c('bigram2_alpha' = 'ngram')) %>%
+  rename(count_bigram2_alpha = count) %>%
+  left_join(bigram_counts, by = c('bigram1_nonalpha' = 'ngram')) %>%
+  rename(count_bigram1_nonalpha = count) %>%
+  left_join(bigram_counts, by = c('bigram2_nonalpha' = 'ngram')) %>%
+  rename(count_bigram2_nonalpha = count) %>%
+  mutate(corpus_size = onegram_corpus_size) %>%
+  mutate(count_and = count_and) %>%
+  mutate(bigram_prob_alpha = (Word1_freq / corpus_size) * (count_bigram1_alpha / Word1_freq) * (count_bigram2_alpha / count_and),
+         bigram_prob_nonalpha = (Word2_freq / corpus_size) * (count_bigram1_nonalpha / Word2_freq) * (count_bigram2_nonalpha / count_and),
+         log_bigram_prob_alpha = log(bigram_prob_alpha),
+         log_bigram_prob_nonalpha = log(bigram_prob_nonalpha),
+         log_bigram_odds_ratio = log_bigram_prob_alpha - log_bigram_prob_nonalpha)
+
+
 
 combined_df = combined_df %>%
   mutate(n_billion_tokens = case_when(checkpoint == 'main' ~ 2050,
                                       checkpoint != 'main' ~ n_billion_tokens))
-  
+
+#write_csv(combined_df, '../Data/combined_df.csv')
+
+data_list = combined_df %>%
+  arrange(n_billion_tokens) %>%
+  split(.$checkpoint)  
 
 checkpoint_tokens_key = combined_df %>%
   group_by(checkpoint) %>%
@@ -116,10 +182,22 @@ fit_model1 = function(data, checkpoint) {
       file = paste0('../Data/model1_olmo7b_', checkpoint))
 }
 
-#function to run the second model for all of the checkpoints
-#in the future, there's probably a way to save time by not re-compiling the model each time and instead just swapping out the dataset. That being said, these models compile fairly quickly so it's not worth wasting time on it right now
 fit_model2 = function(data, checkpoint) {
-  brm(log_odds ~ Percept + Culture + Power + Intense + Icon + Freq + Len + Lapse + no_final_stress, #Icon and Form removed because it has only one value, so it is meaningless
+  brm(log_odds ~ GenPref * log_bigram_odds_ratio,
+      data = data,
+      family = gaussian(),
+      warmup = 2000,
+      iter = 4000,
+      prior = prior_probs,
+      cores = 4,
+      chains = 4,
+      file = paste0('../Data/model2_olmo7b_', checkpoint))
+}
+
+#function to run the second model for all of the checkpoints
+#in the future, should use the update() function to avoid recompiling the model each time, might change this later when I have time
+fit_model3 = function(data, checkpoint) {
+  brm(log_odds ~ Culture + Power + Freq + Len, #Icon and Form removed because it has only one value, so it is meaningless, other variables removed due to backward model selection
       data = data,
       family = gaussian(),
       warmup = 5000,
@@ -127,12 +205,9 @@ fit_model2 = function(data, checkpoint) {
       prior = prior_probs,
       cores = 4,
       chains = 4,
-      file = paste0('../Data/model2_olmo7b_', checkpoint))
+      file = paste0('../Data/model3_olmo7b_', checkpoint))
 }
 
-data_list = combined_df %>%
-  arrange(n_billion_tokens) %>%
-  split(.$checkpoint)
 
 
 # Apply the model fitting function to each dataframe in the list
@@ -141,6 +216,7 @@ checkpoint_list = names(data_list)
 
 models1 = map2(data_list, checkpoint_list, fit_model1)
 models2 = map2(data_list, checkpoint_list, fit_model2)
+models3 = map2(data_list, checkpoint_list, fit_model3)
 
 extract_model_summary = function(model, checkpoint) {
   # Get the fixed effects summary
@@ -161,6 +237,12 @@ fixefs_m1 = bind_rows(results_list1)
 results_list2 = map2(models2, checkpoint_list, extract_model_summary)
 fixefs_m2 = bind_rows(results_list2)
 
+results_list3 = map2(models3, checkpoint_list, extract_model_summary)
+fixefs_m3 = bind_rows(results_list3)
+
+write_csv(fixefs_m1, '../Data/fixefs_m1.csv')
+write_csv(fixefs_m2, '../Data/fixefs_m2.csv')
+write_csv(fixefs_m3, '../Data/fixefs_m3.csv')
 
 ```
 
@@ -197,18 +279,16 @@ Olmo_main_genpref = brm(log_odds ~ GenPref,
 fixef(Olmo_main_genpref)
 ```
 
+
+
+
+
 ### Model2
 
 ```{r}
 
-prior_probs = c(
-  prior(student_t(3, 0, 1), class = 'Intercept'),
-  prior(student_t(3, 0, 1), class = 'sigma'),
-  prior(student_t(3, 0, 1), class = 'b')
-)
-
-Olmo_main_individual_constraints = brm(data = data_main_model,
-                       log_odds ~ Percept + Culture + Power + Intense + Freq + Len + Lapse + no_final_stress, #Icon and Form removed for only having one value
+Olmo_main_genpref_log_odds = brm(log_odds ~ GenPref * log_bigram_odds_ratio,
+                       data = data_main_model,
                        prior = prior_probs,
                        iter = 10000,
                        warmup = 5000,
@@ -219,23 +299,87 @@ Olmo_main_individual_constraints = brm(data = data_main_model,
                        file = '../Data/model2_main'
                       )
 
+fixef(Olmo_main_genpref_log_odds)
+```
+
+### Model3
+```{r}
+
+prior_probs = c(
+  prior(student_t(3, 0, 1), class = 'Intercept'),
+  prior(student_t(3, 0, 1), class = 'sigma'),
+  prior(student_t(3, 0, 1), class = 'b')
+)
+#lapse removed for having high VIF
+#removed no_final_stress, intense, and percept because of backward model selection, lowest percentage of samples greater than/less than zero
+#removing freq didn't affect the other variables
+Olmo_main_individual_constraints = brm(data = data_main_model,
+                       log_odds ~ Culture + Power + Freq + Len, #Icon and Form removed for only having one value
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/model3_main'
+                      )
+
 
 fixef(Olmo_main_individual_constraints)
+
+fixefs = data.frame(fixef(Olmo_main_individual_constraints, summary = F)) %>%
+  select(-Intercept) %>%
+  summarise(across(everything(), ~ {
+    med = median(.x, na.rm = TRUE)
+    if (med > 0) {
+      mean(.x > 0, na.rm = TRUE) # Proportion of positive values
+    } else if (med < 0) {
+      mean(.x < 0, na.rm = TRUE) # Proportion of negative values
+    } else {
+      NA # Median is exactly zero
+    }
+  }))
+
+fixefs$min_col=colnames(fixefs)[apply(fixefs, 1, which.min)]
+#culture is the most centered around zero, so removing this 
+```
+```{r}
+
+olmo_only_length = brm(data = data_main_model,
+                       log_odds ~ Len, #Icon and Form removed for only having one value
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/model_only_length'
+                      )
+
+fixef(olmo_only_length)
 ```
 
 ```{r}
+Olmo_main_all_constraints = lm(log_odds ~ Percept + Culture + Power + Intense + Freq + Len + no_final_stress, data = data_main_model)
+
+car::vif(Olmo_main_all_constraints)
+
+```
+
+
+
+
+```{r}
 coeffs = as.data.frame(fixef(Olmo_main_individual_constraints, summary = F))
-fixefs = as.data.frame(fixef(Olmo_main_individual_constraints))[2:9,] %>%
+fixefs = as.data.frame(fixef(Olmo_main_individual_constraints))[2:5,] %>%
   mutate(percent_greater_zero = c(
-  sum(coeffs$Percept > 0) / length(coeffs$Percept),
   sum(coeffs$Culture > 0) / length(coeffs$Culture),
   sum(coeffs$Power > 0) / length(coeffs$Power),
-  sum(coeffs$Intense > 0) / length(coeffs$Intense),
   sum(coeffs$Freq > 0) / length(coeffs$Freq),
-  sum(coeffs$Len > 0) / length(coeffs$Len),
-  sum(coeffs$Lapse > 0) / length(coeffs$Lapse),
-  sum(coeffs$no_final_stress > 0) / length(coeffs$no_final_stress))) %>%
-  mutate(percent_greater_zer = percent_greater_zero * 100)
+  sum(coeffs$Len > 0) / length(coeffs$Len))) %>%
+  mutate(percent_greater_zero = percent_greater_zero * 100)
 ```
 
 # Plots
@@ -274,6 +418,10 @@ plot_all_m1 = ggplot(data = models_for_plotting, aes(x=checkpoint_numeric, y = E
 plot_all_m1
 ```
 
+
+
+
+
 ```{r}
 library(ggh4x)
 data_main_model2 = data_main_model %>%
@@ -282,7 +430,7 @@ data_main_model2 = data_main_model %>%
 
 models_for_plotting2 = combined_df %>%
   full_join(data_main_model2) %>%
-  pivot_longer(c(Percept, Culture, Power, Intense, Freq, Len, Lapse, no_final_stress), names_to = 'constraint', values_to = 'constraint_value') %>%
+  pivot_longer(c(Culture, Power, Freq, Len), names_to = 'constraint', values_to = 'constraint_value') %>%
   filter(n_billion_tokens %in% c(0, 10, 20, 35, 125, 419, 1677, 2050))
 
 
@@ -290,7 +438,7 @@ models_for_plotting2 = combined_df %>%
 models_for_plotting2$n_billion_tokens = factor(models_for_plotting2$n_billion_tokens, levels = c(0, 10, 20, 35, 125, 419, 1677, 2050),
                            labels = c('0 Tokens', '10 Billion Tokens', '20 Billion Tokens', '35 Billion Tokens', '125 Billion Tokens', '419 Billion Tokens', '1677 Billion Tokens', '2050 Billion Tokens'))
 
-models_for_plotting2$constraint = factor(models_for_plotting2$constraint, levels = c("Percept", "Culture", "Power", "Intense", "Freq", "Len", "Lapse", "no_final_stress"), labels = c("Percept", "Culture", "Power", "Intense", "Freq", "Len", "Lapse", "No Final Stress"))
+models_for_plotting2$constraint = factor(models_for_plotting2$constraint, levels = c("Culture", "Power", "Freq", "Len"), labels = c("Culture", "Power", "Freq", "Len"))
 
 main_model_plot2 = ggplot(data = models_for_plotting2, aes(x=constraint_value, y = log_odds)) +
   geom_point(alpha=0.5, color = 'darkblue') +
@@ -311,7 +459,7 @@ main_model_plot2
 
 ```{r}
 main_model = data_main_model %>%
-  pivot_longer(c(Percept, Culture, Power, Intense, Freq, Len, Lapse, no_final_stress), names_to = 'constraint', values_to = 'constraint_value')
+  pivot_longer(c(Culture, Power, Freq, Len), names_to = 'constraint', values_to = 'constraint_value')
 
 main_model_plot = ggplot(data = main_model, aes(x=constraint_value, y = log_odds)) +
   geom_point(alpha=0.5, color = 'darkblue') +
