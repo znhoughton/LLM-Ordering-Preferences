@@ -1,6 +1,9 @@
 ---
-title: "Emergent Abstract Ordering Preferences in Large Language Models"
+title: "Emergent Abstract Word Order Preferences in Large Language Models"
 csl: apa.csl
+latex:
+  pandoc_args:
+    - --include-in-header=acl.sty
 format:
   elsevier-pdf:
     keep-tex: true  
@@ -45,11 +48,13 @@ author:
       
 bibliography: ["r-references.bib"]
 
+
 #header-includes:
 #- \usepackage[section]{placeins}
 
 
 abstract: |
+  The rise in usage of large language models has brought with it many questions regarding how human-like their abilities are. One question is to what extent they're actually learning anything aside from surface level probabilities of their training data. In the present study we examine their abilities to learn abstract ordering preferences of binomials in English (e.g., *cats and dogs*). In Experiment 1, we demonstrate that large language models learn and use abstract preferences when producing novel binomials. In Experiment 2, we demonstrate a timescale for this learned knowledge across training.
 ---
 
 ```{r, include = F}
@@ -157,7 +162,12 @@ Olmo_main_individual_constraints = brm(data = data_main_model,
                        file = paste0(here('Data'), '/model3_main')
                       )
 
+
+
+
 data_path = here("Data")
+
+
 
 
 
@@ -175,51 +185,47 @@ fixefs_m3 = read_csv(paste0(here("Data"), "/fixefs_m3.csv"))
 
 # Introduction {#sec-introduction}
 
-Large language models have stormed the media in the last few years and become a popular topic in the scientific literature. Their historic rise to fame has brought with them many heated debates regarding whether large language models constitute human-like models of language or whether what they are doing is completely different from humans [@piantadosiChapterModernLanguage; @piantadosiMeaningReferenceLarge2022; @benderDangersStochasticParrots2021].
+Large language models have stormed the media in the last few years, becoming a popular topic in the scientific literature. Their rise to fame has brought with them many heated debates regarding whether large language models constitute human-like models of language or whether their behavior is completely different from humans [@piantadosiChapterModernLanguage; @piantadosiMeaningReferenceLarge2022; @benderDangersStochasticParrots2021].
 
-Many of these debates have centered around the tradeoff between computation and storage: how much are these models simply reproducing from their training data vs how much of their productions are novel utterances using learned linguistic patterns. On one hand, there is no doubt that large language models store and reproduce large chunks of language. In fact, OpenAI is even being sued by *The New York Times* for allegedly reproducing entire articles verbatim [@nyt_v_openai]. This sentiment – that large language models are nothing but glorified copy cats – has been echoed by several other prominent linguists [@bender2020climbing; @benderDangersStochasticParrots2021; c.f., @piantadosiChapterModernLanguage].
+Many of these debates have centered around the tradeoff between computation and storage: how much are these models simply reproducing from their training data vs how much of their productions are novel utterances using learned linguistic patterns? On one hand, there is no doubt that large language models store and reproduce large chunks of language. In fact, OpenAI is even being sued by *The New York Times* for allegedly reproducing entire articles verbatim [@nyt_v_openai]. This sentiment – that large language models are nothing but glorified copy cats – has been echoed by several other prominent linguists [@bender2020climbing; @benderDangersStochasticParrots2021; c.f., @piantadosiChapterModernLanguage].
 
-Specifically, proponents of the "LLMs as copy cats" argument have pointed out that large language models are trained on an inconceivably large amount of data. For example, the OLMo models were trained on trillions of tokens [@groeneveldOLMoAcceleratingScience2024][^1]. As such, it is extremely difficult to determine whether utterances produced by an LLM are truly novel, or whether they are simply reproduced from their training data. This is further complicated by the fact that training data for LLMs is typically either not publicly available, or so huge that it's incredibly difficult to work with. On the other hand, it is clear that large language models are learning at least some linguistic patterns. For example, @mccoy2023much demonstrated that Chat GPT-2 is able to generate well-formed novel words as well as well-formed novel syntactic structures, however they found that it still copies extensively.
+Specifically, proponents of the "LLMs as copy cats" argument have pointed out that large language models are trained on an inconceivably large amount of data. For example, the OLMo models were trained on trillions of tokens [@groeneveldOLMoAcceleratingScience2024][^1]. As such, it is difficult to determine how much of the text generated by an LLM is truly novel, and how much is simply reproduced from its training data. This is further complicated by the fact that training data for LLMs is typically either not publicly available, or so huge that it's incredibly difficult to work with. On the other hand, it is clear that large language models are learning at least some linguistic patterns. For example, @mccoy2023much demonstrated that GPT-2 is able to generate well-formed novel words as well as well-formed novel syntactic structures, despite copying extensively.
 
 [^1]: This is magnitudes larger than the 350 million words that the average college-aged speaker has seen in their lifetime [@levy2012].
 
 <!--# Need to double check the stochastic parrots paper -->
 
-A similar debate in the field has centered around whether large language models learn any knowledge about the meaning of words. For example, @bender2020climbing have argued that large language models, which are only trained on the form, have no way of learning anything about meaning. They pointed out that large language models do not have the rich information that humans receive, such as the referent of the form. However, @piantadosiMeaningReferenceLarge2022 have countered by arguing that co-occurrence statistics can be extremely informative about a word's meaning. For example, they argued that many words, such as "justice", contain no clear referent and instead have to be learned by humans based on the context that they occur in. It seems plausible that large language models could learn at least some information about meanings similarly.
+A similar debate in the field has centered around whether large language models learn any knowledge about the meaning of words. For example, @bender2020climbing have argued that large language models, which are only trained on the form, have no way of learning anything about meaning. They pointed out that large language models do not have the rich information that humans receive, such as the referent of the form. However, @piantadosiMeaningReferenceLarge2022 rebutted this claim by arguing that co-occurrence statistics can be extremely informative about a word's meaning. For example, they argued that many words, such as "justice", contain no clear referent and instead have to be learned by humans based on the context that they occur in. It seems plausible that large language models could learn at least some information about the meaning of words in a similar manner.
 
 <!--# debate about meaning bender octopus vs piantadosi -->
 
-These debates, however, have been highly theoretical and speculative and very few empirical studies have been done to actually investigate these questions [c.f., @lebrun2022evaluating; @mccoy2023much; @lasri2022subject]. Thus in the present paper we address these debates by taking an in-depth look at large language models' abilities to learn generalized word order patterns that are contingent on word meanings.
+These debates, however, have been highly theoretical and speculative and very few empirical studies have been done to actually investigate these questions [c.f., @lebrun2022evaluating; @mccoy2023much; @lasri2022subject]. Thus in the present paper we address these debates by taking an in-depth look at large language models' abilities to learn abstract knowledge beyond simply the statistics of individual tokens. Specifically we examine the ordering of novel binomials in English (Noun *and* Noun constructions, e.g., *cats and dogs*). The nouns in binomials can be ordered without affecting the meaning of the phrase much (e.g., *cats and dogs* vs *dogs and cats*). Despite this, human preferences for which noun should be placed first vary in strength. For example, there is a pretty strong preference for *bread and butter* as opposed to *butter and bread*. However, both *computers and monitors* and *monitors and computers* are natural. Binomials are a useful test case because there is a great deal of evidence demonstrating that human ordering preferences are driven by abstract preferences, such as a preference for more powerful words to be placed first (e.g., *god and man* vs *man and god*). Thus by examining binomials that the model has never seen before we can gain insight into whether large language models are learning abstract preferences and to what degree they learn similarly to humans.
 
-Our specific contributions are as follows: We make a 1-gram, 2-grams, and 3-grams corpus of Dolma [@soldainiDolmaOpenCorpus2024] along with the scripts to reproduce it open-access. We also use this corpus to create novel binomials (Noun *and* Noun compounds, such as *cats and dogs*) that the OLMo 7B model [@groeneveldOLMoAcceleratingScience2024] has never seen. We examine whether OLMo 7B learns general patterns for ordering preferences (e.g., preferring the binomial ordering with the shorter word first as in *ladies in gentlemen* as opposed to gentlemen *and ladies*) for binomials that it has never seen before. Finally, we demonstrate a timescale of these preferences emerging over training that can be used to generate predictions about human learning.
+Our specific contributions are as follows: We make a unigram, bigram, and trigram corpus of Dolma [@soldainiDolmaOpenCorpus2024] which is the data that was used to train OLMo-7B. We also make the scripts to reproduce it open-access. We then use this corpus to create novel binomials that the OLMo-7B model [@groeneveldOLMoAcceleratingScience2024] has never seen. In Experiment 1, we examine whether OLMo-7B learns abstract preferences for binomials that it has never seen before. In Experiment 2, we demonstrate a timescale of these preferences emerging over training that can be used to generate predictions about human learning.
 
 ## Abstractions in Large Language Models
 
-The evidence for learned abstractions in large language models is extremely mixed. For example, @haley2020bert demonstrated that many of the BERT models are not able to reliably determine the plurality of novel words. Additionally, @liAreNeuralNetworks2021 demonstrated that when tasked with producing the correct tense for a word, BERT tends to rely on memorization from its training data as opposed to learning the more general linguistic pattern.
+The evidence for learned abstractions in large language models is extremely mixed. Investigations into BERT have yielded mixed results for their ability to learn and apply abstract knowledge [@haley2020bert, @liAreNeuralNetworks2021, @liAssessingCapacityTransformer2023, @lasri2022subject]. For example, @haley2020bert demonstrated that many of the BERT models are not able to reliably determine the plurality of novel words. Additionally, @liAreNeuralNetworks2021 demonstrated that when tasked with producing the correct tense for a word, BERT tends to rely on memorization from its training data as opposed to learning the more general linguistic pattern.
 
-On the other hand, @lasri2022subject demonstrated that BERT can generalize well to novel subject-verb pairs. Specifically, they tested BERT's performance on novel sentences along with semantically incoherent but syntactically sensible sentences (e.g., *colorless green ideas sleep furiously*). They found that BERT performs well on items it wasn't trained on. Additionally, @liAssessingCapacityTransformer2023 demonstrated that transformers are able to use abstract knowledge to correctly predict subject-verb and object-past participle agreements in French. Similarly, as mentioned earlier, @mccoy2023much examined to what extent GPT-2 was simply copying its training data vs producing novel utterances. They found that while GPT-2 copies extensively, it also produces both novel words as well as novel syntactic structures.
+On the other hand, @lasri2022subject demonstrated that BERT can generalize well to novel subject-verb pairs. They tested BERT's performance on novel sentences along with semantically incoherent but syntactically sensible sentences (e.g., *colorless green ideas sleep furiously*) and found that when masking the verb for these sentences BERT still applies higher probability to the correct inflection of the verb. Additionally, @liAssessingCapacityTransformer2023 demonstrated that BERT is able to use abstract knowledge to correctly predict subject-verb and object-past participle agreements in French.
 
-There is also evidence that transformer models can learn abstractions from other domains as well. For example, @tartaglini2023deep examined the ability of a transformer model in a same-different task (i.e., determining if two entities, e.g., two shapes, in an image are the same or different). They found that certain models can reach near perfect accuracy on items they have never seen before. They argued that this demonstrates their abilities to learn abstract representations.
+Research using other language models have also yielded similar results. For example, as mentioned earlier, @mccoy2023much found that while GPT-2 copies extensively, it also produces both novel words as well as novel syntactic structures.
 
-Finally, there's evidence that inducing abstractions facilitates performance in large language models. For example @zhengTakeStepBack2024 used a novel prompting technique to enable LLMs to use abstractions when reasoning. They found that LLMs hallucinate less when they implement abstractions in their reasoning. Similarly, @mccoyUniversalLinguisticInductive2020 demonstrated that large language models can use abstractions to learn language more easily, suggesting that inducing abstractions may help reduce the amount of training that large language models require.
+There is also evidence that transformer models can learn abstractions from other domains as well. For example, @tartaglini2023deep examined the ability of a transformer model in a same-different task (i.e., determining if two entities in an image are the same). They found that some models can reach near perfect accuracy on items they have never seen before.
+
+Finally, there's evidence that inducing abstractions facilitates performance in large language models. For example, @zhengTakeStepBack2024 used a novel prompting technique to enable LLMs to use abstractions when reasoning. They found that LLMs hallucinate less when they implement abstractions in their reasoning. Similarly, @mccoyUniversalLinguisticInductive2020 demonstrated that large language models can use abstractions, such as an abstract preference for certain syllable structures, to learn language more easily. Their results suggest that inducing abstractions may help reduce the amount of training that large language models require.
 
 ## Abstractions in Humans
 
-Abstractions have been a part of just about every linguistic theory out there, including both generativist and non-generativist theories. This is for good reason, too: one of the hallmarks of human language learning is the ability to produce novel, never-heard-before utterances. In order to do so, most theories posit that humans leverage their remarkable ability to learn linguistic patterns beyond simple co-occurrence rates [c.f., @ambridge2020]. For example, when presented a novel noun, children are able to consistently produce the proper plural form of that noun [@berko]. Similarly, children are able to abstract across different contexts to learn a word's general meaning [@yu2007rapid].
+Abstractions have been a part of just about every linguistic theory out there, including both generativist and non-generativist theories. This is not surprising since one of the hallmarks of human language learning is the ability to produce novel, never-heard-before utterances. In order to do so, most theories posit that humans leverage our remarkable ability to learn linguistic patterns beyond simple co-occurrence rates [c.f., @ambridge2020]. For example, when presented a novel noun, children are able to consistently produce the proper plural form of that noun [@berko]. Similarly, children are able to leverage similarities across different contexts to learn a word's general meaning [@yu2007rapid].
 
-Abstractions are useful because when humans produce a novel utterance that they have never heard before, their novel utterances contain a level of systematicity that allows the interlocutor to understand it with very little difficulty. This is even the case for binomials (e.g., *cat and dog*), whose order does not particularly affect the meaning of the utterance.
-
-Binomial ordering preferences are well-documented in the literature. Binomials have been a particularly useful test case in the psycholinguistics literature because humans have varying preferences for which noun occurs first in the binomial, despite the ordering having little effect on the meaning. For example, while one could reasonably say *computers and monitors* or *monitors and computers*, *butter and bread* sounds quite unnatural compared to *bread and butter*. However, none of those have a particularly different meaning.
-
-There have been several studies showing human ordering preferences for binomials are driven, at least in part, by abstract ordering preferences [@morganAbstractKnowledgeDirect2016; @morganFrequencydependentRegularizationIterated2016a; @morganModelingIdiosyncraticPreferences2015; @morganProductiveKnowledgeItemspecific2024] For example, @morganAbstractKnowledgeDirect2016 demonstrated that humans show ordering preferences for binomials beyond simply preferring the more frequent ordering. In order to demonstrate this, they coded a list of binomials for a variety of semantic constraints, phonological constraints, and metric constraints that affect human ordering preferences for binomials [@benorChickenEggProbabilistic2006]. They found that human ordering preferences were driven by abstract ordering preferences, such as a preference to place short words before longer words, even after accounting for the relative frequency (the proportion of each ordering that a binomial occurs in corpus data). However, humans are also sensitive to the frequency of each ordering (e.g., a preference for *bread and butter* over *butter and bread*). In other words, human ordering preferences are driven by both the observed preferences in corpus data (i.e., the number of times they've encountered each ordering of the binomial) as well as by abstract ordering preferences [@morganAbstractKnowledgeDirect2016]. Interestingly, more recently @morganProductiveKnowledgeItemspecific2024 also demonstrated abstract ordering preferences exert a constant effect throughout the frequency spectrum. That is, abstract ordering preferences have an effect on human ordering preferences even for high-frequency binomials.
-
-In summary, human ordering preferences for a given binomial cannot be predicted purely from the proportion of occurrences in the alphabetical order (e.g., *bread and butter*) to the occurrences in nonalphabetical (e.g., *butter and bread*). This suggests that humans are not simply reproducing their input, but learning abstract ordering preferences from the data.
+There have been several studies showing human ordering preferences for binomials are driven, at least in part, by abstract ordering preferences [@morganAbstractKnowledgeDirect2016, @morganModelingIdiosyncraticPreferences2015, @morganProductiveKnowledgeItemspecific2024]. For example, @morganAbstractKnowledgeDirect2016 demonstrated that humans show ordering preferences for binomials beyond simply preferring the more frequent ordering. In order to demonstrate this, they coded a list of binomials for a variety of semantic, phonological, and metric constraints that affect human ordering preferences for binomials [@benorChickenEggProbabilistic2006]. They found that human ordering preferences were driven by abstract ordering preferences, such as a preference to place short words before longer words, even after accounting for the relative frequency of the binomial (the number of times that the binomial occurs in each ordering). They also found that humans are sensitive to the frequency of each ordering (e.g., a preference for *bread and butter* over *butter and bread* because it occurs much more frequently in that order). Interestingly, more recently @morganProductiveKnowledgeItemspecific2024 also demonstrated abstract ordering preferences exert a constant effect throughout the frequency spectrum, affecting even high-frequency binomials. In other words, even in cases where humans have experienced a binomial many times, their ordering preferences aren't driven exclusively by their experience with the binomial.
 
 ## Present Study
 
-In the present study we examine whether large language models are simply copying their input, or whether they are behaving more similarly to humans and learning abstract linguistics patterns. We use binomials as a test case because human ordering preferences deviate from the observed preferences for them. Further, we use novel binomials that OLMo has never seen before. Therefore any preference the model has cannot be driven by experience with the specific item.
+In the present study we examine whether large language models are simply copying their input, or whether they are behaving more similarly to humans and learning abstract linguistics patterns. We use binomials as a test case because human ordering preferences deviate from the observed preferences for them. While binomials are a single linguistic construction, they are well-studied in the linguistics literature and thus we have strong human baselines that we can compare the LLM's performance to. Additionally, we use novel binomials that OLMo has never seen before. Therefore any preference the model has cannot be driven by experience with the specific item.
 
-In Experiment 1 we examine whether OLMo's 7B model [@groeneveldOLMoAcceleratingScience2024] is sensitive to abstract ordering preferences for novel binomials that the model has never seen before. We also examine the individual constraints that drive abstract ordering preferences in humans, such as the preference for short words before long words, to determine whether OLMo is sensitive to the same constraints in the same way as humans. In Experiment 2, we examine the same questions at different stages of the model's training in order to determine how these abstract ordering preferences emerge as a function of the training.
+In Experiment 1 we examine whether OLMo 7B [@groeneveldOLMoAcceleratingScience2024] is sensitive to abstract ordering preferences for novel binomials that the model has never seen before. We also examine the individual constraints that drive abstract ordering preferences in humans, such as the preference for short words before long words, to determine whether OLMo is sensitive to the same constraints in the same way as humans. In Experiment 2, we examine the same questions at different stages of the model's training in order to determine how these abstract ordering preferences emerge as a function of the training.
 
 # Dataset
 
@@ -227,7 +233,7 @@ In Experiment 1 we examine whether OLMo's 7B model [@groeneveldOLMoAcceleratingS
 
 For both experiments, we use the dataset described in this section. In order to examine whether large language models learn preferences above and beyond simply memorizing co-occurrence rates, we created a 1-grams, 2-grams, and 3-grams corpus of Dolma [@soldainiDolmaOpenCorpus2024]. Specifically, we used Dolma version 1_7 (2.05 trillion tokens), which was used to train OLMo-7B-v1.7 [@groeneveldOLMoAcceleratingScience2024]. Our corpus contains every n-gram (ignoring punctuation and capitalization) in the Dolma corpus, as well as the number of times that n-gram appeared.
 
-We then created a list of binomials and searched the corpus to find a list of binomials that did not occur in the Dolma corpus. We eliminated binomials which occurred more than zero times in either their alphabetical or nonalphabetical orderings. Thus, OLMo has had no experience with either ordering of any of our binomials. We also used the 2-grams corpus to get their bigram frequencies and the 1-grams corpus to get their individual word frequencies.[^2] Our full list of items comprises 131 binomials.
+We then created a list of binomials and searched the corpus to find a list of binomials that did not occur in the Dolma corpus. We eliminated binomials which occurred more than zero times in either possible ordering. Thus, OLMo has had no experience with either ordering of any of our binomials. We also calculated their unigram and bigram frequencies.[^2] Our full list of items comprises 131 binomials and is reproduced in the appendix section (Section @sec-full-list-of-stimuli).
 
 [^2]: Our code and datasets for the analyses run in this paper can also be found at: [github.com/\[anonymous\]](github.com/%5Banonymous%5D).
 
@@ -235,37 +241,41 @@ We then created a list of binomials and searched the corpus to find a list of bi
 
 ## Abstract Ordering Preferences Corpus
 
-In order to examine whether large language models are learning preferences similar to humans, we calculated the abstract ordering preference value for each of our binomials [following @morganAbstractKnowledgeDirect2016]. @morganAbstractKnowledgeDirect2016 demonstrated that their model's estimated abstract ordering preference value is a significant predictor of human binomial ordering preferences, even after accounting for the frequency of each ordering. Abstract ordering preferences are calculated from a mix of semantic and phonological properties that human binomial ordering preferences have been shown to be sensitive to [@benorChickenEggProbabilistic2006]. For each of these constraints, a positive value indicates a preference for the alphabeticaly first word to be placed first (a neutral reference order). A negative value indicates a preference for the nonalphabetical word to be placed first. For example, a positive value of *Freq* indicates that the alphabetical word is more frequent and thus is predicted to be placed first, while a negative value indicates that the nonalphabetical word is more frequent. The constraints are as follows [taken from @morganModelingIdiosyncraticPreferences2015]:
+In order to examine whether large language models are learning preferences similar to humans, we calculated the abstract ordering preference value for each of our binomials [following @morganAbstractKnowledgeDirect2016]. @morganAbstractKnowledgeDirect2016 demonstrated that their model's estimated abstract ordering preference value is a significant predictor of human binomial ordering preferences, even after accounting for the frequency of each ordering. Abstract ordering preferences are calculated from a mix of semantic and phonological properties that human binomial ordering preferences have been shown to be sensitive to [@benorChickenEggProbabilistic2006]. For each of these constraints, a positive value indicates a preference for the alphabetically first word to be placed first (a neutral reference order). A negative value indicates a preference for the nonalphabetical word to be placed first. For example, a positive value of frequency indicates that the alphabetical word is more frequent and thus is predicted to be placed first, while a negative value indicates that the nonalphabetical word is more frequent. The constraints along with the estimated weights in humans are as follows [taken from @morganModelingIdiosyncraticPreferences2015]:
 
--   **Length**: The shorter word should appear first, e.g. *abused and neglected*.
+-   **Length**: The shorter word should appear first, e.g. *abused and neglected*. In human data, the weight of this constraint was estimated to be 0.15.
 
--   **No Final Stress**: The final syllable of the second word should not be stressed, e.g. *abused and neglected*.
+-   **No Final Stress**: The final syllable of the second word should not be stressed, e.g. *abused and neglected*. In human data, the weight of this constraint was estimated to be 0.36.
 
--   **Lapse:** Avoid unstressed syllables in a row, e.g. *FARMS and HAY-fields* vs *HAY-fields and FARMS*
+-   **Lapse:** Avoid unstressed syllables in a row, e.g. *FARMS and HAY-fields* vs *HAY-fields and FARMS.* In human data, the weight of this constraint was estimated to be 0.19.
 
--   **Frequency**: The more frequent word comes first, e.g. *bride and groom*.
+-   **Frequency**: The more frequent word comes first, e.g. *bride and groom*. In human data, the weight of this constraint was estimated to be 0.09.
 
--   **Formal Markedness**: The word with more general meaning or broader distribution comes first, e.g. *boards and two-by-fours*.
+-   **Formal Markedness**: The word with more general meaning or broader distribution comes first, e.g. *boards and two-by-fours*. In human data, the weight of this constraint was estimated to be 0.24.
 
--   **Perceptual Markedness**: Elements that are more closely connected to the speaker come first. This constraint encompasses @cooper1975world's (1975) \`Me First' constraint and includes numerous subconstraints, e.g.: animates precede inanimates; concrete words precede abstract words; e.g. *deer and trees*.
+-   **Perceptual Markedness**: Elements that are more closely connected to the speaker come first. This constraint encompasses @cooper1975world's (1975) \`Me First' constraint and includes numerous subconstraints, e.g.: animates precede inanimates; concrete words precede abstract words; e.g. *deer and trees*. In human data, the weight of this constraint was estimated to be 0.25.
 
--   **Power**: The more powerful or culturally prioritized word comes first, e.g. *clergymen and parishioners*.
+-   **Power**: The more powerful or culturally prioritized word comes first, e.g. *clergymen and parishioners*. In human data, the weight of this constraint was estimated to be 0.26.
 
--   **Iconic/scalar sequencing**: Elements that exist in sequence should be ordered in sequence, e.g. *achieved and maintained*.
+-   **Iconic/scalar sequencing**: Elements that exist in sequence should be ordered in sequence, e.g. *achieved and maintained*. In human data, the weight of this constraint was estimated to be 1.30.
 
--   **Cultural Centrality**: The more culturally central or common element should come first, e.g. *oranges and grapefruits*.
+-   **Cultural Centrality**: The more culturally central or common element should come first, e.g. *oranges and grapefruits*. In human data, the weight of this constraint was estimated to be 0.42.
 
--   **Intensity**: The element with more intensity appear first, e.g. *war and peace*.
+-   **Intensity**: The element with more intensity appear first, e.g. *war and peace*. In human data, the weight of this constraint was estimated to be 0.02.
+
+\noindent @morganModelingIdiosyncraticPreferences2015 then used a logistic regression model to combine these constraints into a single constraint (overall abstract preference) for each binomial.
+
+In Experiment 1, we examine whether large language models learn similar preferences to humans.
 
 # Experiment 1
 
-In Experiment 1, we examine whether OLMo-7B's ordering preferences are driven by abstract ordering preferences for novel binomials. In order to do so, we created a list of binomials and searched the Dolma corpus we created to confirm that they did not occur in either alphabetical or nonalphabetical ordering. Both authors then coded the binomials for each of the constraints mentioned earlier and disagreements were resolved by discussion. We then examined whether OLMo-7B shows any preference for one ordering over the other for each binomial. If OLMo has developed any abstract ordering preferences, it should show a systematic preference for one ordering over the other. If it is just reproducing the binomials in ordering based purely off the frequency of the items in its input, we should see only an effect of the frequency constraint (i.e., it should simply show a preference to place the more frequent word first).
+In Experiment 1, we examine whether OLMo-7B's ordering preferences are driven by abstract ordering preferences for novel binomials. In order to do so, we created a list of binomials and searched the Dolma corpus we created to confirm that they did not occur in either alphabetical or nonalphabetical ordering. Two of the authors then coded the binomials for each of the constraints mentioned earlier and disagreements were resolved by discussion. We then examined whether OLMo-7B shows any preference for one ordering over the other for each binomial. If OLMo has developed any abstract ordering preferences, it should show a systematic preference for one ordering over the other. If it has not, then it should show no preference for one ordering over the other.
 
 ## Methods
 
 ### Language Model Predictions
 
-For each model, we calculated the ordering preferences of the alphabetical form (a neutral reference order) for each of our 131 binomials in the dataset. The predicted probability of the alphabetical form was calculated as the product of the model's predicted probability of each word in the binomial. In order to accurately calculate the probability of the first word in the binomial, each binomial was given the prefix "Next item: ". Thus the probability of the alphabetical form, *A and B,* is:
+For each model, we calculated the ordering preferences of the alphabetical form (a neutral reference point) for each of our 131 binomials in the dataset. The predicted probability of the alphabetical form was calculated as the product of the model's predicted probability of each word in the binomial. In order to accurately calculate the probability of the first word in the binomial, each binomial was given the prefix "Next item: ". Thus the probability of the alphabetical form, *A and B,* is:
 
 $$
 \begin{aligned}
@@ -293,19 +303,22 @@ $$
 
 ### Analyses
 
-We present two mixed-effects analyses using Bayesian linear regression models, implemented in *brms* [@brms] with weak, uninformative priors. For each of our models, the intercept represents the grand mean and the coefficient estimates represent the distance from the grand mean. Bayesian statistics don't force us into a binary interpretation of significance or non-significance, however we can consider an estimate to be statistically significant if the credible interval for that estimate excludes zero.
+We present three Bayesian linear mixed-effects models implemented in *brms* [@brms] with weak, uninformative priors. For each of our models, the intercept represents the grand mean and the coefficient estimates represent the distance of the effect from the grand mean. Bayesian statistics don't force us into a binary interpretation of significance, however we can consider an estimate to be statistically significant if the credible interval for that estimate excludes zero.
 
-For both analyses, the dependent variable is LogOdds(AandB), which was described above. Our dependent variable in the first analysis is the abstract ordering preference for each binomial (AbsPref)[^3]. Our dependent variables in the second analysis are the individual constraints that are used to calculate AbsPref. The model equations are below in @eq-m1 and @eq-m2. Note that Formal Markedness and Iconicity were dropped from the second model because the constraint values were zero for all of the binomials. Further, our constraints demonstrated a level of co-linearity. Co-linearity can result in poor model estimates and inflated credible intervals. In order to deal with this, we dropped the constraint with the highest variance inflation factor (which turned out to be the lapse constraint). We then performed backward model selection and dropped the predictors whose credible intervals were most centered around zero. This resulted in dropping the no final stress, intense, and percept constraints. We acknowledge that this approach is quite exploratory and thus interpretations at the level of the individual constraint must be taken with a grain of salt.
+For all three analyses, the dependent variable is LogOdds(AandB), which was described above. Our dependent variable in the first analysis is the abstract ordering preference for each binomial (AbsPref). In order to rule out bigram probabilities as driving the model's preferences, our second analysis contains the binomial's bigram probabilities (the odds ratio of product of bigram probabilities of the alphabetical order to the product of bigram probability of the nonalphabetical order) as well. Finally, our dependent variables in the third analysis are the individual constraints that are used to calculate AbsPref. The model equations are below in @eq-m1, @eq-m2, and @eq-m3. Note that Formal Markedness and Iconicity were dropped from the second model because the constraint values were zero for all of the binomials. Further, our constraints demonstrated a level of co-linearity. Co-linearity can result in poor model estimates and inflated credible intervals. In order to deal with this, we dropped the constraint with the highest variance inflation factor (which turned out to be the lapse constraint). All other constraints had a variance inflation factor value below 1.5. We then performed backward model selection and dropped the predictors whose credible intervals were most centered around zero until the remaining predictors' credible intervals were all at least 75% greater than or less than zero. This resulted in dropping the no final stress, intense, and percept constraints. We acknowledge that this approach is quite exploratory and thus interpretations at the level of the individual constraint must be taken with a grain of salt.
 
-[^3]: We also ran a model examining whether the ordering preferences were driven by the bigram probabilities of the binomial, however surprisingly bigram probabilities turned out to be a poor predictor of ordering preferences.
-
+\
 $$
 LogOdds(AandB) \sim AbsPref
 $$ {#eq-m1}
 
 $$
-LogOdds(AandB) \sim Culture + Power + Freq + Len
+LogOdds(AandB) ~ AbsPref \cdot BigramProbs
 $$ {#eq-m2}
+
+$$
+LogOdds(AandB) \sim Culture + Power + Freq + Len
+$$ {#eq-m3}
 
 ## Results
 
@@ -341,15 +354,39 @@ main_model_plot = ggplot(data = gen_pref_data, aes(x=GenPref, y = log_odds)) +
   ylab('LogOdds(AandB)') +
   xlab('Abstract Ordering Preference') +
   #facet_wrap(~constraint) +
-  theme_bw()
+  theme_bw() +
+  theme(
+    axis.title = element_text(size = 16, color = 'black'),   # Increase axis label size
+    axis.text = element_text(size = 14, color = 'black'),    # Increase tick mark labels
+    axis.ticks.length = unit(0.3, "cm")     # Make tick marks longer
+  )
 
 main_model_plot
 
 ```
 
-While these results suggest that the large language models' ordering preferences are sensitive to similar factors as humans, it's unclear whether this similarity holds on the level of the individual constraints. Thus, in the second analysis we examine which specific constraints the model is sensitive to, and to what extent.[^4] For this analysis, following @houghtonTaskdependentConsequencesDisfluency2024, we also present the percentage of posterior samples greater than zero. The results of this analysis can be found below in @tbl-exp1m2.
+he results of our second model suggest that the model's ordering preferences were not driven by bigram probabilities (see @tbl-exp1bigrams).
 
-[^4]: It's also helpful to consider how many of our binomials the constraint even applied to (i.e., how many binomials were the constraints non-zero). For the Culture constraint, 62 of our 131 binomials had a non-zero value. For the Power constraint, 54 did, for the Frequency constraint, all 131 binomials did, and for the Len constraint, 85 did.
+```{r, echo = F, message = F}
+#| label: tbl-exp1bigrams
+#| tbl-cap: "Model results examining the effect of AbsPref and Bigram Probabilities on LogOdds(AandB)."
+
+#table 1
+fixefsm2 = as.data.frame(fixef(Olmo_main_genpref_log_odds)) %>%
+  mutate_if(is.numeric,
+            formatC,
+            format = 'f',
+            digits = 3)
+
+rownames(fixefsm2) = c('Intercept', 'AbsPref', 'BigramProbs', 'AbsPref:BigramProbs')
+
+knitr::kable(fixefsm2, booktabs = T)
+
+```
+
+While these results suggest that the large language models' ordering preferences are sensitive abstract ordering preferences and not bigram probabilities, it's unclear whether their behavior is similar to humans on the level of the individual constraints. Thus, in the third analysis we examined which specific constraints the model is sensitive to, and to what extent.[^3] For this analysis, following @houghtonTaskdependentConsequencesDisfluency2024, we also present the percentage of posterior samples greater than zero. The results of this analysis can be found below in @tbl-exp1m2.
+
+[^3]: It's also important to consider how many of our binomials the constraint even applied to (i.e., how many binomials were the constraints non-zero). For the Culture constraint, 62 of our 131 binomials had a non-zero value. For the Power constraint, 54 were non-zero, for the Frequency constraint, all 131 binomials were non-zero, and for the Len constraint, 85 were.
 
 ```{r, echo = F, message = F}
 #| label: tbl-exp1m2
@@ -361,7 +398,7 @@ percent_greater_zero = data.frame(fixef(Olmo_main_individual_constraints, summar
   summarize((sum(estimate > 0) / length(estimate)) * 100)
 
 #table2
-fixefsm2 = as.data.frame(fixef(Olmo_main_individual_constraints)) %>%
+fixefsm3 = as.data.frame(fixef(Olmo_main_individual_constraints)) %>%
   mutate_if(is.numeric,
             formatC,
             format = 'f',
@@ -375,13 +412,13 @@ percent_greater_zero = percent_greater_zero %>%
   arrange(match(beta_coefficient, c('Intercept', 'Culture', 'Power', 'Freq', 'Len')))
 
 
-fixefsm2 = fixefsm2 %>%
+fixefsm3 = fixefsm3 %>%
   mutate(percent_greater_zero = percent_greater_zero$`(sum(estimate > 0)/length(estimate)) * 100`) %>%
   rename('% Samples > 0' = `percent_greater_zero`)
 
-rownames(fixefsm2) = c('Intercept', 'Culture', 'Power', 'Freq', 'Len')
+rownames(fixefsm3) = c('Intercept', 'Culture', 'Power', 'Freq', 'Len')
 
-knitr::kable(fixefsm2, booktabs = T)
+knitr::kable(fixefsm3, booktabs = T)
 ```
 
 The model is most sensitive to the Power constraint, however there appears to be a marginal effect of Culture as well, since nearly 95% of the posterior samples are greater than zero despite the credible interval crossing zero. Surprisingly, there also appears to be a negative effect of length with a slight preference to place the longer word first, which is the opposite direction from what we see in humans. Length is often correlated with frequency, since frequent words tend to be shorter. As such, we ran a model without frequency to determine whether the negative effect of length was do to co-linearity with frequency. However, dropping frequency from the model did not affect the effect of length. Further, we also ran a model with only length as the predictor and for that model as well the estimate of length remained negative.
@@ -401,7 +438,12 @@ main_model_plot = ggplot(data = main_model, aes(x=constraint_value, y = log_odds
   xlab('Constraint Value') +
   ylab('LogOdds(AandB)') +
   facet_wrap(~constraint) +
-  theme_bw()
+  theme_bw() +
+  theme(
+    axis.title = element_text(size = 16, color = 'black'),   # Increase axis label size
+    axis.text = element_text(size = 14, color = 'black'),    # Increase tick mark labels
+    axis.ticks.length = unit(0.3, "cm")     # Make tick marks longer
+  )
 
 main_model_plot
 
@@ -411,9 +453,7 @@ main_model_plot
 
 The present experiment found that OLMo-7B has learned abstract ordering preferences even for novel binomials that it has never seen before. Further, these ordering preferences aren't simply based on the individual word frequencies. Specifically, we find a main-effect of abstract ordering preferences on the model's binomial ordering preferences. Additionally, we find a strong preference to place the more powerful word first, a weak preference to place the more culturally central word first, and a weak preference to place the longer word first.
 
-These results together suggest that the model is learning abstract ordering preferences but these are not identical to humans. For example, while humans also show a preference for placing the more powerful and more culturally central words first, humans also prefer to place the *shorter* word first [@morganAbstractKnowledgeDirect2016; @morganModelingIdiosyncraticPreferences2015]. However, we find the opposite finding: large language models prefer to place the longer word first. One explanation for this is a difference in terms of the input between humans and large language models. The length constraint is determined by the number of syllables. Syllables are salient cues in the audio that humans receive during learning \[**NEED CITATION\]**, but it's less clear how salient of a cue this is for large language models, which receive sub-word tokens (which vary in their size, from being individual orthographic symbols to being entire words[^5]).
-
-[^5]: For example, both *ictionary* and *region* are individual tokens in OpenAI's models (<https://gist.github.com/s-macke/ae83f6afb89794350f8d9a1ad8a09193>).
+These results together suggest that the model is learning abstract ordering preferences but in a way that is not identical to humans. For example, while both LLMs and humans show a preference for placing the more powerful words first and the more culturally central word first, humans also show a sensitivity to formal markedness, perceptual markedness, and frequency [@morganAbstractKnowledgeDirect2016], which we do not find evidence for in large language models' preferences. Additionally, humans prefer to place the shorter word first \[@morganAbstractKnowledgeDirect2016, @morganModelingIdiosyncraticPreferences2015\]. However, we find the opposite finding here: large language models prefer to place the longer word first. One explanation for this is a difference in terms of the input between humans and large language models. The length constraint is determined by the number of syllables. While syllables are salient cues in the audio that humans receive during learning, it's less clear how salient of a cue they are for large language models which receive sub-word tokens (which vary in their size, from being individual orthographic symbols to being entire words.
 
 # Experiment 2
 
@@ -423,7 +463,7 @@ In Experiment 1 we demonstrated that large language models are not simply copyin
 
 ### Language Model Predictions
 
-Our language model predictions in Experiment 2 were obtained using the same procedure as in Experiment 1. However, instead of calculating these metrics only for the main model, we calculated them at various checkpoints. These checkpoints are listed below, in terms of the steps as well as the number of billions of tokens the model had been trained on at that checkpoint:
+The language model predictions in Experiment 2 were obtained using the same procedure as in Experiment 1. However, instead of calculating these metrics only for the main model, we calculated them at various checkpoints. These checkpoints are listed below, in terms of the steps as well as the number of billions of tokens the model had been trained on at that checkpoint:
 
 -   Step 0, 0B Tokens
 
@@ -437,11 +477,11 @@ Our language model predictions in Experiment 2 were obtained using the same proc
 
 -   Step 200000, 838B Tokens
 
--   Step 400000, Tokens 1677B
+-   Step 400000, 1677B Tokens
 
 ### Analysis
 
-We ran the same two analyses as in Experiment 1, however, we ran these analyses for the each of the checkpoints listed above.
+The analyses in Experiment 2 were identical to Experiment 1, however we ran these analyses for each of the checkpoints listed above.
 
 ## Results
 
@@ -501,21 +541,25 @@ models_for_plotting = models_all %>%
 
 plot_all_m1 = ggplot(data = models_for_plotting, aes(x=checkpoint_numeric, y = Estimate)) +
   geom_point() +
-  geom_smooth(method='lm') +
+  #geom_smooth(method='lm') +
   geom_errorbar(aes(ymin=Q2.5, ymax = Q97.5), position=position_dodge(0.05)) +
   scale_x_continuous(breaks = unique(models_for_plotting$checkpoint_numeric), labels = models_for_plotting$num_tokens) +
   ylab('Coefficient Estimate') +
   xlab('Number of Tokens') +
-  theme_bw() #+
-  #theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+  theme_bw() +
+  theme(
+    axis.title = element_text(size = 16, color = 'black'),   # Increase axis label size
+    axis.text = element_text(size = 14, color = 'black'),    # Increase tick mark labels
+    axis.ticks.length = unit(0.3, "cm")     # Make tick marks longer
+  )
   
 
 plot_all_m1
 ```
 
-Our results demonstrate that it takes quite a large number of tokens for the model to learn the abstract ordering preferences. As @fig-exp2m1 demonstrates, the effect of abstract ordering preference isn't convincing until the model has experienced 419 billion tokens. However, it does appear that the model develops a slight preference quite rapidly. For example, by 2 billion tokens there appears to be a very slight (though unconvincing) effect of abstract ordering preferences on the ordering of binomials.
+Our results demonstrate that it takes quite a large number of tokens for the model to learn the abstract ordering preferences. As @fig-exp2m1 demonstrates, the effect of abstract ordering preference isn't convincing until the model has experienced 1677B tokens. However, it does appear that the model develops a slight preference quite rapidly. For example, by 2 billion tokens there appears to be a very slight (though unconvincing) effect of abstract ordering preferences on the ordering of binomials.
 
-Similar to Experiment 1, in our second analysis we present a breakdown of the effects of each individual constraint. In this analysis, however, we demonstrate the effect of each constraint at each checkpoint. The full table results can be found in the @sec-individual-constraints-at-each-checkpoint, but we present a visualization below in @fig-exp2m2.
+Similar to Experiment 1, in our second analysis we present a breakdown of the effects of each individual constraint. In this analysis, however, we demonstrate the effect of each constraint at each checkpoint. The full table results can be found in the the appendix section (@sec-individual-constraints-at-each-checkpoint), but we present a visualization below in @fig-exp2m2.
 
 ```{r echo = F, fig.width=8, fig.height=9.5, fig.align = 'center', warning = F, message = F}
 #| label: fig-exp2m2
@@ -539,7 +583,7 @@ models_for_plotting2$constraint = factor(models_for_plotting2$constraint, levels
 
 main_model_plot2 = ggplot(data = models_for_plotting2, aes(x=constraint_value, y = log_odds)) +
   geom_point(alpha=0.5, color = 'darkblue') +
-  geom_smooth(method = 'lm', formula = y ~ x, se = TRUE, linewidth = 1) +
+  geom_smooth(method = 'lm', formula = y ~ x, se = TRUE, linewidth = 1, color='black') +
   facet_nested(constraint~n_billion_tokens) +
   #ggtitle('Number of Billions of Tokens') +
   theme_bw() +
@@ -557,21 +601,21 @@ main_model_plot2
 
 ```
 
-Interestingly, it appears that early on the model already shows evidence of learning human-like preferences. For example, by 10 billion tokens, the model has learned to place more powerful words first and shorter words first. However, the model seems slower to learn to place more culturally central words first. Further, as it receives more training the effect of length undergoes a reversal in direction.
+Interestingly, it appears that early on the model already shows evidence of learning human-like preferences. For example, by 10 billion tokens the model has learned to place more powerful words first and shorter words first. However, the model seems slower to learn to place more culturally central words first. Further, as it receives more training the effect of length undergoes a reversal in direction.
 
 ## Discussion
 
-Our results demonstrate that OLMo learns human-like ordering preferences early on for most of the constraints, but takes longer to learn human-like ordering preferences for the culture constraint. Further, the model is human-like in its predictions for length early on, but as it receives more training data it learns the opposite length prediction. It is unclear what exactly is causing this reversal, but as we suggested earlier it may be a function of the tokenization differences between human input and large language models' input. We look forward to examining this question in more depth in future studies.
+Our results demonstrate that OLMo learns ordering preferences early on for the power, frequency, and length constraints, but is slower to learn ordering preferences for the culture constraint. Further, the model is human-like in its predictions for length early on, but as it receives more training data it learns the opposite length prediction. It is unclear what exactly is causing this reversal, but it may be a function of the tokenization differences between human input and large language models' input.
 
-Our results can also be interpreted as predictions for human data. For example, it takes the model longer to learn the Culture constraint than the other constraints. Is the same true for humans?
+It is interesting that the model is quick to learn the power constraint, but slower to learn the culture constraint. Both constraints require a level of world-knowledge but the model learns which entities are more powerful relatively quickly, but not which is more culturally central. One interesting question is whether humans also take longer to learn the culture constraint, or whether they learn this early on. If children learn this constraint early on it may suggest differences with respect to how easily large language models learn world knowledge. On the other hand, if children also take longer to learn the culture constraint it may suggest that the power constraint is simply easier to learn.
 
-Finally, previous results suggest that for non-novel binomials that OLMo has experienced before, it relies almost exclusively on its experience with it in its training data (i.e., its ordering preference is primarily driven by the proportion of occurrences in alphabetical to nonalphabetical ordering) and does not use abstract ordering preferences at all [@HoughtonMorgan2025]. Our results thus suggest that while large language models are able to learn abstract ordering preferences, in cases where they've seen the binomial they are able to rely on their experience more than a human can.
+Finally, previous results suggest that for non-novel binomials that OLMo has experienced before, it relies almost exclusively on its experience with it in its training data. For example, [@HoughtonMorgan2025] examined whether different LLMs reproduce binomials in the ordering they occur in corpus data or whether their preferences are driven by abstract preferences. They found that for both high and low-frequency binomials, LLMs' ordering preferences were driven exclusively by the frequency of the binomial. Taken into account with the present study, this suggests that while large language models are able to learn abstract ordering preferences, in cases where they've seen the binomial they are able to rely on their experience more than humans do.
 
 # Conclusion
 
-In the present study, we examined the ordering preferences in OLMo 7B's main model as well as the model at various stages in learning. We found that the main model shows human-like ordering preferences, with the exception of a preference for longer words before shorter words. Further, we show that while the effect of abstract ordering preference on a whole takes a great deal of time (over 400 billion tokens to be convincing), the model seems to pick up on individual constraints quite early on, and initially even learns the correct direction of the length constraint.
+In the present study, we examined the ordering preferences in OLMo-7B's main model as well as the model at various stages in learning. We found that while overall the model does show evidence of having learned abstract preferences, the preferences are not identical to human ordering preferences. For example, the model shows a preference for longer words before shorter words. Further, we show that while the effect of abstract ordering preference on a whole takes a great deal of time (over 1677B tokens to be convincing), the model seems to learn human-like preferences at the level of some individual constraints quite early on.
 
-Our results suggest that large language models are not simply copying their input, but are learning interesting, human-like phenomena from their training. However, they are not learning identically to humans, as demonstrated by the opposite direction of the length preference. This is not surprising given the differences in tokenization methods. Further, while humans rely on abstract preferences even for binomials that they have encountered before, large language models only rely on abstract ordering preferences for items that they have not encountered at all.
+Our results suggest that large language models are not simply copying their input, but are learning interesting, human-like phenomena from their training. However, they are not learning identically to humans, as demonstrated by the opposite direction of the length preference. Further, while humans rely on abstract preferences even for binomials that they have encountered before [@morganProductiveKnowledgeItemspecific2024], large language models seem to rely on abstract ordering preferences only for items that they have not encountered at all.
 
 # Limitations
 
