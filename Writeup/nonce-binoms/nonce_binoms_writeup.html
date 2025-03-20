@@ -1,0 +1,3390 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Zachary Nicholas Houghton">
+<meta name="author" content="Kenji Sagae">
+<meta name="author" content="Emily Morgan">
+
+<title>Emergent Abstract Ordering Preferences in Large Language Models</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="nonce_binoms_writeup_files/libs/clipboard/clipboard.min.js"></script>
+<script src="nonce_binoms_writeup_files/libs/quarto-html/quarto.js"></script>
+<script src="nonce_binoms_writeup_files/libs/quarto-html/popper.min.js"></script>
+<script src="nonce_binoms_writeup_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="nonce_binoms_writeup_files/libs/quarto-html/anchor.min.js"></script>
+<link href="nonce_binoms_writeup_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="nonce_binoms_writeup_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="nonce_binoms_writeup_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="nonce_binoms_writeup_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="nonce_binoms_writeup_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Emergent Abstract Ordering Preferences in Large Language Models</h1>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Authors</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Zachary Nicholas Houghton <a href="mailto:znhoughton@ucdavis.edu" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of California, Davis
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Kenji Sagae </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of California, Davis
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Emily Morgan </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of California, Davis
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="sec-introduction" class="level1">
+<h1>Introduction</h1>
+<p>Large language models have stormed the media in the last few years and become a popular topic in the scientific literature. Their historic rise to fame has brought with them many heated debates regarding whether large language models constitute human-like models of language or whether what they are doing is completely different from humans <span class="citation" data-cites="piantadosiChapterModernLanguage piantadosiMeaningReferenceLarge2022 benderDangersStochasticParrots2021">(<a href="#ref-benderDangersStochasticParrots2021" role="doc-biblioref">Bender et al., 2021</a>; <a href="#ref-piantadosiChapterModernLanguage" role="doc-biblioref">Piantadosi, 2023</a>; <a href="#ref-piantadosiMeaningReferenceLarge2022" role="doc-biblioref">Piantadosi &amp; Hill, 2022</a>)</span>.</p>
+<p>Many of these debates have centered around the tradeoff between computation and storage: how much are these models simply reproducing from their training data vs how much of their productions are novel utterances using learned linguistic patterns. On one hand, there is no doubt that large language models store and reproduce large chunks of language. In fact, OpenAI is even being sued by <em>The New York Times</em> for allegedly reproducing entire articles verbatim <span class="citation" data-cites="nyt_v_openai">(<a href="#ref-nyt_v_openai" role="doc-biblioref"><em><span class="nocase">The New York Times Company v. Microsoft Corporation, OpenAI, Inc., OpenAI LP, OpenAI GP, LLC, OpenAI, LLC, OpenAI OpCo LLC, OpenAI Global LLC, OAI Corporation, LLC, and OpenAI Holdings, LLC</span></em>, 2024</a>)</span>. This sentiment – that large language models are nothing but glorified copy cats – has been echoed by several other prominent linguists <span class="citation" data-cites="bender2020climbing benderDangersStochasticParrots2021 piantadosiChapterModernLanguage">(<a href="#ref-benderDangersStochasticParrots2021" role="doc-biblioref">Bender et al., 2021</a>; <a href="#ref-bender2020climbing" role="doc-biblioref">Bender &amp; Koller, 2020</a>; c.f., <a href="#ref-piantadosiChapterModernLanguage" role="doc-biblioref">Piantadosi, 2023</a>)</span>.</p>
+<p>Specifically, proponents of the “LLMs as copy cats” argument have pointed out that large language models are trained on an inconceivably large amount of data. For example, the OLMo models were trained on trillions of tokens <span class="citation" data-cites="groeneveldOLMoAcceleratingScience2024">(<a href="#ref-groeneveldOLMoAcceleratingScience2024" role="doc-biblioref">Groeneveld et al., 2024</a>)</span><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. As such, it is extremely difficult to determine whether utterances produced by an LLM are truly novel, or whether they are simply reproduced from their training data. This is further complicated by the fact that training data for LLMs is typically either not publicly available, or so huge that it’s incredibly difficult to work with. On the other hand, it is clear that large language models are learning at least some linguistic patterns. For example, <span class="citation" data-cites="mccoy2023much">McCoy et al. (<a href="#ref-mccoy2023much" role="doc-biblioref">2023</a>)</span> demonstrated that Chat GPT-2 is able to generate well-formed novel words as well as well-formed novel syntactic structures, however they found that it still copies extensively.</p>
+<!--# Need to double check the stochastic parrots paper -->
+<p>A similar debate in the field has centered around whether large language models learn any knowledge about the meaning of words. For example, <span class="citation" data-cites="bender2020climbing">Bender &amp; Koller (<a href="#ref-bender2020climbing" role="doc-biblioref">2020</a>)</span> have argued that large language models, which are only trained on the form, have no way of learning anything about meaning. They pointed out that large language models do not have the rich information that humans receive, such as the referent of the form. However, <span class="citation" data-cites="piantadosiMeaningReferenceLarge2022">Piantadosi &amp; Hill (<a href="#ref-piantadosiMeaningReferenceLarge2022" role="doc-biblioref">2022</a>)</span> rebutted this claim by arguing that co-occurrence statistics can be extremely informative about a word’s meaning. For example, they argued that many words, such as “justice”, contain no clear referent and instead have to be learned by humans based on the context that they occur in. It seems plausible that large language models could learn at least some information about the meaning of words in a similar manner.</p>
+<!--# debate about meaning bender octopus vs piantadosi -->
+<p>These debates, however, have been highly theoretical and speculative and very few empirical studies have been done to actually investigate these questions <span class="citation" data-cites="lebrun2022evaluating mccoy2023much lasri2022subject">(<a href="#ref-lasri2022subject" role="doc-biblioref">Lasri et al., 2022</a>; c.f., <a href="#ref-lebrun2022evaluating" role="doc-biblioref">LeBrun et al., 2022</a>; <a href="#ref-mccoy2023much" role="doc-biblioref">McCoy et al., 2023</a>)</span>. Thus in the present paper we address these debates by taking an in-depth look at large language models’ abilities to learn generalized word order patterns that are contingent on word meanings.</p>
+<p>Our specific contributions are as follows: We make a 1-gram, 2-grams, and 3-grams corpus of Dolma <span class="citation" data-cites="soldainiDolmaOpenCorpus2024">(<a href="#ref-soldainiDolmaOpenCorpus2024" role="doc-biblioref">Soldaini et al., 2024</a>)</span> along with the scripts to reproduce it open-access. We also use this corpus to create novel binomials (Noun <em>and</em> Noun compounds, such as <em>cats and dogs</em>) that the OLMo 7B model <span class="citation" data-cites="groeneveldOLMoAcceleratingScience2024">(<a href="#ref-groeneveldOLMoAcceleratingScience2024" role="doc-biblioref">Groeneveld et al., 2024</a>)</span> has never seen. We examine whether OLMo 7B learns general patterns for ordering preferences (e.g., preferring the binomial ordering with the shorter word first as in <em>ladies in gentlemen</em> as opposed to gentlemen <em>and ladies</em>) for binomials that it has never seen before. Finally, we demonstrate a timescale of these preferences emerging over training that can be used to generate predictions about human learning.</p>
+<section id="abstractions-in-large-language-models" class="level2">
+<h2 class="anchored" data-anchor-id="abstractions-in-large-language-models">Abstractions in Large Language Models</h2>
+<p>The evidence for learned abstractions in large language models is extremely mixed. For example, <span class="citation" data-cites="haley2020bert">Haley (<a href="#ref-haley2020bert" role="doc-biblioref">2020</a>)</span> demonstrated that many of the BERT models are not able to reliably determine the plurality of novel words. Additionally, <span class="citation" data-cites="liAreNeuralNetworks2021">Li &amp; Wisniewski (<a href="#ref-liAreNeuralNetworks2021" role="doc-biblioref">2021</a>)</span> demonstrated that when tasked with producing the correct tense for a word, BERT tends to rely on memorization from its training data as opposed to learning the more general linguistic pattern.</p>
+<p>On the other hand, <span class="citation" data-cites="lasri2022subject">Lasri et al. (<a href="#ref-lasri2022subject" role="doc-biblioref">2022</a>)</span> demonstrated that BERT can generalize well to novel subject-verb pairs. Specifically, they tested BERT’s performance on novel sentences along with semantically incoherent but syntactically sensible sentences (e.g., <em>colorless green ideas sleep furiously</em>). They found that BERT performs well on items it wasn’t trained on. Additionally, <span class="citation" data-cites="liAssessingCapacityTransformer2023">Li et al. (<a href="#ref-liAssessingCapacityTransformer2023" role="doc-biblioref">2023</a>)</span> demonstrated that transformers are able to use abstract knowledge to correctly predict subject-verb and object-past participle agreements in French. Similarly, as mentioned earlier, <span class="citation" data-cites="mccoy2023much">McCoy et al. (<a href="#ref-mccoy2023much" role="doc-biblioref">2023</a>)</span> examined to what extent GPT-2 was simply copying its training data vs producing novel utterances. They found that while GPT-2 copies extensively, it also produces both novel words as well as novel syntactic structures.</p>
+<p>There is also evidence that transformer models can learn abstractions from other domains as well. For example, <span class="citation" data-cites="tartaglini2023deep">Tartaglini et al. (<a href="#ref-tartaglini2023deep" role="doc-biblioref">2023</a>)</span> examined the ability of a transformer model in a same-different task (i.e., determining if two entities, e.g., two shapes, in an image are the same or different). They found that certain models can reach near perfect accuracy on items they have never seen before. They argued that this demonstrates their abilities to learn abstract representations.</p>
+<p>Finally, there’s evidence that inducing abstractions facilitates performance in large language models. For example <span class="citation" data-cites="zhengTakeStepBack2024">Zheng et al. (<a href="#ref-zhengTakeStepBack2024" role="doc-biblioref">n.d.</a>)</span> used a novel prompting technique to enable LLMs to use abstractions when reasoning. They found that LLMs hallucinate less when they implement abstractions in their reasoning. Similarly, <span class="citation" data-cites="mccoyUniversalLinguisticInductive2020">McCoy et al. (<a href="#ref-mccoyUniversalLinguisticInductive2020" role="doc-biblioref">n.d.</a>)</span> demonstrated that large language models can use abstractions to learn language more easily, suggesting that inducing abstractions may help reduce the amount of training that large language models require.</p>
+</section>
+<section id="abstractions-in-humans" class="level2">
+<h2 class="anchored" data-anchor-id="abstractions-in-humans">Abstractions in Humans</h2>
+<p>Abstractions have been a part of just about every linguistic theory out there, including both generativist and non-generativist theories. This is for good reason, too: one of the hallmarks of human language learning is the ability to produce novel, never-heard-before utterances. In order to do so, most theories posit that humans leverage their remarkable ability to learn linguistic patterns beyond simple co-occurrence rates <span class="citation" data-cites="ambridge2020">(c.f., <a href="#ref-ambridge2020" role="doc-biblioref">Ambridge, 2020</a>)</span>. For example, when presented a novel noun, children are able to consistently produce the proper plural form of that noun <span class="citation" data-cites="berko">(<a href="#ref-berko" role="doc-biblioref">Berko, 1958</a>)</span>. Similarly, children are able to abstract across different contexts to learn a word’s general meaning <span class="citation" data-cites="yu2007rapid">(<a href="#ref-yu2007rapid" role="doc-biblioref">Yu &amp; Smith, 2007</a>)</span>.</p>
+<p>Abstractions are useful because when humans produce a novel utterance that they have never heard before, their novel utterances contain a level of systematicity that allows the interlocutor to understand it with very little difficulty. This is even the case for binomials (e.g., <em>cat and dog</em>), whose order does not particularly affect the meaning of the utterance.</p>
+<p>Binomial ordering preferences are well-documented in the literature. Binomials have been a particularly useful test case in the psycholinguistics literature because humans have varying preferences for which noun occurs first in the binomial, despite the ordering having little effect on the meaning. For example, while one could reasonably say <em>computers and monitors</em> or <em>monitors and computers</em>, <em>butter and bread</em> sounds quite unnatural compared to <em>bread and butter</em>. However, none of those have a particularly different meaning.</p>
+<p>There have been several studies showing human ordering preferences for binomials are driven, at least in part, by abstract ordering preferences <span class="citation" data-cites="morganAbstractKnowledgeDirect2016 morganFrequencydependentRegularizationIterated2016a morganModelingIdiosyncraticPreferences2015 morganProductiveKnowledgeItemspecific2024">(<a href="#ref-morganModelingIdiosyncraticPreferences2015" role="doc-biblioref">Morgan &amp; Levy, 2015</a>, <a href="#ref-morganAbstractKnowledgeDirect2016" role="doc-biblioref">2016a</a>, <a href="#ref-morganFrequencydependentRegularizationIterated2016a" role="doc-biblioref">2016b</a>, <a href="#ref-morganProductiveKnowledgeItemspecific2024" role="doc-biblioref">2024</a>)</span> For example, <span class="citation" data-cites="morganAbstractKnowledgeDirect2016">Morgan &amp; Levy (<a href="#ref-morganAbstractKnowledgeDirect2016" role="doc-biblioref">2016a</a>)</span> demonstrated that humans show ordering preferences for binomials beyond simply preferring the more frequent ordering. In order to demonstrate this, they coded a list of binomials for a variety of semantic constraints, phonological constraints, and metric constraints that affect human ordering preferences for binomials <span class="citation" data-cites="benorChickenEggProbabilistic2006">(<a href="#ref-benorChickenEggProbabilistic2006" role="doc-biblioref">Benor &amp; Levy, 2006</a>)</span>. They found that human ordering preferences were driven by abstract ordering preferences, such as a preference to place short words before longer words, even after accounting for the relative frequency (the proportion of each ordering that a binomial occurs in corpus data). However, humans are also sensitive to the frequency of each ordering (e.g., a preference for <em>bread and butter</em> over <em>butter and bread</em>). In other words, human ordering preferences are driven by both the observed preferences in corpus data (i.e., the number of times they’ve encountered each ordering of the binomial) as well as by abstract ordering preferences <span class="citation" data-cites="morganAbstractKnowledgeDirect2016">(<a href="#ref-morganAbstractKnowledgeDirect2016" role="doc-biblioref">Morgan &amp; Levy, 2016a</a>)</span>. Interestingly, more recently <span class="citation" data-cites="morganProductiveKnowledgeItemspecific2024">Morgan &amp; Levy (<a href="#ref-morganProductiveKnowledgeItemspecific2024" role="doc-biblioref">2024</a>)</span> also demonstrated abstract ordering preferences exert a constant effect throughout the frequency spectrum. That is, abstract ordering preferences have an effect on human ordering preferences even for high-frequency binomials.</p>
+<p>In summary, human ordering preferences for a given binomial cannot be predicted purely from the proportion of occurrences in the alphabetical order (e.g., <em>bread and butter</em>) to the occurrences in nonalphabetical (e.g., <em>butter and bread</em>). This suggests that humans are not simply reproducing their input, but learning abstract ordering preferences from the data.</p>
+</section>
+<section id="present-study" class="level2">
+<h2 class="anchored" data-anchor-id="present-study">Present Study</h2>
+<p>In the present study we examine whether large language models are simply copying their input, or whether they are behaving more similarly to humans and learning abstract linguistics patterns. We use binomials as a test case because human ordering preferences deviate from the observed preferences for them. Further, we use novel binomials that OLMo has never seen before. Therefore any preference the model has cannot be driven by experience with the specific item.</p>
+<p>In Experiment 1 we examine whether OLMo’s 7B model <span class="citation" data-cites="groeneveldOLMoAcceleratingScience2024">(<a href="#ref-groeneveldOLMoAcceleratingScience2024" role="doc-biblioref">Groeneveld et al., 2024</a>)</span> is sensitive to abstract ordering preferences for novel binomials that the model has never seen before. We also examine the individual constraints that drive abstract ordering preferences in humans, such as the preference for short words before long words, to determine whether OLMo is sensitive to the same constraints in the same way as humans. In Experiment 2, we examine the same questions at different stages of the model’s training in order to determine how these abstract ordering preferences emerge as a function of the training.</p>
+</section>
+</section>
+<section id="dataset" class="level1">
+<h1>Dataset</h1>
+<section id="dolma" class="level2">
+<h2 class="anchored" data-anchor-id="dolma">Dolma</h2>
+<p>For both experiments, we use the dataset described in this section. In order to examine whether large language models learn preferences above and beyond simply memorizing co-occurrence rates, we created a 1-grams, 2-grams, and 3-grams corpus of Dolma <span class="citation" data-cites="soldainiDolmaOpenCorpus2024">(<a href="#ref-soldainiDolmaOpenCorpus2024" role="doc-biblioref">Soldaini et al., 2024</a>)</span>. Specifically, we used Dolma version 1_7 (2.05 trillion tokens), which was used to train OLMo-7B-v1.7 <span class="citation" data-cites="groeneveldOLMoAcceleratingScience2024">(<a href="#ref-groeneveldOLMoAcceleratingScience2024" role="doc-biblioref">Groeneveld et al., 2024</a>)</span>. Our corpus contains every n-gram (ignoring punctuation and capitalization) in the Dolma corpus, as well as the number of times that n-gram appeared.</p>
+<p>We then created a list of binomials and searched the corpus to find a list of binomials that did not occur in the Dolma corpus. We eliminated binomials which occurred more than zero times in either their alphabetical or nonalphabetical orderings. Thus, OLMo has had no experience with either ordering of any of our binomials. We also used the 2-grams corpus to get their bigram frequencies and the 1-grams corpus to get their individual word frequencies.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> Our full list of items comprises 131 binomials.</p>
+<!--# revise footnote with actual github link. This should probably get its own github repo, so I will need to change this as well. -->
+</section>
+<section id="abstract-ordering-preferences-corpus" class="level2">
+<h2 class="anchored" data-anchor-id="abstract-ordering-preferences-corpus">Abstract Ordering Preferences Corpus</h2>
+<p>In order to examine whether large language models are learning preferences similar to humans, we calculated the abstract ordering preference value for each of our binomials <span class="citation" data-cites="morganAbstractKnowledgeDirect2016">(following <a href="#ref-morganAbstractKnowledgeDirect2016" role="doc-biblioref">Morgan &amp; Levy, 2016a</a>)</span>. <span class="citation" data-cites="morganAbstractKnowledgeDirect2016">Morgan &amp; Levy (<a href="#ref-morganAbstractKnowledgeDirect2016" role="doc-biblioref">2016a</a>)</span> demonstrated that their model’s estimated abstract ordering preference value is a significant predictor of human binomial ordering preferences, even after accounting for the frequency of each ordering. Abstract ordering preferences are calculated from a mix of semantic and phonological properties that human binomial ordering preferences have been shown to be sensitive to <span class="citation" data-cites="benorChickenEggProbabilistic2006">(<a href="#ref-benorChickenEggProbabilistic2006" role="doc-biblioref">Benor &amp; Levy, 2006</a>)</span>. For each of these constraints, a positive value indicates a preference for the alphabeticaly first word to be placed first (a neutral reference order). A negative value indicates a preference for the nonalphabetical word to be placed first. For example, a positive value of <em>Freq</em> indicates that the alphabetical word is more frequent and thus is predicted to be placed first, while a negative value indicates that the nonalphabetical word is more frequent. The constraints are as follows <span class="citation" data-cites="morganModelingIdiosyncraticPreferences2015">(taken from <a href="#ref-morganModelingIdiosyncraticPreferences2015" role="doc-biblioref">Morgan &amp; Levy, 2015</a>)</span>:</p>
+<ul>
+<li><p><strong>Length</strong>: The shorter word should appear first, e.g.&nbsp;<em>abused and neglected</em>.</p></li>
+<li><p><strong>No Final Stress</strong>: The final syllable of the second word should not be stressed, e.g.&nbsp;<em>abused and neglected</em>.</p></li>
+<li><p><strong>Lapse:</strong> Avoid unstressed syllables in a row, e.g.&nbsp;<em>FARMS and HAY-fields</em> vs <em>HAY-fields and FARMS</em></p></li>
+<li><p><strong>Frequency</strong>: The more frequent word comes first, e.g.&nbsp;<em>bride and groom</em>.</p></li>
+<li><p><strong>Formal Markedness</strong>: The word with more general meaning or broader distribution comes first, e.g.&nbsp;<em>boards and two-by-fours</em>.</p></li>
+<li><p><strong>Perceptual Markedness</strong>: Elements that are more closely connected to the speaker come first. This constraint encompasses <span class="citation" data-cites="cooper1975world">Cooper &amp; Ross (<a href="#ref-cooper1975world" role="doc-biblioref">1975</a>)</span>‘s (1975) `Me First’ constraint and includes numerous subconstraints, e.g.: animates precede inanimates; concrete words precede abstract words; e.g.&nbsp;<em>deer and trees</em>.</p></li>
+<li><p><strong>Power</strong>: The more powerful or culturally prioritized word comes first, e.g.&nbsp;<em>clergymen and parishioners</em>.</p></li>
+<li><p><strong>Iconic/scalar sequencing</strong>: Elements that exist in sequence should be ordered in sequence, e.g.&nbsp;<em>achieved and maintained</em>.</p></li>
+<li><p><strong>Cultural Centrality</strong>: The more culturally central or common element should come first, e.g.&nbsp;<em>oranges and grapefruits</em>.</p></li>
+<li><p><strong>Intensity</strong>: The element with more intensity appear first, e.g.&nbsp;<em>war and peace</em>.</p></li>
+</ul>
+</section>
+</section>
+<section id="experiment-1" class="level1">
+<h1>Experiment 1</h1>
+<p>In Experiment 1, we examine whether OLMo-7B’s ordering preferences are driven by abstract ordering preferences for novel binomials. In order to do so, we created a list of binomials and searched the Dolma corpus we created to confirm that they did not occur in either alphabetical or nonalphabetical ordering. Both authors then coded the binomials for each of the constraints mentioned earlier and disagreements were resolved by discussion. We then examined whether OLMo-7B shows any preference for one ordering over the other for each binomial. If OLMo has developed any abstract ordering preferences, it should show a systematic preference for one ordering over the other. If it is just reproducing the binomials in ordering based purely off the frequency of the items in its input, we should see only an effect of the frequency constraint (i.e., it should simply show a preference to place the more frequent word first).</p>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<section id="language-model-predictions" class="level3">
+<h3 class="anchored" data-anchor-id="language-model-predictions">Language Model Predictions</h3>
+<p>For each model, we calculated the ordering preferences of the alphabetical form (a neutral reference order) for each of our 131 binomials in the dataset. The predicted probability of the alphabetical form was calculated as the product of the model’s predicted probability of each word in the binomial. In order to accurately calculate the probability of the first word in the binomial, each binomial was given the prefix “Next item:”. Thus the probability of the alphabetical form, <em>A and B,</em> is:</p>
+<p><span id="eq-probalpha"><span class="math display">\[
+\begin{aligned}
+    P_{alphabetical} &amp; = P(A|\text{`Next item:'} )\\      
+    &amp; \times P(and|\text{`Next item: A'})\\      
+    &amp; \times P(B|\text{`Next item: A and'})
+\end{aligned}
+\tag{1}\]</span></span></p>
+<p>where <em>A</em> is the alphabetically first word in the binomial and <em>B</em> is the other word. Similarly, the probability of the nonalphabetical form, <em>B and A</em>, is:</p>
+<p><span id="eq-probnonalpha"><span class="math display">\[
+\begin{aligned}    
+P_{nonalphabetical} &amp; = P(B|\text{`Next item:'})\\
+&amp; \times P(and|\text{`Next item: B'})\\
+&amp; \times P(A|\text{`Next item: B and'})
+\end{aligned}
+\tag{2}\]</span></span></p>
+<p>Finally, we calculated the log odds ratio of the probability of the alphabetical form to the probability of the nonalphabetical form to obtain a single numeric value representing the overall ordering preference for a given binomial. A larger positive value represents a preference for the alphabetical form and a larger negative value represents a preference for the nonalphabetical form:</p>
+<p><span class="math display">\[
+LogOdds(AandB) = log(\frac{P_{alphabetical}}{P_{nonalphabetical}})
+\]</span></p>
+</section>
+<section id="analyses" class="level3">
+<h3 class="anchored" data-anchor-id="analyses">Analyses</h3>
+<p>We present two mixed-effects analyses using Bayesian linear regression models, implemented in <em>brms</em> <span class="citation" data-cites="brms">(<a href="#ref-brms" role="doc-biblioref">Bürkner, 2017</a>)</span> with weak, uninformative priors. For each of our models, the intercept represents the grand mean and the coefficient estimates represent the distance from the grand mean. Bayesian statistics don’t force us into a binary interpretation of significance or non-significance, however we can consider an estimate to be statistically significant if the credible interval for that estimate excludes zero.</p>
+<p>For both analyses, the dependent variable is LogOdds(AandB), which was described above. Our dependent variable in the first analysis is the abstract ordering preference for each binomial (AbsPref)<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>. Our dependent variables in the second analysis are the individual constraints that are used to calculate AbsPref. The model equations are below in <a href="#eq-m1" class="quarto-xref">Equation&nbsp;3</a> and <a href="#eq-m2" class="quarto-xref">Equation&nbsp;4</a>. Note that Formal Markedness and Iconicity were dropped from the second model because the constraint values were zero for all of the binomials. Further, our constraints demonstrated a level of co-linearity. Co-linearity can result in poor model estimates and inflated credible intervals. In order to deal with this, we dropped the constraint with the highest variance inflation factor (which turned out to be the lapse constraint). We then performed backward model selection and dropped the predictors whose credible intervals were most centered around zero. This resulted in dropping the no final stress, intense, and percept constraints. We acknowledge that this approach is quite exploratory and thus interpretations at the level of the individual constraint must be taken with a grain of salt.</p>
+<p><span id="eq-m1"><span class="math display">\[
+LogOdds(AandB) \sim AbsPref
+\tag{3}\]</span></span></p>
+<p><span id="eq-m2"><span class="math display">\[
+LogOdds(AandB) \sim Culture + Power + Freq + Len
+\tag{4}\]</span></span></p>
+</section>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<p>The results for the first analysis are presented below in <a href="#tbl-exp1m1" class="quarto-xref">Table&nbsp;1</a>. Our results suggest that there is a main-effect of abstract ordering preference for OLMo’s 7B model. A visualization of these results can be found below in <a href="#fig-exp1m1" class="quarto-xref">Figure&nbsp;1</a>.</p>
+<div class="cell">
+<div id="tbl-exp1m1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-exp1m1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Model results examining the effect of AbsPref on LogOdds(AandB).
+</figcaption>
+<div aria-describedby="tbl-exp1m1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Estimate</th>
+<th style="text-align: left;">Est.Error</th>
+<th style="text-align: left;">Q2.5</th>
+<th style="text-align: left;">Q97.5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Intercept</td>
+<td style="text-align: left;">-1.370</td>
+<td style="text-align: left;">0.636</td>
+<td style="text-align: left;">-2.672</td>
+<td style="text-align: left;">-0.222</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AbsPref</td>
+<td style="text-align: left;">2.547</td>
+<td style="text-align: left;">1.274</td>
+<td style="text-align: left;">0.291</td>
+<td style="text-align: left;">5.151</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-exp1m1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-exp1m1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nonce_binoms_writeup_files/figure-html/fig-exp1m1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-exp1m1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Visualization of the effects of AbsPref on LogOdds(AandB)
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>While these results suggest that the large language models’ ordering preferences are sensitive to similar factors as humans, it’s unclear whether this similarity holds on the level of the individual constraints. Thus, in the second analysis we examine which specific constraints the model is sensitive to, and to what extent.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> For this analysis, following <span class="citation" data-cites="houghtonTaskdependentConsequencesDisfluency2024">Z. Houghton et al. (<a href="#ref-houghtonTaskdependentConsequencesDisfluency2024" role="doc-biblioref">2024</a>)</span>, we also present the percentage of posterior samples greater than zero. The results of this analysis can be found below in <a href="#tbl-exp1m2" class="quarto-xref">Table&nbsp;2</a>.</p>
+<div class="cell">
+<div id="tbl-exp1m2" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-exp1m2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Model results examining the effect of each individual constraint on LogOdds(AandB).
+</figcaption>
+<div aria-describedby="tbl-exp1m2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Estimate</th>
+<th style="text-align: left;">Est.Error</th>
+<th style="text-align: left;">Q2.5</th>
+<th style="text-align: left;">Q97.5</th>
+<th style="text-align: right;">% Samples &gt; 0</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Intercept</td>
+<td style="text-align: left;">-0.132</td>
+<td style="text-align: left;">0.163</td>
+<td style="text-align: left;">-0.451</td>
+<td style="text-align: left;">0.185</td>
+<td style="text-align: right;">20.750</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Culture</td>
+<td style="text-align: left;">0.414</td>
+<td style="text-align: left;">0.254</td>
+<td style="text-align: left;">-0.078</td>
+<td style="text-align: left;">0.916</td>
+<td style="text-align: right;">94.945</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Power</td>
+<td style="text-align: left;">0.720</td>
+<td style="text-align: left;">0.263</td>
+<td style="text-align: left;">0.204</td>
+<td style="text-align: left;">1.236</td>
+<td style="text-align: right;">99.665</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Freq</td>
+<td style="text-align: left;">0.091</td>
+<td style="text-align: left;">0.087</td>
+<td style="text-align: left;">-0.079</td>
+<td style="text-align: left;">0.263</td>
+<td style="text-align: right;">85.170</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Len</td>
+<td style="text-align: left;">-0.209</td>
+<td style="text-align: left;">0.134</td>
+<td style="text-align: left;">-0.476</td>
+<td style="text-align: left;">0.052</td>
+<td style="text-align: right;">5.870</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The model is most sensitive to the Power constraint, however there appears to be a marginal effect of Culture as well, since nearly 95% of the posterior samples are greater than zero despite the credible interval crossing zero. Surprisingly, there also appears to be a negative effect of length with a slight preference to place the longer word first, which is the opposite direction from what we see in humans. Length is often correlated with frequency, since frequent words tend to be shorter. As such, we ran a model without frequency to determine whether the negative effect of length was do to co-linearity with frequency. However, dropping frequency from the model did not affect the effect of length. Further, we also ran a model with only length as the predictor and for that model as well the estimate of length remained negative.</p>
+</section>
+<section id="discussion" class="level2">
+<h2 class="anchored" data-anchor-id="discussion">Discussion</h2>
+<p>The present experiment found that OLMo-7B has learned abstract ordering preferences even for novel binomials that it has never seen before. Further, these ordering preferences aren’t simply based on the individual word frequencies. Specifically, we find a main-effect of abstract ordering preferences on the model’s binomial ordering preferences. Additionally, we find a strong preference to place the more powerful word first, a weak preference to place the more culturally central word first, and a weak preference to place the longer word first.</p>
+<p>These results together suggest that the model is learning abstract ordering preferences but these are not identical to humans. For example, while humans also show a preference for placing the more powerful and more culturally central words first, humans also prefer to place the <em>shorter</em> word first <span class="citation" data-cites="morganAbstractKnowledgeDirect2016 morganModelingIdiosyncraticPreferences2015">(<a href="#ref-morganModelingIdiosyncraticPreferences2015" role="doc-biblioref">Morgan &amp; Levy, 2015</a>, <a href="#ref-morganAbstractKnowledgeDirect2016" role="doc-biblioref">2016a</a>)</span>. However, we find the opposite finding: large language models prefer to place the longer word first. One explanation for this is a difference in terms of the input between humans and large language models. The length constraint is determined by the number of syllables. Syllables are salient cues in the audio that humans receive during learning [<strong>NEED CITATION]</strong>, but it’s less clear how salient of a cue this is for large language models, which receive sub-word tokens (which vary in their size, from being individual orthographic symbols to being entire words<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>).</p>
+</section>
+</section>
+<section id="experiment-2" class="level1">
+<h1>Experiment 2</h1>
+<p>In Experiment 1 we demonstrated that large language models are not simply copying their training, but are learning some abstract ordering preferences from their input. However, OLMo makes public various checkpoints during the model’s training, thus allowing us the opportunity to examine how these preferences arise as a function of the training. Thus, in Experiment 2 we examine the evolution of these learned abstract ordering preferences as the model learns over time.</p>
+<section id="methods-1" class="level2">
+<h2 class="anchored" data-anchor-id="methods-1">Methods</h2>
+<section id="language-model-predictions-1" class="level3">
+<h3 class="anchored" data-anchor-id="language-model-predictions-1">Language Model Predictions</h3>
+<p>Our language model predictions in Experiment 2 were obtained using the same procedure as in Experiment 1. However, instead of calculating these metrics only for the main model, we calculated them at various checkpoints. These checkpoints are listed below, in terms of the steps as well as the number of billions of tokens the model had been trained on at that checkpoint:</p>
+<ul>
+<li><p>Step 0, 0B Tokens</p></li>
+<li><p>Step 1000, 2B Tokens</p></li>
+<li><p>Step 10000, 41B Tokens</p></li>
+<li><p>Step 50000, 209B Tokens</p></li>
+<li><p>Step 100000, 419B Tokens</p></li>
+<li><p>Step 200000, 838B Tokens</p></li>
+<li><p>Step 400000, Tokens 1677B</p></li>
+</ul>
+</section>
+<section id="analysis" class="level3">
+<h3 class="anchored" data-anchor-id="analysis">Analysis</h3>
+<p>We ran the same two analyses as in Experiment 1, however, we ran these analyses for the each of the checkpoints listed above.</p>
+</section>
+</section>
+<section id="results-1" class="level2">
+<h2 class="anchored" data-anchor-id="results-1">Results</h2>
+<p>Our model estimates for the effect of AbsPref on LogOdds(AandB) at each checkpoint are presented below in <a href="#tbl-exp2m1" class="quarto-xref">Table&nbsp;3</a> and visualized in <a href="#fig-exp2m1" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<div class="cell">
+<div id="tbl-exp2m1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-exp2m1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Model results examining the effect of AbsPref on LogOdds(AandB) for each checkpoint.
+</figcaption>
+<div aria-describedby="tbl-exp2m1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Number of Tokens</th>
+<th style="text-align: left;">Estimate</th>
+<th style="text-align: left;">Est.Error</th>
+<th style="text-align: left;">Q2.5</th>
+<th style="text-align: left;">Q97.5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">0B</td>
+<td style="text-align: left;">0.189</td>
+<td style="text-align: left;">0.789</td>
+<td style="text-align: left;">-1.303</td>
+<td style="text-align: left;">1.787</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2B</td>
+<td style="text-align: left;">1.210</td>
+<td style="text-align: left;">1.346</td>
+<td style="text-align: left;">-0.944</td>
+<td style="text-align: left;">4.404</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">41B</td>
+<td style="text-align: left;">0.869</td>
+<td style="text-align: left;">1.167</td>
+<td style="text-align: left;">-1.119</td>
+<td style="text-align: left;">3.472</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">209B</td>
+<td style="text-align: left;">1.051</td>
+<td style="text-align: left;">1.040</td>
+<td style="text-align: left;">-0.776</td>
+<td style="text-align: left;">3.375</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">419B</td>
+<td style="text-align: left;">1.700</td>
+<td style="text-align: left;">1.216</td>
+<td style="text-align: left;">-0.355</td>
+<td style="text-align: left;">4.326</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">838B</td>
+<td style="text-align: left;">1.770</td>
+<td style="text-align: left;">1.267</td>
+<td style="text-align: left;">-0.320</td>
+<td style="text-align: left;">4.585</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1677B</td>
+<td style="text-align: left;">3.858</td>
+<td style="text-align: left;">1.516</td>
+<td style="text-align: left;">0.948</td>
+<td style="text-align: left;">6.825</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The model results are visualized below in <a href="#fig-exp2m1" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-exp2m1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-exp2m1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nonce_binoms_writeup_files/figure-html/fig-exp2m1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-exp2m1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Visualization of the model predictions for the effect of AbsPref on LogOdds(AandB) for each checkpoint.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Our results demonstrate that it takes quite a large number of tokens for the model to learn the abstract ordering preferences. As <a href="#fig-exp2m1" class="quarto-xref">Figure&nbsp;2</a> demonstrates, the effect of abstract ordering preference isn’t convincing until the model has experienced 419 billion tokens. However, it does appear that the model develops a slight preference quite rapidly. For example, by 2 billion tokens there appears to be a very slight (though unconvincing) effect of abstract ordering preferences on the ordering of binomials.</p>
+<p>Similar to Experiment 1, in our second analysis we present a breakdown of the effects of each individual constraint. In this analysis, however, we demonstrate the effect of each constraint at each checkpoint. The full table results can be found in the <a href="#sec-individual-constraints-at-each-checkpoint" class="quarto-xref">Section&nbsp;8</a>, but we present a visualization below in <a href="#fig-exp2m2" class="quarto-xref">Figure&nbsp;3</a>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-exp2m2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-exp2m2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nonce_binoms_writeup_files/figure-html/fig-exp2m2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="768">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-exp2m2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Visualization of the effect of each constraint on the ordering preference at each checkpoint.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Interestingly, it appears that early on the model already shows evidence of learning human-like preferences. For example, by 10 billion tokens, the model has learned to place more powerful words first and shorter words first. However, the model seems slower to learn to place more culturally central words first. Further, as it receives more training the effect of length undergoes a reversal in direction.</p>
+</section>
+<section id="discussion-1" class="level2">
+<h2 class="anchored" data-anchor-id="discussion-1">Discussion</h2>
+<p>Our results demonstrate that OLMo learns human-like ordering preferences early on for most of the constraints, but takes longer to learn human-like ordering preferences for the culture constraint. Further, the model is human-like in its predictions for length early on, but as it receives more training data it learns the opposite length prediction. It is unclear what exactly is causing this reversal, but as we suggested earlier it may be a function of the tokenization differences between human input and large language models’ input. We look forward to examining this question in more depth in future studies.</p>
+<p>Our results can also be interpreted as predictions for human data. For example, it takes the model longer to learn the Culture constraint than the other constraints. Is the same true for humans?</p>
+<p>Finally, previous results suggest that for non-novel binomials that OLMo has experienced before, it relies almost exclusively on its experience with it in its training data (i.e., its ordering preference is primarily driven by the proportion of occurrences in alphabetical to nonalphabetical ordering) and does not use abstract ordering preferences at all <span class="citation" data-cites="HoughtonMorgan2025">(<a href="#ref-HoughtonMorgan2025" role="doc-biblioref">Z. N. Houghton et al., 2025</a>)</span>. Our results thus suggest that while large language models are able to learn abstract ordering preferences, in cases where they’ve seen the binomial they are able to rely on their experience more than a human can.</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>In the present study, we examined the ordering preferences in OLMo 7B’s main model as well as the model at various stages in learning. We found that the main model shows human-like ordering preferences, with the exception of a preference for longer words before shorter words. Further, we show that while the effect of abstract ordering preference on a whole takes a great deal of time (over 400 billion tokens to be convincing), the model seems to pick up on individual constraints quite early on, and initially even learns the correct direction of the length constraint.</p>
+<p>Our results suggest that large language models are not simply copying their input, but are learning interesting, human-like phenomena from their training. However, they are not learning identically to humans, as demonstrated by the opposite direction of the length preference. This is not surprising given the differences in tokenization methods. Further, while humans rely on abstract preferences even for binomials that they have encountered before, large language models only rely on abstract ordering preferences for items that they have not encountered at all.</p>
+</section>
+<section id="limitations" class="level1">
+<h1>Limitations</h1>
+<p>The main limitation is the number of models tested. We only tested one model in this study, so it’s possible that other large language models may demonstrate different ordering preferences. However, we believe that the advantages of demonstrating an in-depth analysis of a single model outweigh a more broad analysis of several models, especially given the lack of easily available open access training data, which is crucial to guaranteeing that the model has not encountered our items before.</p>
+<p>Additionally, we only test one construction in this paper (binomials). While it is possible that abstract ordering preferences for binomials are different than other constructions, binomials are well understood in the human linguistics literature thus making them a good test case for our analyses.</p>
+</section>
+<section id="references" class="level1 unnumbered">
+<h1 class="unnumbered">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-ambridge2020" class="csl-entry" role="listitem">
+Ambridge, B. (2020). Against stored abstractions: A radical exemplar model of language acquisition. <em>First Language</em>, <em>40</em>(5-6), 509–559. <a href="https://doi.org/10.1177/0142723719869731">https://doi.org/10.1177/0142723719869731</a>
+</div>
+<div id="ref-benderDangersStochasticParrots2021" class="csl-entry" role="listitem">
+Bender, E. M., Gebru, T., McMillan-Major, A., &amp; Shmitchell, S. (2021). <em>FAccT ’21: 2021 ACM Conference on Fairness, Accountability, and Transparency</em>. 610–623. <a href="https://doi.org/10.1145/3442188.3445922">https://doi.org/10.1145/3442188.3445922</a>
+</div>
+<div id="ref-bender2020climbing" class="csl-entry" role="listitem">
+Bender, E. M., &amp; Koller, A. (2020). Climbing towards NLU: On meaning, form, and understanding in the age of data. <em>Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics</em>, 5185–5198.
+</div>
+<div id="ref-benorChickenEggProbabilistic2006" class="csl-entry" role="listitem">
+Benor, S. B., &amp; Levy, R. (2006). The chicken or the egg? A probabilistic analysis of english binomials. <em>Language</em>, <em>82</em>(2), 233–278. <a href="https://doi.org/10.1353/lan.2006.0077">https://doi.org/10.1353/lan.2006.0077</a>
+</div>
+<div id="ref-berko" class="csl-entry" role="listitem">
+Berko, J. (1958). The Child’s Learning of English Morphology. <em><span><em>WORD</em></span></em>, <em>14</em>(2-3), 150–177. <a href="https://doi.org/10.1080/00437956.1958.11659661">https://doi.org/10.1080/00437956.1958.11659661</a>
+</div>
+<div id="ref-brms" class="csl-entry" role="listitem">
+Bürkner, P.-C. (2017). Brms: An r package for bayesian multilevel models using stan. <em>Journal of Statistical Software</em>, <em>80</em>, 128. <a href="https://www.jstatsoft.org/article/view/v080i01">https://www.jstatsoft.org/article/view/v080i01</a>
+</div>
+<div id="ref-cooper1975world" class="csl-entry" role="listitem">
+Cooper, W. E., &amp; Ross, J. R. (1975). World order. <em>Papers from the Parasession on Functionalism</em>, <em>11</em>, 63–111.
+</div>
+<div id="ref-groeneveldOLMoAcceleratingScience2024" class="csl-entry" role="listitem">
+Groeneveld, D., Beltagy, I., Walsh, P., Bhagia, A., Kinney, R., Tafjord, O., Jha, A. H., Ivison, H., Magnusson, I., Wang, Y., et al. (2024). Olmo: Accelerating the science of language models. <em>arXiv Preprint arXiv:2402.00838</em>.
+</div>
+<div id="ref-haley2020bert" class="csl-entry" role="listitem">
+Haley, C. (2020). This is a BERT. Now there are several of them. Can they generalize to novel words? <em>Proceedings of the Third BlackboxNLP Workshop on Analyzing and Interpreting Neural Networks for NLP</em>, 333–341.
+</div>
+<div id="ref-HoughtonMorgan2025" class="csl-entry" role="listitem">
+Houghton, Z. N., Sagae, K., &amp; Morgan, E. (2025). <em>The role of abstract representations and observed preferences in the ordering of binomials in large language models</em>. University of California, Davis.
+</div>
+<div id="ref-houghtonTaskdependentConsequencesDisfluency2024" class="csl-entry" role="listitem">
+Houghton, Z., Kato, M., Baese-Berk, M., &amp; Vaughn, C. (2024). Task-dependent consequences of disfluency in perception of native and non-native speech. <em>Applied Psycholinguistics</em>, 1–17. <a href="https://doi.org/10.1017/S0142716423000486">https://doi.org/10.1017/S0142716423000486</a>
+</div>
+<div id="ref-lasri2022subject" class="csl-entry" role="listitem">
+Lasri, K., Seminck, O., Lenci, A., &amp; Poibeau, T. (2022). Subject verb agreement error patterns in meaningless sentences: Humans vs. BERT. <em>arXiv Preprint arXiv:2209.10538</em>.
+</div>
+<div id="ref-lebrun2022evaluating" class="csl-entry" role="listitem">
+LeBrun, B., Sordoni, A., &amp; O’Donnell, T. J. (2022). Evaluating distributional distortion in neural language modeling. <em>arXiv Preprint arXiv:2203.12788</em>.
+</div>
+<div id="ref-levy2012" class="csl-entry" role="listitem">
+Levy, R., Fedorenko, E., Breen, M., &amp; Gibson, E. (2012). The processing of extraposed structures in english. <em>Cognition</em>, <em>122</em>(1), 12–36. <a href="https://doi.org/10.1016/j.cognition.2011.07.012">https://doi.org/10.1016/j.cognition.2011.07.012</a>
+</div>
+<div id="ref-liAreNeuralNetworks2021" class="csl-entry" role="listitem">
+Li, B., &amp; Wisniewski, G. (2021). <em>Are neural networks extracting linguistic properties or memorizing training data? An observation with a multilingual probe for predicting tense</em>. <a href="https://shs.hal.science/halshs-03197072/">https://shs.hal.science/halshs-03197072/</a>
+</div>
+<div id="ref-liAssessingCapacityTransformer2023" class="csl-entry" role="listitem">
+Li, B., Wisniewski, G., &amp; Crabbé, B. (2023). Assessing the capacity of transformer to abstract syntactic representations: A contrastive analysis based on long-distance agreement. <em>Transactions of the Association for Computational Linguistics</em>, <em>11</em>, 18–33. <a href="https://doi.org/10.1162/tacl_a_00531">https://doi.org/10.1162/tacl_a_00531</a>
+</div>
+<div id="ref-mccoyUniversalLinguisticInductive2020" class="csl-entry" role="listitem">
+McCoy, R. T., Grant, E., Smolensky, P., Griffiths, T. L., &amp; Linzen, T. (n.d.). <em>Universal linguistic inductive biases via meta-learning</em>. <a href="https://doi.org/10.48550/arXiv.2006.16324">https://doi.org/10.48550/arXiv.2006.16324</a>
+</div>
+<div id="ref-mccoy2023much" class="csl-entry" role="listitem">
+McCoy, R. T., Smolensky, P., Linzen, T., Gao, J., &amp; Celikyilmaz, A. (2023). How much do language models copy from their training data? Evaluating linguistic novelty in text generation using raven. <em>Transactions of the Association for Computational Linguistics</em>, <em>11</em>, 652–670.
+</div>
+<div id="ref-morganModelingIdiosyncraticPreferences2015" class="csl-entry" role="listitem">
+Morgan, E., &amp; Levy, R. (2015). <em>Modeling idiosyncratic preferences : How generative knowledge and expression frequency jointly determine language structure</em>. 1649–1654.
+</div>
+<div id="ref-morganAbstractKnowledgeDirect2016" class="csl-entry" role="listitem">
+Morgan, E., &amp; Levy, R. (2016a). Abstract knowledge versus direct experience in processing of binomial expressions. <em>Cognition</em>, <em>157</em>, 384–402. <a href="https://doi.org/10.1016/j.cognition.2016.09.011">https://doi.org/10.1016/j.cognition.2016.09.011</a>
+</div>
+<div id="ref-morganFrequencydependentRegularizationIterated2016a" class="csl-entry" role="listitem">
+Morgan, E., &amp; Levy, R. (2016b). Frequency-dependent regularization in iterated learning. <em>The Evolution of Language: Proceedings of the 11th International Conference</em>.
+</div>
+<div id="ref-morganProductiveKnowledgeItemspecific2024" class="csl-entry" role="listitem">
+Morgan, E., &amp; Levy, R. (2024). Productive knowledge and item-specific knowledge trade off as a function of frequency in multiword expression processing. <em>Language</em>, <em>100</em>(4), e195–e224. <a href="https://muse.jhu.edu/pub/24/article/947046">https://muse.jhu.edu/pub/24/article/947046</a>
+</div>
+<div id="ref-piantadosiChapterModernLanguage" class="csl-entry" role="listitem">
+Piantadosi, S. T. (2023). Modern language models refute chomsky’s approach to language. <em>From Fieldwork to Linguistic Theory: A Tribute to Dan Everett</em>, 353–414.
+</div>
+<div id="ref-piantadosiMeaningReferenceLarge2022" class="csl-entry" role="listitem">
+Piantadosi, S. T., &amp; Hill, F. (2022). Meaning without reference in large language models. <em>arXiv Preprint arXiv:2208.02957</em>.
+</div>
+<div id="ref-soldainiDolmaOpenCorpus2024" class="csl-entry" role="listitem">
+Soldaini, L., Kinney, R., Bhagia, A., Schwenk, D., Atkinson, D., Authur, R., Bogin, B., Chandu, K., Dumas, J., Elazar, Y., et al. (2024). Dolma: An open corpus of three trillion tokens for language model pretraining research. <em>arXiv Preprint arXiv:2402.00159</em>.
+</div>
+<div id="ref-tartaglini2023deep" class="csl-entry" role="listitem">
+Tartaglini, A. R., Feucht, S., Lepori, M. A., Vong, W. K., Lovering, C., Lake, B. M., &amp; Pavlick, E. (2023). Deep neural networks can learn generalizable same-different visual relations. <em>arXiv Preprint arXiv:2310.09612</em>.
+</div>
+<div id="ref-nyt_v_openai" class="csl-entry" role="listitem">
+<em><span class="nocase">The New York Times Company v. Microsoft Corporation, OpenAI, Inc., OpenAI LP, OpenAI GP, LLC, OpenAI, LLC, OpenAI OpCo LLC, OpenAI Global LLC, OAI Corporation, LLC, and OpenAI Holdings, LLC</span></em>. (2024). Civil Action No. 1:23-cv-11195-SHS, United States District Court, Southern District of New York, May 31, 2024.
+</div>
+<div id="ref-yu2007rapid" class="csl-entry" role="listitem">
+Yu, C., &amp; Smith, L. B. (2007). Rapid word learning under uncertainty via cross-situational statistics. <em>Psychological Science</em>, <em>18</em>(5), 414–420.
+</div>
+<div id="ref-zhengTakeStepBack2024" class="csl-entry" role="listitem">
+Zheng, H. S., Mishra, S., Chen, X., Cheng, H.-T., Chi, E. H., Le, Q. V., &amp; Zhou, D. (n.d.). <em>Take a step back: Evoking reasoning via abstraction in large language models</em>. <a href="https://doi.org/10.48550/arXiv.2310.06117">https://doi.org/10.48550/arXiv.2310.06117</a>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="appendices" class="level1 unnumbered">
+<h1 class="unnumbered">Appendices</h1>
+
+</section>
+
+
+
+
+<div id="quarto-appendix" class="default"><section id="sec-full-list-of-stimuli" class="level1 appendix"><h2 class="anchored quarto-appendix-heading">Full List of Stimuli</h2><div class="quarto-appendix-contents">
+
+<p>Below is a table of our list of binomials as well as the individual constraint values for each.</p>
+<div class="cell">
+<div id="tbl-stimuli" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-stimuli-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Full list of binomials as well as their constraints.
+</figcaption>
+<div aria-describedby="tbl-stimuli-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 12%">
+<col style="width: 4%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 5%">
+<col style="width: 7%">
+<col style="width: 4%">
+<col style="width: 6%">
+<col style="width: 3%">
+<col style="width: 5%">
+<col style="width: 12%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Word1</th>
+<th style="text-align: left;">Word2</th>
+<th style="text-align: right;">Form</th>
+<th style="text-align: right;">Percept</th>
+<th style="text-align: right;">Culture</th>
+<th style="text-align: right;">Power</th>
+<th style="text-align: right;">Intense</th>
+<th style="text-align: right;">Icon</th>
+<th style="text-align: right;">Freq</th>
+<th style="text-align: right;">Len</th>
+<th style="text-align: right;">Lapse</th>
+<th style="text-align: right;">Final Stress</th>
+<th style="text-align: right;">AbsPref</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">kiwis</td>
+<td style="text-align: left;">wolverines</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.291</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.427</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">kiwis</td>
+<td style="text-align: left;">narwhals</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.715</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.515</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">kiwis</td>
+<td style="text-align: left;">ocelots</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.737</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.458</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ibex</td>
+<td style="text-align: left;">kiwis</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.171</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.497</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">harpies</td>
+<td style="text-align: left;">kiwis</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.948</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.471</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">axolotls</td>
+<td style="text-align: left;">wolverines</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-2.689</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.262</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">axolotls</td>
+<td style="text-align: left;">ibex</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.228</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.331</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">axolotls</td>
+<td style="text-align: left;">harpies</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.450</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.413</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">axolotls</td>
+<td style="text-align: left;">keas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.052</td>
+<td style="text-align: right;">-3</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.591</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">axolotls</td>
+<td style="text-align: left;">bonobos</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.895</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.328</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">axolotls</td>
+<td style="text-align: left;">wombats</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.655</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.266</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">axolotls</td>
+<td style="text-align: left;">lions</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-5.114</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.159</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ocelots</td>
+<td style="text-align: left;">platypuses</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.665</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.525</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ibex</td>
+<td style="text-align: left;">platypuses</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.232</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.691</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">harpies</td>
+<td style="text-align: left;">platypuses</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.454</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.585</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">keas</td>
+<td style="text-align: left;">platypuses</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.048</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.459</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bonobos</td>
+<td style="text-align: left;">platypuses</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.898</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.612</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">harpies</td>
+<td style="text-align: left;">wolverines</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-2.239</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.571</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">keas</td>
+<td style="text-align: left;">wolverines</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-3.741</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.285</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bonobos</td>
+<td style="text-align: left;">wolverines</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.795</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.426</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">capybaras</td>
+<td style="text-align: left;">ibex</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.659</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.356</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">capybaras</td>
+<td style="text-align: left;">harpies</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.882</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.404</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">capybaras</td>
+<td style="text-align: left;">keas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.621</td>
+<td style="text-align: right;">-3</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.593</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ibex</td>
+<td style="text-align: left;">narwhals</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.544</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.536</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">harpies</td>
+<td style="text-align: left;">narwhals</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.767</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.423</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">keas</td>
+<td style="text-align: left;">narwhals</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.736</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.362</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ibex</td>
+<td style="text-align: left;">ocelots</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.566</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.576</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">keas</td>
+<td style="text-align: left;">ocelots</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.714</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.340</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bonobos</td>
+<td style="text-align: left;">ocelots</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.233</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.594</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">harpies</td>
+<td style="text-align: left;">ibex</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.777</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.391</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ibex</td>
+<td style="text-align: left;">keas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.280</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.729</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bonobos</td>
+<td style="text-align: left;">ibex</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.333</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.419</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ibex</td>
+<td style="text-align: left;">koalas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.433</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.471</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ibex</td>
+<td style="text-align: left;">sloths</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.035</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.427</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aardvarks</td>
+<td style="text-align: left;">ibex</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.945</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.568</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">harpies</td>
+<td style="text-align: left;">keas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.503</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.569</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bonobos</td>
+<td style="text-align: left;">harpies</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.444</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.470</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">harpies</td>
+<td style="text-align: left;">koalas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.210</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.359</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">harpies</td>
+<td style="text-align: left;">wombats</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.204</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.467</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aardvarks</td>
+<td style="text-align: left;">harpies</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.167</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.579</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bonobos</td>
+<td style="text-align: left;">keas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.947</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.656</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">keas</td>
+<td style="text-align: left;">koalas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-2.712</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.339</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">keas</td>
+<td style="text-align: left;">sloths</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-2.315</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.301</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">keas</td>
+<td style="text-align: left;">wombats</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.707</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.289</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">keas</td>
+<td style="text-align: left;">lions</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-6.166</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.217</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aardvarks</td>
+<td style="text-align: left;">keas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.335</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.695</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bonobos</td>
+<td style="text-align: left;">wombats</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.240</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.496</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">aardvarks</td>
+<td style="text-align: left;">bonobos</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.611</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.551</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ocarinas</td>
+<td style="text-align: left;">vibraphones</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.461</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.540</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cymbals</td>
+<td style="text-align: left;">ocarinas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.485</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.786</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">clarinets</td>
+<td style="text-align: left;">ocarinas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.245</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.742</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cellos</td>
+<td style="text-align: left;">ocarinas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.344</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.720</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">didgeridoos</td>
+<td style="text-align: left;">vibraphones</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.533</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.479</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">lutes</td>
+<td style="text-align: left;">marimbas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.225</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.645</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">kalimbas</td>
+<td style="text-align: left;">lutes</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-2.407</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.342</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">clarinets</td>
+<td style="text-align: left;">kalimbas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.827</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.752</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">kalimbas</td>
+<td style="text-align: left;">trumpets</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-4.437</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.234</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cellos</td>
+<td style="text-align: left;">kalimbas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.926</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.751</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">kalimbas</td>
+<td style="text-align: left;">saxophones</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-3.124</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.252</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">lutes</td>
+<td style="text-align: left;">saxophones</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.717</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.398</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">casserole</td>
+<td style="text-align: left;">eagle</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.526</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.410</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">kite</td>
+<td style="text-align: left;">linguist</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.602</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.656</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">algorithm</td>
+<td style="text-align: left;">perfume</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.992</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.280</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">forest</td>
+<td style="text-align: left;">screwdriver</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.294</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.612</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">slipper</td>
+<td style="text-align: left;">volcano</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.806</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.540</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">harmonica</td>
+<td style="text-align: left;">microscope</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.745</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.437</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cookbook</td>
+<td style="text-align: left;">zenith</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.136</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.722</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">hammock</td>
+<td style="text-align: left;">hydrogen</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-2.060</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.410</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">neuron</td>
+<td style="text-align: left;">toaster</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.383</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.309</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">marshmallow</td>
+<td style="text-align: left;">telescope</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.166</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.439</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">casserole</td>
+<td style="text-align: left;">optics</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.665</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.557</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">encyclopedia</td>
+<td style="text-align: left;">comet</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.947</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.420</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">nimbus</td>
+<td style="text-align: left;">waffle</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.680</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.312</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">photon</td>
+<td style="text-align: left;">pumpkin</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.793</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.367</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">lantern</td>
+<td style="text-align: left;">syntax</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.941</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.609</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo</td>
+<td style="text-align: left;">vineyard</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.884</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.484</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">nebula</td>
+<td style="text-align: left;">snowman</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.182</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.320</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">botany</td>
+<td style="text-align: left;">teapot</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.438</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.325</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">chisel</td>
+<td style="text-align: left;">kaleidoscope</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.139</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.606</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">lava</td>
+<td style="text-align: left;">teacup</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.969</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.405</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">entropy</td>
+<td style="text-align: left;">orchard</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.370</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.361</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">axolotl</td>
+<td style="text-align: left;">vineyard</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-3.510</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.417</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">clockwork</td>
+<td style="text-align: left;">meadow</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.987</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.464</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">algebra</td>
+<td style="text-align: left;">telescope</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">8.751</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.634</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">arcade</td>
+<td style="text-align: left;">topaz</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.276</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.554</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">asteroid</td>
+<td style="text-align: left;">compass</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.862</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.452</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bicycle</td>
+<td style="text-align: left;">nebula</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.991</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.703</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bungalow</td>
+<td style="text-align: left;">entropy</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.198</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.535</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">carnation</td>
+<td style="text-align: left;">gnome</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.769</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.354</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cinnamon</td>
+<td style="text-align: left;">harmonica</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.300</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.688</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">coral</td>
+<td style="text-align: left;">syntax</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.020</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.627</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">dandelion</td>
+<td style="text-align: left;">pendulum</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.533</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.409</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">delirium</td>
+<td style="text-align: left;">telescope</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.442</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.294</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">anchors</td>
+<td style="text-align: left;">sandstorms</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.416</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.593</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">scissors</td>
+<td style="text-align: left;">volcanoes</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.577</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.594</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">equations</td>
+<td style="text-align: left;">lanterns</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.297</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.454</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">satellites</td>
+<td style="text-align: left;">tulips</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.493</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.479</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">compasses</td>
+<td style="text-align: left;">hedgehogs</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.612</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.400</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">comets</td>
+<td style="text-align: left;">neckties</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.294</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.516</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">castles</td>
+<td style="text-align: left;">headphones</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.098</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.402</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">paperclips</td>
+<td style="text-align: left;">pyramids</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-2.884</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.483</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">constellations</td>
+<td style="text-align: left;">kettles</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.938</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.389</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">kaleidoscopes</td>
+<td style="text-align: left;">whales</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-4.654</td>
+<td style="text-align: right;">-3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.147</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">meadows</td>
+<td style="text-align: left;">pianos</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.147</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.403</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">magnets</td>
+<td style="text-align: left;">zebras</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.821</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.586</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">parrots</td>
+<td style="text-align: left;">submarines</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.346</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.492</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">crayons</td>
+<td style="text-align: left;">jungles</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.286</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.671</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">harbor</td>
+<td style="text-align: left;">teapot</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.561</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.457</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">notebook</td>
+<td style="text-align: left;">quicksand</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.309</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.614</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">glacier</td>
+<td style="text-align: left;">lantern</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.285</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.450</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">microscope</td>
+<td style="text-align: left;">puddle</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.361</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.538</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">compass</td>
+<td style="text-align: left;">swan</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.199</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.371</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bonsai</td>
+<td style="text-align: left;">cathedral</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-2.004</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.540</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">honeycomb</td>
+<td style="text-align: left;">violin</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.398</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.374</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">sailboat</td>
+<td style="text-align: left;">stadium</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-3.213</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.468</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">acorns</td>
+<td style="text-align: left;">skyscrapers</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.399</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.635</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bell</td>
+<td style="text-align: left;">trellis</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.327</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.740</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">inkwell</td>
+<td style="text-align: left;">kite</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-3.215</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.305</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">foxglove</td>
+<td style="text-align: left;">trombone</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.888</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.403</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">carousel</td>
+<td style="text-align: left;">quill</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.942</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.554</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">lighthouse</td>
+<td style="text-align: left;">onion</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.153</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.359</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cactus</td>
+<td style="text-align: left;">chessboard</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.084</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.513</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">gallery</td>
+<td style="text-align: left;">raindrop</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5.058</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-2</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.582</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cricket</td>
+<td style="text-align: left;">plow</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.370</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.474</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">gingerbread</td>
+<td style="text-align: left;">fresco</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.345</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.619</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cello</td>
+<td style="text-align: left;">sunflower</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.417</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.535</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">archway</td>
+<td style="text-align: left;">quilt</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-2.775</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.409</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">compass</td>
+<td style="text-align: left;">haystack</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2.338</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.514</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">beacon</td>
+<td style="text-align: left;">millipede</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.030</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.531</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">parchment</td>
+<td style="text-align: left;">windmill</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.990</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">0.485</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">candlestick</td>
+<td style="text-align: left;">meadow</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.463</td>
+<td style="text-align: right;">-1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.540</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</div></section><section id="sec-individual-constraints-at-each-checkpoint" class="level1 appendix"><h2 class="anchored quarto-appendix-heading">Individual Constraints at Each Checkpoint</h2><div class="quarto-appendix-contents">
+
+<p>Below is a table of the fixed-effects for each individual constraint at each checkpoint.</p>
+<div class="cell">
+<div id="tbl-exp2m2" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-exp2m2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Model results examining the effect of each individual constraint on LogOdds(AandB).
+</figcaption>
+<div aria-describedby="tbl-exp2m2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">num_tokens</th>
+<th style="text-align: left;">Estimate</th>
+<th style="text-align: left;">Est.Error</th>
+<th style="text-align: left;">Q2.5</th>
+<th style="text-align: left;">Q97.5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Intercept</td>
+<td style="text-align: left;">0B</td>
+<td style="text-align: left;">0.223</td>
+<td style="text-align: left;">0.159</td>
+<td style="text-align: left;">-0.087</td>
+<td style="text-align: left;">0.539</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Culture</td>
+<td style="text-align: left;">0B</td>
+<td style="text-align: left;">0.149</td>
+<td style="text-align: left;">0.244</td>
+<td style="text-align: left;">-0.327</td>
+<td style="text-align: left;">0.623</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Power</td>
+<td style="text-align: left;">0B</td>
+<td style="text-align: left;">0.286</td>
+<td style="text-align: left;">0.249</td>
+<td style="text-align: left;">-0.207</td>
+<td style="text-align: left;">0.777</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Freq</td>
+<td style="text-align: left;">0B</td>
+<td style="text-align: left;">-0.070</td>
+<td style="text-align: left;">0.082</td>
+<td style="text-align: left;">-0.232</td>
+<td style="text-align: left;">0.091</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Len</td>
+<td style="text-align: left;">0B</td>
+<td style="text-align: left;">0.030</td>
+<td style="text-align: left;">0.127</td>
+<td style="text-align: left;">-0.220</td>
+<td style="text-align: left;">0.278</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Intercept</td>
+<td style="text-align: left;">2B</td>
+<td style="text-align: left;">-0.027</td>
+<td style="text-align: left;">0.256</td>
+<td style="text-align: left;">-0.529</td>
+<td style="text-align: left;">0.478</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Culture</td>
+<td style="text-align: left;">2B</td>
+<td style="text-align: left;">-0.399</td>
+<td style="text-align: left;">0.390</td>
+<td style="text-align: left;">-1.161</td>
+<td style="text-align: left;">0.361</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Power</td>
+<td style="text-align: left;">2B</td>
+<td style="text-align: left;">0.531</td>
+<td style="text-align: left;">0.404</td>
+<td style="text-align: left;">-0.250</td>
+<td style="text-align: left;">1.334</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Freq</td>
+<td style="text-align: left;">2B</td>
+<td style="text-align: left;">0.258</td>
+<td style="text-align: left;">0.135</td>
+<td style="text-align: left;">-0.008</td>
+<td style="text-align: left;">0.524</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Len</td>
+<td style="text-align: left;">2B</td>
+<td style="text-align: left;">0.492</td>
+<td style="text-align: left;">0.212</td>
+<td style="text-align: left;">0.076</td>
+<td style="text-align: left;">0.909</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Intercept</td>
+<td style="text-align: left;">41B</td>
+<td style="text-align: left;">0.179</td>
+<td style="text-align: left;">0.229</td>
+<td style="text-align: left;">-0.268</td>
+<td style="text-align: left;">0.628</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Culture</td>
+<td style="text-align: left;">41B</td>
+<td style="text-align: left;">-0.377</td>
+<td style="text-align: left;">0.347</td>
+<td style="text-align: left;">-1.065</td>
+<td style="text-align: left;">0.305</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Power</td>
+<td style="text-align: left;">41B</td>
+<td style="text-align: left;">1.290</td>
+<td style="text-align: left;">0.373</td>
+<td style="text-align: left;">0.568</td>
+<td style="text-align: left;">2.037</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Freq</td>
+<td style="text-align: left;">41B</td>
+<td style="text-align: left;">-0.035</td>
+<td style="text-align: left;">0.121</td>
+<td style="text-align: left;">-0.274</td>
+<td style="text-align: left;">0.202</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Len</td>
+<td style="text-align: left;">41B</td>
+<td style="text-align: left;">0.807</td>
+<td style="text-align: left;">0.188</td>
+<td style="text-align: left;">0.438</td>
+<td style="text-align: left;">1.179</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Intercept</td>
+<td style="text-align: left;">209B</td>
+<td style="text-align: left;">0.176</td>
+<td style="text-align: left;">0.182</td>
+<td style="text-align: left;">-0.186</td>
+<td style="text-align: left;">0.537</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Culture</td>
+<td style="text-align: left;">209B</td>
+<td style="text-align: left;">0.290</td>
+<td style="text-align: left;">0.283</td>
+<td style="text-align: left;">-0.268</td>
+<td style="text-align: left;">0.847</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Power</td>
+<td style="text-align: left;">209B</td>
+<td style="text-align: left;">0.760</td>
+<td style="text-align: left;">0.289</td>
+<td style="text-align: left;">0.194</td>
+<td style="text-align: left;">1.327</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Freq</td>
+<td style="text-align: left;">209B</td>
+<td style="text-align: left;">-0.056</td>
+<td style="text-align: left;">0.096</td>
+<td style="text-align: left;">-0.244</td>
+<td style="text-align: left;">0.132</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Len</td>
+<td style="text-align: left;">209B</td>
+<td style="text-align: left;">-0.063</td>
+<td style="text-align: left;">0.150</td>
+<td style="text-align: left;">-0.358</td>
+<td style="text-align: left;">0.234</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Intercept</td>
+<td style="text-align: left;">419B</td>
+<td style="text-align: left;">-0.458</td>
+<td style="text-align: left;">0.183</td>
+<td style="text-align: left;">-0.816</td>
+<td style="text-align: left;">-0.099</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Culture</td>
+<td style="text-align: left;">419B</td>
+<td style="text-align: left;">-0.125</td>
+<td style="text-align: left;">0.282</td>
+<td style="text-align: left;">-0.679</td>
+<td style="text-align: left;">0.437</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Power</td>
+<td style="text-align: left;">419B</td>
+<td style="text-align: left;">0.508</td>
+<td style="text-align: left;">0.289</td>
+<td style="text-align: left;">-0.056</td>
+<td style="text-align: left;">1.073</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Freq</td>
+<td style="text-align: left;">419B</td>
+<td style="text-align: left;">0.240</td>
+<td style="text-align: left;">0.096</td>
+<td style="text-align: left;">0.053</td>
+<td style="text-align: left;">0.431</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Len</td>
+<td style="text-align: left;">419B</td>
+<td style="text-align: left;">-0.298</td>
+<td style="text-align: left;">0.150</td>
+<td style="text-align: left;">-0.591</td>
+<td style="text-align: left;">-0.005</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Intercept</td>
+<td style="text-align: left;">838B</td>
+<td style="text-align: left;">-0.022</td>
+<td style="text-align: left;">0.184</td>
+<td style="text-align: left;">-0.381</td>
+<td style="text-align: left;">0.335</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Culture</td>
+<td style="text-align: left;">838B</td>
+<td style="text-align: left;">-0.111</td>
+<td style="text-align: left;">0.284</td>
+<td style="text-align: left;">-0.661</td>
+<td style="text-align: left;">0.446</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Power</td>
+<td style="text-align: left;">838B</td>
+<td style="text-align: left;">0.865</td>
+<td style="text-align: left;">0.297</td>
+<td style="text-align: left;">0.283</td>
+<td style="text-align: left;">1.456</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Freq</td>
+<td style="text-align: left;">838B</td>
+<td style="text-align: left;">0.127</td>
+<td style="text-align: left;">0.099</td>
+<td style="text-align: left;">-0.068</td>
+<td style="text-align: left;">0.319</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Len</td>
+<td style="text-align: left;">838B</td>
+<td style="text-align: left;">0.247</td>
+<td style="text-align: left;">0.154</td>
+<td style="text-align: left;">-0.055</td>
+<td style="text-align: left;">0.552</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Intercept</td>
+<td style="text-align: left;">1677B</td>
+<td style="text-align: left;">-0.181</td>
+<td style="text-align: left;">0.176</td>
+<td style="text-align: left;">-0.527</td>
+<td style="text-align: left;">0.159</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Culture</td>
+<td style="text-align: left;">1677B</td>
+<td style="text-align: left;">0.861</td>
+<td style="text-align: left;">0.273</td>
+<td style="text-align: left;">0.326</td>
+<td style="text-align: left;">1.394</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Power</td>
+<td style="text-align: left;">1677B</td>
+<td style="text-align: left;">0.562</td>
+<td style="text-align: left;">0.275</td>
+<td style="text-align: left;">0.031</td>
+<td style="text-align: left;">1.108</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Freq</td>
+<td style="text-align: left;">1677B</td>
+<td style="text-align: left;">0.052</td>
+<td style="text-align: left;">0.091</td>
+<td style="text-align: left;">-0.125</td>
+<td style="text-align: left;">0.230</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Len</td>
+<td style="text-align: left;">1677B</td>
+<td style="text-align: left;">-0.431</td>
+<td style="text-align: left;">0.142</td>
+<td style="text-align: left;">-0.708</td>
+<td style="text-align: left;">-0.156</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>This is magnitudes larger than the 350 million words that the average college-aged speaker has seen in their lifetime <span class="citation" data-cites="levy2012">(<a href="#ref-levy2012" role="doc-biblioref">Levy et al., 2012</a>)</span>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>Our code and datasets for the analyses run in this paper can also be found at: <a href="github.com/%5Banonymous%5D">github.com/[anonymous]</a>.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>We also ran a model examining whether the ordering preferences were driven by the bigram probabilities of the binomial, however surprisingly bigram probabilities turned out to be a poor predictor of ordering preferences.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>It’s also helpful to consider how many of our binomials the constraint even applied to (i.e., how many binomials were the constraints non-zero). For the Culture constraint, 62 of our 131 binomials had a non-zero value. For the Power constraint, 54 did, for the Frequency constraint, all 131 binomials did, and for the Len constraint, 85 did.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>For example, both <em>ictionary</em> and <em>region</em> are individual tokens in OpenAI’s models (<a href="https://gist.github.com/s-macke/ae83f6afb89794350f8d9a1ad8a09193" class="uri">https://gist.github.com/s-macke/ae83f6afb89794350f8d9a1ad8a09193</a>).<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
