@@ -1,0 +1,292 @@
+---
+title: "Human Ordering Preferences"
+author: "Zachary Houghton"
+date: "2025-06-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(brms)
+```
+
+```{r}
+human_prefs = read.csv('../Data/human-prefs.csv') %>%
+  select(-Q10, -`Q9_2_TEXT`)
+binoms = read_csv('../Data/nonce_binoms.csv')
+
+human_prefs = human_prefs[4:nrow(human_prefs),]
+
+human_prefs = human_prefs %>%
+  pivot_longer(!ResponseId, names_to = 'Question', values_to = 'Answer') %>%
+  filter(grepl("^Q", Question)) %>%
+  filter(grepl('and', Answer))
+
+human_prefs = human_prefs %>%
+  mutate(
+    # Split binomial into two words
+    wordA = str_trim(word(Answer, 1)),
+    wordB = str_trim(word(Answer, -1)),
+    
+    # Alphabetically order the two words
+    Word1 = pmin(wordA, wordB),
+    Word2 = pmax(wordA, wordB)
+  ) %>%
+  select(-wordA, -wordB) %>%
+  left_join(binoms)
+
+human_prefs = human_prefs %>%
+  mutate(alpha_answer = case_when(
+    Answer == Alpha ~ 1,
+    Answer == Nonalpha ~ 0
+  ))
+
+
+
+
+```
+Get our LLM Predictions real quick
+
+```{r}
+
+data_main_model = read_csv('../Data/allenai_OLMo-7B-0424-hf.csv')
+corpus = read_csv('../Data/nonce_binoms.csv')
+
+data_main_model = data_main_model %>%
+  mutate(ProbAandB = exp(`Alpha Probs`) / (exp(`Alpha Probs`) + exp(`Nonalpha Probs`))) %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`)
+
+
+data_main_model = data_main_model %>%
+  separate(binom, c('Word1', 'and', 'Word2'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  #mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(checkpoint = 'main') %>%
+  mutate(y_vals = 0.02191943 + 0.23925834*Form +  0.24889543*Percept +  0.41836997*Culture +   0.25967334*Power +  0.01867604*Intense +  1.30365980*Icon +   0.08553552*Freq +  0.15241566*Len - 0.19381657*Lapse +  0.36019221*`*BStress`) %>%
+  mutate(GenPref = 1/(1+exp(-1*y_vals)))
+  #mutate(log_freq = log(OverallFreq))# %>%
+  #mutate(OverallFreq = log_freq - mean(log_freq))# %>%
+  #mutate(GenPref = GenPref - 0.5) %>%
+  #mutate(RelFreq = RelFreq - 0.5)
+
+data_main_model = data_main_model %>%
+  rename(no_final_stress = `*BStress`)
+
+
+
+data_main_model = data_main_model %>%
+  mutate(bigram1_alpha = paste0(Word1, ' and'),
+         bigram2_alpha = paste0('and ', Word2),
+         bigram1_nonalpha = paste0(Word2, ' and'),
+         bigram2_nonalpha = paste0('and ', Word1)
+         )
+
+olmo_preds = data_main_model %>%
+  select(Word1, Word2, GenPref, log_odds)
+
+
+```
+
+```{r}
+human_prefs = human_prefs %>%
+  select(-GenPref) %>%
+  left_join(olmo_preds) %>%
+  mutate(GenPref = GenPref - 0.5) 
+
+human_prefs = human_prefs %>%
+  group_by(ResponseId) %>%
+  mutate(participant = sample(1:1000, size = 1)) %>%
+  mutate(Item = Alpha) #%>%
+  #mutate(log_odds = scale(log_odds))
+
+```
+
+```{r}
+
+human_prefs_model = brm(alpha_answer ~ GenPref + (GenPref | participant) + (1 | Item),
+                       data = human_prefs,
+                       family = bernoulli(link='logit'),
+                       #prior = prior_probs,
+                       iter = 6000,
+                       warmup = 3000,
+                       chains = 4,
+                       cores = 4,
+                       file = 'human_prefs')
+
+fixef(human_prefs_model)
+
+human_prefs_fixefs = data.frame(fixef(human_prefs_model))
+
+```
+
+```{r}
+human_prefs_model_llm = brm(alpha_answer ~ log_odds + (log_odds | participant) + (1 | Item),
+                       data = human_prefs,
+                       family = bernoulli(link='logit'),
+                       #prior = prior_probs,
+                       iter = 6000,
+                       warmup = 3000,
+                       chains = 4,
+                       cores = 4,
+                       #file = 'human_prefs_llm')
+)
+
+fixef(human_prefs_model_llm)
+```
+```{r}
+human_prefs_individual_constraints = brm(alpha_answer ~ Culture + Power + Freq + Len + (Culture + Power + Freq + Len | participant) + (1 | Item),
+                       data = human_prefs,
+                       family = bernoulli(link='logit'),
+                       #prior = prior_probs,
+                       iter = 6000,
+                       warmup = 3000,
+                       chains = 4,
+                       cores = 4,
+                       file = 'human_prefs_individual_constraints')
+
+
+fixef(human_prefs_individual_constraints)
+
+percent_greater_zeros_individ_constraints = data.frame(fixef(human_prefs_individual_constraints, summary = F)) %>%
+  pivot_longer(cols = everything(), names_to = 'beta_coefficient', values_to = 'estimate') %>%
+  group_by(beta_coefficient) %>%
+  summarize((sum(estimate > 0) / length(estimate)) * 100)
+
+percent_greater_zeros_individ_constraints = percent_greater_zeros_individ_constraints %>%
+  arrange(match(beta_coefficient, c('Intercept', 'Culture', 'Power', 'Freq', 'Len')))
+
+human_prefs_individual_constraints_fixefs = data.frame(fixef(human_prefs_individual_constraints)) %>%
+  mutate('% Samples > 0' = percent_greater_zeros_individ_constraints$`(sum(estimate > 0)/length(estimate)) * 100`)
+```
+
+Human prefs for different prompts:
+
+```{r}
+
+prompt2 = data_validation2 %>%
+  select(binom, log_odds) %>%
+  rename(Item = binom)
+
+
+prompt3 = data_validation3 %>%
+  select(binom, log_odds) %>%
+  rename(Item = binom)
+
+
+prompt4 = data_validation4 %>%
+  select(binom, log_odds) %>%
+  rename(Item = binom)
+
+human_prefs_prompt2 = human_prefs %>%
+  select(-log_odds) %>%
+  left_join(prompt2)
+
+human_prefs_prompt3 = human_prefs %>%
+  select(-log_odds) %>%
+  left_join(prompt3)
+
+human_prefs_prompt4 = human_prefs %>%
+  select(-log_odds) %>%
+  left_join(prompt4)
+```
+
+```{r}
+human_prefs_model_llm_prompt2 = brm(alpha_answer ~ log_odds + (log_odds | participant) + (1 | Item),
+                       data = human_prefs_prompt2,
+                       family = bernoulli(link='logit'),
+                       #prior = prior_probs,
+                       iter = 6000,
+                       warmup = 3000,
+                       chains = 4,
+                       cores = 4,
+                       file = 'human_prefs_model_llm_prompt2')
+
+
+fixef(human_prefs_model_llm_prompt2)
+
+
+human_prefs_model_llm_prompt3 = brm(alpha_answer ~ log_odds + (log_odds | participant) + (1 | Item),
+                       data = human_prefs_prompt3,
+                       family = bernoulli(link='logit'),
+                       #prior = prior_probs,
+                       iter = 6000,
+                       warmup = 3000,
+                       chains = 4,
+                       cores = 4,
+                       file = 'human_prefs_model_llm_prompt3')
+
+
+fixef(human_prefs_model_llm_prompt3)
+
+
+human_prefs_model_llm_prompt4 = brm(alpha_answer ~ log_odds + (log_odds | participant) + (1 | Item),
+                       data = human_prefs_prompt4,
+                       family = bernoulli(link='logit'),
+                       #prior = prior_probs,
+                       iter = 6000,
+                       warmup = 3000,
+                       chains = 4,
+                       cores = 4,
+                       file = 'human_prefs_model_llm_prompt4')
+
+
+fixef(human_prefs_model_llm_prompt4)
+
+```
+```{r}
+plot_data = human_prefs %>%
+  group_by(Item, GenPref, log_odds) %>%
+  summarize(human_answers = mean(alpha_answer))
+```
+Items with no length difference:
+
+```{r}
+no_length_diff = human_prefs %>%
+  filter(Len == 0)
+
+plot_data_no_len_diff = plot_data %>% 
+  filter(Item %in% no_length_diff$Item)
+
+plot(plot_data_no_len_diff$log_odds, plot_data_no_len_diff$human_answers)
+
+no_length_diff_model = brm(alpha_answer ~ log_odds + (log_odds | participant) + (1 | Item),
+                       data = no_length_diff,
+                       family = bernoulli(link='logit'),
+                       #prior = prior_probs,
+                       iter = 6000,
+                       warmup = 3000,
+                       chains = 4,
+                       cores = 4,
+                       file = 'no_length_diff_model')
+
+
+fixef(no_length_diff_model)
+
+
+
+
+
+no_power_diff = human_prefs %>%
+  filter(Power == 0)
+
+plot_data_no_power_diff = plot_data %>% 
+  filter(Item %in% no_power_diff$Item)
+
+plot(plot_data_no_power_diff$log_odds, plot_data_no_power_diff$human_answers)
+
+no_power_diff_model = brm(alpha_answer ~ log_odds + (log_odds | participant) + (1 | Item),
+                       data = no_power_diff,
+                       family = bernoulli(link='logit'),
+                       #prior = prior_probs,
+                       iter = 6000,
+                       warmup = 3000,
+                       chains = 4,
+                       cores = 4,
+                       file = 'no_power_diff_model')
+
+
+fixef(no_power_diff_model)
+```
+
