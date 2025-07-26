@@ -22,8 +22,78 @@ Note that Lapse was removed for having a very high VIF.
 
 ```{r}
 
-data_main_model = read_csv('../Data/allenai_OLMo-7B-0424-hf.csv')
+data_main_model = read_csv('../Data/allenai_OLMo-7B-0424-hf.csv') 
+
 corpus = read_csv('../Data/nonce_binoms.csv')
+
+data_validation = read_csv('../Data/olmo7b_prompt1_validation.csv') %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`) %>%
+  separate(binom, c('Word1', 'and', 'Word2'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  #mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(checkpoint = 'main') %>%
+  mutate(y_vals = 0.02191943 + 0.23925834*Form +  0.24889543*Percept +  0.41836997*Culture +   0.25967334*Power +  0.01867604*Intense +  1.30365980*Icon +   0.08553552*Freq +  0.15241566*Len - 0.19381657*Lapse +  0.36019221*`*BStress`) %>%
+  mutate(GenPref = 1/(1+exp(-1*y_vals)))
+
+
+data_validation2 = read_csv('../Data/olmo7b_prompt2_validation.csv') %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`) %>%
+  separate(binom, c('Word1', 'and', 'Word2'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  #mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(checkpoint = 'main') %>%
+  mutate(y_vals = 0.02191943 + 0.23925834*Form +  0.24889543*Percept +  0.41836997*Culture +   0.25967334*Power +  0.01867604*Intense +  1.30365980*Icon +   0.08553552*Freq +  0.15241566*Len - 0.19381657*Lapse +  0.36019221*`*BStress`) %>%
+  mutate(GenPref = 1/(1+exp(-1*y_vals)))
+
+data_validation3 = read_csv('../Data/olmo7b_prompt3_validation.csv') %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`) %>%
+  separate(binom, c('Word1', 'and', 'Word2'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  #mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(checkpoint = 'main') %>%
+  mutate(y_vals = 0.02191943 + 0.23925834*Form +  0.24889543*Percept +  0.41836997*Culture +   0.25967334*Power +  0.01867604*Intense +  1.30365980*Icon +   0.08553552*Freq +  0.15241566*Len - 0.19381657*Lapse +  0.36019221*`*BStress`) %>%
+  mutate(GenPref = 1/(1+exp(-1*y_vals)))
+
+data_validation4 = read_csv('../Data/olmo7b_prompt4_validation.csv') %>%
+  mutate(log_odds = `Alpha Probs` - `Nonalpha Probs`) %>%
+  separate(binom, c('Word1', 'and', 'Word2'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  #mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(checkpoint = 'main') %>%
+  mutate(y_vals = 0.02191943 + 0.23925834*Form +  0.24889543*Percept +  0.41836997*Culture +   0.25967334*Power +  0.01867604*Intense +  1.30365980*Icon +   0.08553552*Freq +  0.15241566*Len - 0.19381657*Lapse +  0.36019221*`*BStress`) %>%
+  mutate(GenPref = 1/(1+exp(-1*y_vals)))
+
+
+data_validation = data_validation %>%
+  rename(no_final_stress = `*BStress`)
+
+data_validation2 = data_validation2 %>%
+  rename(no_final_stress = `*BStress`)
+
+data_validation3 = data_validation3 %>%
+  rename(no_final_stress = `*BStress`)
+
+data_validation4 = data_validation4 %>%
+  rename(no_final_stress = `*BStress`)
+
+
+
+
+
+cor(data_main_model$log_odds, data_validation$log_odds)
+cor(data_main_model$log_odds, data_validation2$log_odds)
+cor(data_main_model$log_odds, data_validation3$log_odds)
+cor(data_main_model$log_odds, data_validation4$log_odds)
+
+
+data_main_model_validation = read_csv('../Data/olmo7b_prompt1_validation.csv')
+
+
+
 bigram_counts = read_csv('../Data/olmo_bigram_freqs.csv')
 onegram_corpus_size = 1560674367427
 count_and = 43378012800
@@ -218,18 +288,35 @@ models1 = map2(data_list, checkpoint_list, fit_model1)
 models2 = map2(data_list, checkpoint_list, fit_model2)
 models3 = map2(data_list, checkpoint_list, fit_model3)
 
+
+percent_greater_zero = percent_greater_zero %>%
+  arrange(match(beta_coefficient, c('Intercept', 'Culture', 'Power', 'Freq', 'Len')))
+
+
+
+
 extract_model_summary = function(model, checkpoint) {
   # Get the fixed effects summary
   fixef_summary = as.data.frame(fixef(model))
   fixef_summary$checkpoint = checkpoint
-
+  percent_greater_zero = data.frame(fixef(model, summary = F)) %>%
+    pivot_longer(cols = everything(), names_to = 'beta_coefficient', values_to = 'estimate') %>%
+    group_by(beta_coefficient) %>%
+    summarize((sum(estimate > 0) / length(estimate)) * 100)
+  
+  percent_greater_zero = percent_greater_zero %>%
+    arrange(match(beta_coefficient, c('Intercept', 'GenPref')))
+  
   # Add rownames (parameter names) as a column
   fixef_summary$Parameter = rownames(fixef_summary)
-  
+  fixef_summary = fixef_summary %>%
+    mutate(percent_greater_zero = percent_greater_zero$`(sum(estimate > 0)/length(estimate)) * 100`) %>%
+    rename('% Samples > 0' = `percent_greater_zero`) 
   # Reset rownames and return the result
   rownames(fixef_summary) <- NULL
   return(fixef_summary)
 }
+
 
 results_list1 = map2(models1, checkpoint_list, extract_model_summary)
 fixefs_m1 = bind_rows(results_list1)
@@ -277,6 +364,57 @@ Olmo_main_genpref = brm(log_odds ~ GenPref,
                       )
 
 fixef(Olmo_main_genpref)
+
+
+Olmo_main_genpref_prompt2 = brm(log_odds ~ GenPref,
+                       data = data_validation4,
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/Olmo_main_genpref_prompt2'
+                      )
+
+fixef(Olmo_main_genpref_prompt2)
+
+
+Olmo_main_genpref_prompt3 = brm(log_odds ~ GenPref,
+                       data = data_validation3,
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/Olmo_main_genpref_prompt3'
+                      )
+
+fixef(Olmo_main_genpref_prompt3)
+
+
+Olmo_main_genpref_prompt4 = brm(log_odds ~ GenPref,
+                       data = data_validation4,
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/Olmo_main_genpref_prompt4'
+                      )
+
+fixef(Olmo_main_genpref_prompt4)
+
+
+
+
+
+
 ```
 
 
@@ -325,8 +463,152 @@ Olmo_main_individual_constraints = brm(data = data_main_model,
                        file = '../Data/model3_main'
                       )
 
+Olmo_prompt2_individual_constraints = brm(data = data_validation2,
+                       log_odds ~ Culture + Power + Freq + Len, #Icon and Form removed for only having one value
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/Olmo_prompt2_individual_constraints'
+                      )
 
-fixef(Olmo_main_individual_constraints)
+
+Olmo_prompt3_individual_constraints = brm(data = data_validation3,
+                       log_odds ~ Culture + Power + Freq + Len, #Icon and Form removed for only having one value
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/Olmo_prompt3_individual_constraints'
+                      )
+
+
+Olmo_prompt4_individual_constraints = brm(data = data_validation4,
+                       log_odds ~ Culture + Power + Freq + Len, #Icon and Form removed for only having one value
+                       prior = prior_probs,
+                       iter = 10000,
+                       warmup = 5000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/Olmo_prompt4_individual_constraints'
+                      )
+
+
+percent_greater_zeros_prompt1 = data.frame(fixef(Olmo_main_individual_constraints, summary = F)) %>%
+  pivot_longer(cols = everything(), names_to = 'beta_coefficient', values_to = 'estimate') %>%
+  group_by(beta_coefficient) %>%
+  summarize((sum(estimate > 0) / length(estimate)) * 100)
+
+fixefs_prompt1 = data.frame(fixef(Olmo_main_individual_constraints)) %>%
+  mutate(Prefix = 'Next item: ') %>%
+  mutate_if(is.numeric,
+            formatC,
+            format = 'f',
+            digits = 3)
+
+
+percent_greater_zeros_prompt1 = percent_greater_zeros_prompt1 %>%
+  arrange(match(beta_coefficient, c('Intercept', 'Culture', 'Power', 'Freq', 'Len')))
+
+
+fixefs_prompt1 = fixefs_prompt1 %>%
+  mutate(percent_greater_zero = percent_greater_zeros_prompt1$`(sum(estimate > 0)/length(estimate)) * 100`) %>%
+  rename('% Samples > 0' = `percent_greater_zero`)
+
+
+
+percent_greater_zeros_prompt2 = data.frame(fixef(Olmo_prompt2_individual_constraints, summary = F)) %>%
+  pivot_longer(cols = everything(), names_to = 'beta_coefficient', values_to = 'estimate') %>%
+  group_by(beta_coefficient) %>%
+  summarize((sum(estimate > 0) / length(estimate)) * 100)
+
+fixefs_prompt2 = data.frame(fixef(Olmo_prompt2_individual_constraints)) %>%
+  mutate(Prefix = 'example: ') %>%
+  mutate_if(is.numeric,
+            formatC,
+            format = 'f',
+            digits = 3)
+
+
+percent_greater_zeros_prompt2 = percent_greater_zeros_prompt2 %>%
+  arrange(match(beta_coefficient, c('Intercept', 'Culture', 'Power', 'Freq', 'Len')))
+
+
+fixefs_prompt2 = fixefs_prompt2 %>%
+  mutate(percent_greater_zero = percent_greater_zeros_prompt2$`(sum(estimate > 0)/length(estimate)) * 100`) %>%
+  rename('% Samples > 0' = `percent_greater_zero`)
+
+percent_greater_zeros_prompt3 = data.frame(fixef(Olmo_prompt3_individual_constraints, summary = F)) %>%
+  pivot_longer(cols = everything(), names_to = 'beta_coefficient', values_to = 'estimate') %>%
+  group_by(beta_coefficient) %>%
+  summarize((sum(estimate > 0) / length(estimate)) * 100)
+
+fixefs_prompt3 = data.frame(fixef(Olmo_prompt3_individual_constraints)) %>%
+  mutate(Prefix = 'instance: ') %>%
+  mutate_if(is.numeric,
+            formatC,
+            format = 'f',
+            digits = 3)
+
+
+percent_greater_zeros_prompt3 = percent_greater_zeros_prompt3 %>%
+  arrange(match(beta_coefficient, c('Intercept', 'Culture', 'Power', 'Freq', 'Len')))
+
+
+fixefs_prompt3 = fixefs_prompt3 %>%
+  mutate(percent_greater_zero = percent_greater_zeros_prompt3$`(sum(estimate > 0)/length(estimate)) * 100`) %>%
+  rename('% Samples > 0' = `percent_greater_zero`)
+
+
+percent_greater_zeros_prompt4 = data.frame(fixef(Olmo_prompt4_individual_constraints, summary = F)) %>%
+  pivot_longer(cols = everything(), names_to = 'beta_coefficient', values_to = 'estimate') %>%
+  group_by(beta_coefficient) %>%
+  summarize((sum(estimate > 0) / length(estimate)) * 100)
+
+fixefs_prompt4 = data.frame(fixef(Olmo_prompt4_individual_constraints)) %>%
+  mutate(Prefix = 'try this: ') %>%
+  mutate_if(is.numeric,
+            formatC,
+            format = 'f',
+            digits = 3)
+
+
+percent_greater_zeros_prompt4 = percent_greater_zeros_prompt4 %>%
+  arrange(match(beta_coefficient, c('Intercept', 'Culture', 'Power', 'Freq', 'Len')))
+
+
+fixefs_prompt4 = fixefs_prompt4 %>%
+  mutate(percent_greater_zero = percent_greater_zeros_prompt4$`(sum(estimate > 0)/length(estimate)) * 100`) %>%
+  rename('% Samples > 0' = `percent_greater_zero`)
+
+
+fixefs_prompt1 = fixefs_prompt1 %>%
+  mutate(Coefficient = c('Intercept', 'Culture', 'Power', 'Freq', 'Len'))
+fixefs_prompt2 = fixefs_prompt2 %>%
+  mutate(Coefficient = c('Intercept', 'Culture', 'Power', 'Freq', 'Len'))
+fixefs_prompt3 = fixefs_prompt3 %>%
+  mutate(Coefficient = c('Intercept', 'Culture', 'Power', 'Freq', 'Len'))
+fixefs_prompt4 = fixefs_prompt4 %>%
+  mutate(Coefficient = c('Intercept', 'Culture', 'Power', 'Freq', 'Len'))
+
+
+
+fixefs_all_prompts = fixefs_prompt1 %>%
+  full_join(fixefs_prompt2) %>%
+  full_join(fixefs_prompt3) %>%
+  full_join(fixefs_prompt4) %>%
+  select(Prefix, Coefficient, Estimate, Est.Error, `Q2.5`, `Q97.5`, `% Samples > 0`)
+
+#write_csv(fixefs_all_prompts, '../Data/fixefs_all_prompts.csv')
+
 
 fixefs = data.frame(fixef(Olmo_main_individual_constraints, summary = F)) %>%
   select(-Intercept) %>%
@@ -344,6 +626,12 @@ fixefs = data.frame(fixef(Olmo_main_individual_constraints, summary = F)) %>%
 fixefs$min_col=colnames(fixefs)[apply(fixefs, 1, which.min)]
 #culture is the most centered around zero, so removing this 
 ```
+
+
+
+
+
+
 ```{r}
 
 olmo_only_length = brm(data = data_main_model,

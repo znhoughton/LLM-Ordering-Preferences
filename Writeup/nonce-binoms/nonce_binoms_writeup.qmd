@@ -47,7 +47,7 @@ author:
       - name: University of California, Davis
       
 bibliography: ["r-references.bib"]
-
+        
 
 #header-includes:
 #- \usepackage[section]{placeins}
@@ -62,6 +62,8 @@ library(tidyverse)
 library(brms)
 library(here)
 library(ggh4x)
+
+fixefs_all_prompts = read_csv('../Data/fixefs_all_prompts.csv')
 
 data_main_model = read_csv(paste0(here("Data"), '/allenai_OLMo-7B-0424-hf.csv'))
 corpus = read_csv(paste0(here("Data"), '/nonce_binoms.csv'))
@@ -183,6 +185,10 @@ fixefs_m1 = read_csv(paste0(here("Data"), "/fixefs_m1.csv"))
 fixefs_m3 = read_csv(paste0(here("Data"), "/fixefs_m3.csv"))
 ```
 
+NOTE THAT THIS IS NOT THE FINAL WRITEUP. THE FINAL WRITEUP IS IN OVERLEAF IN ORDER TO CONFORM TO ACL STANDARDS.
+
+TO-DO: CREATE AN ACL QUARTO TEMPLATE.
+
 # Introduction {#sec-introduction}
 
 Large language models have stormed the media in the last few years, becoming a popular topic in the scientific literature. Their rise to fame has brought with them many heated debates regarding whether large language models constitute human-like models of language or whether their behavior is completely different from humans [@piantadosiChapterModernLanguage; @piantadosiMeaningReferenceLarge2022; @benderDangersStochasticParrots2021].
@@ -207,7 +213,7 @@ Our specific contributions are as follows: We make a unigram, bigram, and trigra
 
 The evidence for learned abstractions in large language models is extremely mixed. Investigations into BERT have yielded mixed results for their ability to learn and apply abstract knowledge [@haley2020bert, @liAreNeuralNetworks2021, @liAssessingCapacityTransformer2023, @lasri2022subject]. For example, @haley2020bert demonstrated that many of the BERT models are not able to reliably determine the plurality of novel words. Additionally, @liAreNeuralNetworks2021 demonstrated that when tasked with producing the correct tense for a word, BERT tends to rely on memorization from its training data as opposed to learning the more general linguistic pattern.
 
-On the other hand, @lasri2022subject demonstrated that BERT can generalize well to novel subject-verb pairs. They tested BERT's performance on novel sentences along with semantically incoherent but syntactically sensible sentences (e.g., *colorless green ideas sleep furiously*) and found that when masking the verb for these sentences BERT still applies higher probability to the correct inflection of the verb. Additionally, @liAssessingCapacityTransformer2023 demonstrated that BERT is able to use abstract knowledge to correctly predict subject-verb and object-past participle agreements in French.
+On the other hand, @lasri2022subject demonstrated that BERT can generalize well to novel subject-verb pairs. They tested BERT's performance on meaningful sentences along with semantically incoherent but syntactically sensible sentences (e.g., *colorless green ideas sleep furiously*) and found that when masking the verb for semantically incoherent sentences BERT still applies higher probability to the correct inflection of the verb. Additionally, @liAssessingCapacityTransformer2023 demonstrated that BERT is able to use abstract knowledge to correctly predict subject-verb and object-past participle agreements in French.
 
 Research using other language models have also yielded similar results. For example, as mentioned earlier, @mccoy2023much found that while GPT-2 copies extensively, it also produces both novel words as well as novel syntactic structures.
 
@@ -294,6 +300,8 @@ P_{nonalphabetical} & = P(B|\text{`Next item:'})\\
 & \times P(A|\text{`Next item: B and'})
 \end{aligned}
 $$ {#eq-probnonalpha}
+
+In addition to this prefix, we also replicated the analyses with three other prefixes. These prefixes were "example: ", "instance: ", and "try this: ". We will discuss the effect of the different prefixes in the results section.
 
 Finally, we calculated the log odds ratio of the probability of the alphabetical form to the probability of the nonalphabetical form to obtain a single numeric value representing the overall ordering preference for a given binomial. A larger positive value represents a preference for the alphabetical form and a larger negative value represents a preference for the nonalphabetical form:
 
@@ -449,11 +457,13 @@ main_model_plot
 
 ```
 
+We replicated each of these analyses with three different prefixes as well. Specifically, we used the prefixes "example: ", "instance: ", and "try this: ". The full analyses are listed in the appendix section. For all three replications there was a meaningful effect of generative preference. However, there was some variability with respect to the sensitivity to the individual constraints. While the effects of Frequency, Culture, and Length were relatively robust (with statistically meaningful effects across 3 of the 4 prefixes), the effect of power was less robust and only statistically meaningful with 2 of the four prefixes. This suggests that the effect of the prefix does play some role, however we leave a more thorough examination of different prefixes to future work.
+
 ## Discussion
 
 The present experiment found that OLMo-7B has learned abstract ordering preferences even for novel binomials that it has never seen before. Further, these ordering preferences aren't simply based on the individual word frequencies. Specifically, we find a main-effect of abstract ordering preferences on the model's binomial ordering preferences. Additionally, we find a strong preference to place the more powerful word first, a weak preference to place the more culturally central word first, and a weak preference to place the longer word first.
 
-These results together suggest that the model is learning abstract ordering preferences but in a way that is not identical to humans. For example, while both LLMs and humans show a preference for placing the more powerful words first and the more culturally central word first, humans also show a sensitivity to formal markedness, perceptual markedness, and frequency [@morganAbstractKnowledgeDirect2016], which we do not find evidence for in large language models' preferences. Additionally, humans prefer to place the shorter word first \[@morganAbstractKnowledgeDirect2016, @morganModelingIdiosyncraticPreferences2015\]. However, we find the opposite finding here: large language models prefer to place the longer word first. One explanation for this is a difference in terms of the input between humans and large language models. The length constraint is determined by the number of syllables. While syllables are salient cues in the audio that humans receive during learning, it's less clear how salient of a cue they are for large language models which receive sub-word tokens (which vary in their size, from being individual orthographic symbols to being entire words.
+These results together suggest that the model is learning abstract ordering preferences but in a way that is not identical to humans. For example, while both LLMs and humans show a preference for placing the more powerful words first and the more culturally central word first, humans also show a sensitivity to formal markedness, perceptual markedness, and frequency [@morganAbstractKnowledgeDirect2016], which we do not find evidence for in large language models' preferences. Additionally, humans prefer to place the shorter word first [@morganAbstractKnowledgeDirect2016, @morganModelingIdiosyncraticPreferences2015]. However, we find the opposite finding here: large language models prefer to place the longer word first. One explanation for this is a difference in terms of the input between humans and large language models. The length constraint is determined by the number of syllables. While syllables are salient cues in the audio that humans receive during learning, it's less clear how salient of a cue they are for large language models which receive sub-word tokens (which vary in their size, from being individual orthographic symbols to being entire words.
 
 # Experiment 2
 

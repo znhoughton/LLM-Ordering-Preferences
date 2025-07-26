@@ -116,6 +116,21 @@ gpt2_2afc_model_just_binoms = brm(data = gpt2_data_just_binoms,
 
 fixef(gpt2_2afc_model_just_binoms)
 
+gpt2_data_just_binoms$LogOverallFreq = log(gpt2_data_just_binoms$OverallFreq)
+
+gpt2_2afc_model_just_binoms_log_freq = brm(data = gpt2_data_just_binoms,
+                       log_odds ~ GenPref + RelFreq + GenPref:LogOverallFreq + RelFreq:LogOverallFreq + LogOverallFreq,
+                       prior = prior_probs,
+                       iter = 20000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/gpt2_2afc_model_just_binoms_log_freq'
+                      )
+
+fixef(gpt2_2afc_model_just_binoms_log_freq)
+
 # mcmc_plot(
 #   gpt2_2afc_model_just_binoms,
 #   type = 'pairs',
@@ -169,6 +184,22 @@ gpt2xl_2afc_model_just_binoms = brm(data = gpt2xl_data_just_binoms,
                        #control = list(adapt_delta=0.99, max_treedepth = 15),
                        control = list(max_treedepth = 20),
                        file = '../Data/gpt2xl_2afc_model_just_binoms'
+                      )
+
+fixef(gpt2xl_2afc_model_just_binoms)
+
+
+gpt2xl_data_just_binoms$LogOverallFreq = log(gpt2xl_data_just_binoms$OverallFreq)
+
+gpt2xl_2afc_model_just_binoms_log_freq = brm(data = gpt2xl_data_just_binoms,
+                       log_odds ~ GenPref + RelFreq + GenPref:OverallFreq + RelFreq:OverallFreq + OverallFreq,
+                       prior = prior_probs,
+                       iter = 20000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/gpt2xl_2afc_model_just_binoms_log_freq'
                       )
 
 fixef(gpt2xl_2afc_model_just_binoms)
@@ -350,6 +381,22 @@ llama13b_2afc_model_just_binoms = brm(data = llama13b_data_just_binoms,
                       )
 
 fixef(llama13b_2afc_model_just_binoms)
+
+llama13b_data_just_binoms$LogOverallFreq = log(llama13b_data_just_binoms$OverallFreq + 0.000001)
+
+llama13b_2afc_model_just_binoms_log_freq = brm(data = llama13b_data_just_binoms,
+                       log_odds ~ GenPref + RelFreq + GenPref:LogOverallFreq + RelFreq:LogOverallFreq + LogOverallFreq,
+                       prior = prior_probs,
+                       iter = 20000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       control = list(max_treedepth = 20),
+                       file = '../Data/llama13b_2afc_model_just_binoms_log_freq'
+                      )
+
+fixef(llama13b_2afc_model_just_binoms_log_freq)
+# 
 # 
 # options(contrasts = c("contr.sum","contr.sum"))
 # llama13b_2afc_model_just_binoms_sim2 = brm(data = llama13b_sim2,
@@ -992,6 +1039,7 @@ falcon_40b_just_binoms = falcon_40b_just_binoms %>%
   mutate(RelFreq = RelFreq - 0.5)
 
 ```
+
 
 Analysis:
 
@@ -2268,9 +2316,9 @@ gen_pref_plot_data = all_models_data %>%
 observed_pref_plot_data = all_models_data %>%
   filter(`Beta Coefficient` == 'RelFreq')
 
-gen_pref_plot_data$model = factor(gen_pref_plot_data$model, levels = c('gpt-2', 'OlmO 1B', 'gpt-2 XL', 'Llama-2 7B',  'OlmO 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B'))
+gen_pref_plot_data$model = factor(gen_pref_plot_data$model, levels = c('gpt-2', 'OlmO 1B', 'gpt-2 XL', 'Llama-2 7B',  'OlmO 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B'), labels = c('gpt-2', 'OLMo 1B', 'gpt-2 XL', 'Llama-2 7B',  'OLMo 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B'))
 
-observed_pref_plot_data$model = factor(observed_pref_plot_data$model, levels = c('gpt-2', 'OlmO 1B', 'gpt-2 XL', 'Llama-2 7B',  'OlmO 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B'))
+observed_pref_plot_data$model = factor(observed_pref_plot_data$model, levels = c('gpt-2', 'OlmO 1B', 'gpt-2 XL', 'Llama-2 7B',  'OlmO 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B'), labels = c('gpt-2', 'OLMo 1B', 'gpt-2 XL', 'Llama-2 7B',  'OLMo 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B'))
 
 gen_pref_plot = ggplot(data = gen_pref_plot_data, aes(x = model, y = Estimate, ymin = Q2.5, ymax = Q97.5)) +
   geom_errorbar(width = 0.2) +
@@ -2305,7 +2353,7 @@ full_plot_data = all_models_data %>%
   mutate(color = ifelse( `Beta Coefficient` == 'GenPref', 'red', ifelse(`Beta Coefficient` == 'RelFreq', 'blue', ifelse(`Beta Coefficient` == 'OverallFreq', 'purple', ifelse(`Beta Coefficient` == 'GenPref:OverallFreq', 'darkgreen', 'orange')))))
 
 
-full_plot_data$model = factor(full_plot_data$model, levels = c('gpt-2', 'OlmO 1B', 'gpt-2 XL', 'Llama-2 7B',  'OlmO 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B'))
+full_plot_data$model = factor(full_plot_data$model, levels = c('gpt-2', 'OlmO 1B', 'gpt-2 XL', 'Llama-2 7B',  'OlmO 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B'), labels = c('gpt-2', 'OLMo 1B', 'gpt-2 XL', 'Llama-2 7B',  'OLMo 7B', 'Llama-3 8B', 'Llama-2 13B', 'Llama-3 70B'))
 
 full_plot_data = full_plot_data %>%
   mutate(`Beta Coefficient` = case_when(`Beta Coefficient` == 'GenPref' ~ 'AbsPref',
@@ -2316,6 +2364,10 @@ full_plot_data = full_plot_data %>%
                                       ))
 
 full_plot_data$`Beta Coefficient` = factor(full_plot_data$`Beta Coefficient`, levels = c('RelFreq', 'AbsPref', 'OverallFreq', 'RelFreq:OverallFreq', 'AbsPref:OverallFreq'))
+
+
+#full_plot_data = full_plot_data %>%
+#  mutate(est_prob = exp(Estimate)  / (1 + exp(Estimate)))
 
 full_plot = ggplot(data = full_plot_data, aes(x = `Beta Coefficient`, y = Estimate, ymin = Q2.5, ymax = Q97.5, color = color)) +
   geom_errorbar(width = 0.25) +
@@ -2333,7 +2385,7 @@ full_plot = ggplot(data = full_plot_data, aes(x = `Beta Coefficient`, y = Estima
         #panel.background = element_rect(fill = "white"),
         #text = element_text(family = 'Times New Roman')
         ) +
-  scale_x_discrete(labels = c(expression('ObsPref'), expression('AbsPref'), expression('Freq'), expression('ObsPref:Freq'), expression('AbsPref:Freq'))) +
+  scale_x_discrete(labels = c(expression('RelFreq'), expression('GenPref'), expression('OverallFreq'), expression('RelFreq:OverallFreq'), expression('GenPref:OverallFreq'))) +
  # ylim(c(-2.5, 10)) +
   ylab('Estimate') +
   xlab('Beta Coefficient Variable')

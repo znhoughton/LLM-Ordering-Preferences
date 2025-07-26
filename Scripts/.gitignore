@@ -3,3 +3,5 @@ Ordering-Preferences.Rmd
 Analysis.Rmd
 forced_choice_reading_times.py
 reading-times-and-ordering-prefs.Rmd.orig
+*.RDS
+*.rds
