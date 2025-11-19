@@ -27,113 +27,140 @@ import transformers
 
 device = f'cuda:{cuda.current_device()}' if cuda.is_available() else 'cpu'
 
+def load_model_and_tokenizer(model_name, torch_dtype=torch.float16):
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_name,
+        trust_remote_code=True,
+        use_fast=True
+    )
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
 
-model = OLMoForCausalLM.from_pretrained("allenai/OLMo-7B-0424", torch_dtype=torch.float16)
-model.config.pad_token_id = model.config.eos_token_id
+    if "OLMo-7B" in model_name:
+        model = OLMoForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype=torch_dtype
+        )
+        model.config.pad_token_id = model.config.eos_token_id
+        model = model.to(device)
 
-model.eval()
-print(f"Model loaded on {device}")
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype=torch_dtype,
+            trust_remote_code=True,
+            device_map="auto"
+        )
+        if hasattr(model.config, "pad_token_id"):
+            model.config.pad_token_id = model.config.eos_token_id
 
-tokenizer = AutoTokenizer.from_pretrained("allenai/OLMo-7B-0424", trust_remote_code=True, use_fast = True) 
-tokenizer.pad_token = tokenizer.eos_token
+    model.eval()
+    return model, tokenizer
 
-model = model.to(device)
 
 def to_tokens_and_logprobs(model, tokenizer, input_texts):
-    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").input_ids
-    input_ids = input_ids.to(device)
+    input_ids = tokenizer(input_texts, padding=True, return_tensors="pt").input_ids.to(device)
     outputs = model(input_ids)
     probs = torch.log_softmax(outputs.logits, dim=-1).detach()
-    # collect the probability of the generated token -- probability at index 0 corresponds to the token at index 1
+
     probs = probs[:, :-1, :]
-    input_ids = input_ids[:, 1:]
-    gen_probs = torch.gather(probs, 2, input_ids[:, :, None]).squeeze(-1)
+    input_ids_shift = input_ids[:, 1:]
+
+    gen_probs = torch.gather(probs, 2, input_ids_shift[:, :, None]).squeeze(-1)
+
     batch = []
-    for input_sentence, input_probs in zip(input_ids, gen_probs):
-        text_sequence = []
-        for token, p in zip(input_sentence, input_probs):
-            if token not in tokenizer.all_special_ids:
-                text_sequence.append((tokenizer.decode(token), p.item()))
-        batch.append(text_sequence)
+    for ids, lp in zip(input_ids_shift, gen_probs):
+        seq = []
+        for tok, p in zip(ids, lp):
+            if tok not in tokenizer.all_special_ids:
+                seq.append((tokenizer.decode([tok]), p.item()))
+        batch.append(seq)
     return batch
 
-def get_olmo_prefs(prompt, prompt_value):
 
-  df = pd.read_csv('../../Data/nonce_binoms.csv')
-  df['AandB'] = f"{prompt}" + df['Word1'] + ' and ' + df['Word2']
-  df['BandA'] = f"{prompt}" + df['Word2'] + ' and ' + df['Word1']
+def get_preferences(model, tokenizer, prompt, prompt_value, model_tag):
+    df = pd.read_csv('../../Data/nonce_binoms.csv')
+    #df = df.dropna(subset=['Sentence'])
 
-  # Extracting columns for analysis
-  binomial_alpha = df['AandB']
-  binomial_nonalpha = df['BandA']
+    df['AandB'] = prompt + df['Word1'] + ' and ' + df['Word2']
+    df['BandA'] = prompt + df['Word2'] + ' and ' + df['Word1']
 
-  #get alphabetical orderings
-  input_texts_alpha = binomial_alpha
+    binomial_alpha = df['AandB']
+    binomial_nonalpha = df['BandA']
 
-  n_batches = 20
+    # -------------------
+    # Token logprobs (ALPHA)
+    # -------------------
+    n_batches = 20
+    batches_alpha = np.array_split(binomial_alpha, n_batches)
+    batches_alpha = [b.tolist() for b in batches_alpha]
 
-  input_texts_alpha = np.array_split(input_texts_alpha, n_batches)
-  input_texts_alpha = [x.tolist() for x in [*input_texts_alpha]]
+    print(f"\n--- Running alphabetical orderings for {model_tag} ---")
 
-  batch_alpha = [[]]
-  timer = 0
-  for minibatch in input_texts_alpha:
-    timer += 1
-    print(timer)
-    print(minibatch)
-    batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
-    batch_alpha.extend(batch_placeholder)
-    
+    batch_alpha = []
+    for i, minibatch in enumerate(batches_alpha, 1):
+        print(f"Batch {i}/{n_batches}")
+        out = to_tokens_and_logprobs(model, tokenizer, minibatch)
+        batch_alpha.extend(out)
 
-  batch_alpha = batch_alpha[1:]
-  sentence_probs_alpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_alpha]
+    sentence_probs_alpha = [
+        sum(tok[1] for tok in seq[2:])
+        for seq in batch_alpha
+    ]
 
-  #get nonalphabetical orderings
+    # -------------------
+    # Token logprobs (NONALPHA)
+    # -------------------
+    batches_nonalpha = np.array_split(binomial_nonalpha, n_batches)
+    batches_nonalpha = [b.tolist() for b in batches_nonalpha]
 
-  input_texts_nonalpha = binomial_nonalpha
+    print(f"\n--- Running non-alphabetical orderings for {model_tag} ---")
 
-  n_batches = 20
-  #input_texts_alpha = (np.array(np.array_split(input_texts_alpha, n_batches))).tolist() 
+    batch_nonalpha = []
+    for i, minibatch in enumerate(batches_nonalpha, 1):
+        print(f"Batch {i}/{n_batches}")
+        out = to_tokens_and_logprobs(model, tokenizer, minibatch)
+        batch_nonalpha.extend(out)
 
-  input_texts_nonalpha = np.array_split(input_texts_nonalpha, n_batches)
-  input_texts_nonalpha = [x.tolist() for x in [*input_texts_nonalpha]]
+    sentence_probs_nonalpha = [
+        sum(tok[1] for tok in seq[2:])
+        for seq in batch_nonalpha
+    ]
 
-  batch_nonalpha = [[]]
-  timer = 0
-  for minibatch in input_texts_nonalpha:
-    timer += 1
-    print(timer)
-    batch_placeholder = to_tokens_and_logprobs(model, tokenizer, minibatch)
-    batch_nonalpha.extend(batch_placeholder)
-    
+    # -------------------
+    # Combine into DF
+    # -------------------
+    final = pd.DataFrame({
+        "binom": df['Word1'] + " and " + df['Word2'],
+        "alpha_prob": sentence_probs_alpha,
+        "nonalpha_prob": sentence_probs_nonalpha
+    })
 
-  batch_nonalpha = batch_nonalpha[1:]
-
-  sentence_probs_nonalpha = [sum(item[1] for item in inner_list[2:]) for inner_list in batch_nonalpha]
-
-  #combine them into one dataframe
-
-  binom_probs = {}
-
-  for i,row in enumerate(df.itertuples()):
-    binom = row[1] + ' and ' + row[2]
-    binom_probs[binom] = [sentence_probs_alpha[i], sentence_probs_nonalpha[i]]
-
-
-  binom_probs_df = pd.DataFrame.from_dict(binom_probs, orient = 'index', columns = ['Alpha Probs', 'Nonalpha Probs'])
-  binom_probs_df.reset_index(inplace=True)
-  binom_probs_df.rename(columns = {'index': 'binom'}, inplace = True)
-
-  #write into csv
-
-
-  binom_probs_df.to_csv(f'olmo7b_prompt{prompt_value+1}_validation.csv', index = False)
+    outname = f"{model_tag}_prompt{prompt_value+1}_validation.csv"
+    final.to_csv(outname, index=False)
+    print(f"Saved → {outname}\n")
 
 #prompt 2: 'example: '
 #prompt 3: 'instance: '
 #prompt 4: 'try this: '
-list_of_prompts = ['Next item: ', 'example: ', 'instance: ', 'try this: ']
+#prompt 5: " " (blank)
+list_of_models = {
+    #"olmo7b":  "allenai/OLMo-7B-0424",
+    "olmo2_1b": "allenai/OLMo-2-0425-1B",
+    "gpt2xl":  "gpt2-xl"
+}
 
-for prompt_value, prompt in enumerate(list_of_prompts):
-  print(prompt_value)
-  get_olmo_prefs(prompt=prompt, prompt_value = prompt_value)
+list_of_prompts = ['Next item: ', 'example: ', 'instance: ', 'try this: ', ' ']
+
+import gc
+
+for model_tag, model_name in list_of_models.items():
+    torch.cuda.empty_cache()
+    gc.collect()
+
+    dtype = torch.float16 if "gpt2" not in model_name.lower() else torch.float32
+    model, tokenizer = load_model_and_tokenizer(model_name, torch_dtype=dtype)
+
+    for pval, prompt in enumerate(list_of_prompts):
+        print(f"=== {model_tag.upper()} — Prompt {pval} ===")
+        get_preferences(model, tokenizer, prompt, pval, model_tag)
