@@ -13,7 +13,7 @@ library(brms)
 
 ```{r}
 human_prefs = read.csv('../Data/human-prefs.csv') %>%
-  select(-Q10, -`Q9_2_TEXT`)
+  dplyr::select(-Q10, -`Q9_2_TEXT`)
 binoms = read_csv('../Data/nonce_binoms.csv')
 
 human_prefs = human_prefs[4:nrow(human_prefs),]
@@ -33,7 +33,7 @@ human_prefs = human_prefs %>%
     Word1 = pmin(wordA, wordB),
     Word2 = pmax(wordA, wordB)
   ) %>%
-  select(-wordA, -wordB) %>%
+  dplyr::select(-wordA, -wordB) %>%
   left_join(binoms)
 
 human_prefs = human_prefs %>%
@@ -60,7 +60,7 @@ data_main_model = data_main_model %>%
 
 data_main_model = data_main_model %>%
   separate(binom, c('Word1', 'and', 'Word2'), remove = F, sep = ' ') %>%
-  select(-and) %>%
+  dplyr::select(-and) %>%
   #mutate(across(2:3, tolower)) %>%
   left_join(corpus) %>%
   mutate(checkpoint = 'main') %>%
@@ -84,14 +84,14 @@ data_main_model = data_main_model %>%
          )
 
 olmo_preds = data_main_model %>%
-  select(Word1, Word2, GenPref, log_odds)
+  dplyr::select(Word1, Word2, GenPref, log_odds)
 
 
 ```
 
 ```{r}
 human_prefs = human_prefs %>%
-  select(-GenPref) %>%
+  dplyr::select(-GenPref) %>%
   left_join(olmo_preds) %>%
   mutate(GenPref = GenPref - 0.5) 
 
