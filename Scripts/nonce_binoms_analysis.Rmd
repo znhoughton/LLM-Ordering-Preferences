@@ -1403,6 +1403,214 @@ fixefs_gpt2xl
 fixefs_all_prompts_gpt2xl
 ```
 
+# Added a bunch of prefixes --> single model with prefix as RE?
+
+```{r}
+corpus = read_csv('../Data/nonce_and_attested_binoms.csv')
+
+data_all_prefixes_all_models = read_csv('../Data/ALL_MODELS_ALL_PREFIXES_NOVE_AND_ATTESTED.csv') %>%
+  mutate(log_odds = preference) %>%
+  separate(binom, c('Word1', 'and', 'Word2'), remove = F, sep = ' ') %>%
+  select(-and) %>%
+  #mutate(across(2:3, tolower)) %>%
+  left_join(corpus) %>%
+  mutate(checkpoint = 'main') %>%
+  mutate(y_vals = 0.02191943 + 0.23925834*Form +  0.24889543*Percept +  0.41836997*Culture +   0.25967334*Power +  0.01867604*Intense +  1.30365980*Icon +   0.08553552*Freq +  0.15241566*Len - 0.19381657*Lapse +  0.36019221*`*BStress`) %>%
+  mutate(GenPref = 1/(1+exp(-1*y_vals))) %>%
+  filter(Attested == 0)
+
+
+
+
+
+bigram_counts = read_csv('../Data/olmo_bigram_freqs.csv')
+onegram_corpus_size = 1560674367427
+count_and = 43378012800
+
+bigram_counts = bigram_counts %>%
+  mutate(ngram = str_replace_all(ngram, '\t', ' '))
+
+
+data_all_prefixes_all_models = data_all_prefixes_all_models %>%
+  rename(no_final_stress = `*BStress`)
+
+
+
+data_all_prefixes_all_models = data_all_prefixes_all_models %>%
+  mutate(bigram1_alpha = paste0(Word1, ' and'),
+         bigram2_alpha = paste0('and ', Word2),
+         bigram1_nonalpha = paste0(Word2, ' and'),
+         bigram2_nonalpha = paste0('and ', Word1)
+         )
+
+data_all_prefixes_all_models = data_all_prefixes_all_models %>%
+  left_join(bigram_counts, by = c('bigram1_alpha' = 'ngram')) %>%
+  rename(count_bigram1_alpha = count) %>%
+  left_join(bigram_counts, by = c('bigram2_alpha' = 'ngram')) %>%
+  rename(count_bigram2_alpha = count) %>%
+  left_join(bigram_counts, by = c('bigram1_nonalpha' = 'ngram')) %>%
+  rename(count_bigram1_nonalpha = count) %>%
+  left_join(bigram_counts, by = c('bigram2_nonalpha' = 'ngram')) %>%
+  rename(count_bigram2_nonalpha = count) %>%
+  mutate(corpus_size = onegram_corpus_size) %>%
+  mutate(count_and = count_and)
+
+
+data_all_prefixes_all_models = data_all_prefixes_all_models %>%
+  mutate(bigram_prob_alpha = (Word1_freq / corpus_size) * (count_bigram1_alpha / Word1_freq) * (count_bigram2_alpha / count_and),
+         bigram_prob_nonalpha = (Word2_freq / corpus_size) * (count_bigram1_nonalpha / Word2_freq) * (count_bigram2_nonalpha / count_and),
+         log_bigram_prob_alpha = log(bigram_prob_alpha),
+         log_bigram_prob_nonalpha = log(bigram_prob_nonalpha),
+         log_bigram_odds_ratio = log_bigram_prob_alpha - log_bigram_prob_nonalpha)
+
+
+
+
+```
+
+## Model
+
+```{r}
+
+options(contrasts = c("contr.sum","contr.sum"))
+
+prior_probs = c(
+  prior(student_t(3, 0, 5), class = 'Intercept'),
+  prior(student_t(3, 0, 5), class = 'sigma'),
+  prior(student_t(3, 0, 5), class = 'b')
+)
+
+data_all_prefixes_all_models$prompt_value = factor(data_all_prefixes_all_models$prompt_value)
+
+all_models_all_prefixes = brm(log_odds ~ GenPref * model + (GenPref * model | prompt_value),
+                       data = data_all_prefixes_all_models,
+                       prior = prior_probs,
+                       iter = 20000,
+                       warmup = 10000,
+                       chains = 4,
+                       cores = 4,
+                       control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/all_models_all_prefixes'
+                      )
+
+
+
+
+all_models_all_prefixes_bigrams = brm(log_odds ~ GenPref * model * log_bigram_odds_ratio + (GenPref * model | prompt_value),
+                       data = data_all_prefixes_all_models,
+                       prior = prior_probs,
+                       iter = 20000,
+                       warmup = 10000,
+                       chains = 4,
+                       cores = 4,
+                       control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/all_models_all_prefixes_bigrams'
+                      )
+
+fixef(all_models_all_prefixes)
+fixef(all_models_all_prefixes_bigrams)
+
+```
+### random effects plots
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+# 1. reshape wide (all terms and all metrics)
+re_df = ranef(all_models_all_prefixes)$prompt_value
+
+re_df <- as.data.frame.table(re, responseName = "value")
+names(re_df) <- c("prompt_value", "metric", "term", "value")
+
+
+re_wide <- re_df %>%
+  pivot_wider(
+    names_from = c(term, metric),
+    values_from = value
+  ) %>%
+  mutate(
+    model3_Estimate = -(model1_Estimate + model2_Estimate),
+    model3_Q2.5     = -(model1_Q97.5   + model2_Q97.5),
+    model3_Q97.5    = -(model1_Q2.5    + model2_Q2.5)
+  )
+
+# 2. pivot long again so ggplot can facet
+re_long <- re_wide %>%
+  pivot_longer(
+    cols = -prompt_value,
+    names_to = c("term","metric"),
+    names_sep = "_",
+    values_to = "value"
+  )
+
+# 3. only keep useful terms
+plot_df <- re_long %>%
+  filter(term %in% c("Intercept","GenPref","model1","model2","model3"))
+
+# 4. create wide data for ribbons
+plot_df_wide <- plot_df %>%
+  pivot_wider(names_from = metric, values_from = value)
+
+# 5. plot EVERYTHING properly
+ggplot(plot_df_wide, aes(x = Estimate, y = prompt_value)) +
+  geom_point() +
+  geom_errorbarh(aes(xmin = Q2.5, xmax = Q97.5), height = 0) +
+  facet_wrap(~ term, scales = "fixed") +
+  theme_bw()
+
+
+```
+
+```{r}
+# 1. reshape wide (all terms and all metrics)
+re_df = ranef(all_models_all_prefixes_bigrams)$prompt_value
+
+re_df <- as.data.frame.table(re, responseName = "value")
+names(re_df) <- c("prompt_value", "metric", "term", "value")
+
+
+re_wide <- re_df %>%
+  pivot_wider(
+    names_from = c(term, metric),
+    values_from = value
+  ) %>%
+  mutate(
+    model3_Estimate = -(model1_Estimate + model2_Estimate),
+    model3_Q2.5     = -(model1_Q97.5   + model2_Q97.5),
+    model3_Q97.5    = -(model1_Q2.5    + model2_Q2.5)
+  )
+
+# 2. pivot long again so ggplot can facet
+re_long <- re_wide %>%
+  pivot_longer(
+    cols = -prompt_value,
+    names_to = c("term","metric"),
+    names_sep = "_",
+    values_to = "value"
+  )
+
+# 3. only keep useful terms
+plot_df <- re_long %>%
+  filter(term %in% c("Intercept","GenPref","model1","model2","model3"))
+
+# 4. create wide data for ribbons
+plot_df_wide <- plot_df %>%
+  pivot_wider(names_from = metric, values_from = value)
+
+# 5. plot EVERYTHING properly
+ggplot(plot_df_wide, aes(x = Estimate, y = prompt_value)) +
+  geom_point() +
+  geom_errorbarh(aes(xmin = Q2.5, xmax = Q97.5), height = 0) +
+  facet_wrap(~ term, scales = "fixed") +
+  theme_bw()
+
+
+```
+
+
 # Plots
 
 ```{r}
