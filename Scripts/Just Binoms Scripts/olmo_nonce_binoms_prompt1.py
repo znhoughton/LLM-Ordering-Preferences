@@ -11,6 +11,12 @@ from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from hf_olmo import OLMoForCausalLM, OLMoConfig, OLMoTokenizerFast
 
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:8000/v1",
+    api_key="EMPTY",
+)
 
 # ==========================================================
 #  DEVICE / DTYPE SETUP
@@ -63,6 +69,13 @@ def load_model_and_tokenizer(model_name: str):
             config=config,
             torch_dtype=torch_dtype,
         )
+
+    elif "gpt-oss-120b" in model_name.lower() or "gptoss" in model_name.lower():
+        print("  • Detected GPT-OSS-120B — using OpenAI-compatible API (no local model).")
+        tokenizer = None   # GPT-OSS handles tokenization internally
+        model = None       # No HF model loaded
+        return model, tokenizer, "api"
+
 
     else:
         print("  • Loading HuggingFace model")
@@ -129,6 +142,37 @@ def sequence_logprobs(model, tokenizer, texts, device, batch_size: int = 16):
     return all_scores
 
 
+def sequence_logprobs_gptoss(texts, batch_size=8):
+    all_scores = []
+
+    for start in range(0, len(texts), batch_size):
+        batch = texts[start:start + batch_size]
+
+        resp = client.completions.create(
+            model="/opt/modeling/yzhou/llm/models/gpt/gpt-oss-120b",
+            prompt=batch,
+            max_tokens=1,
+            temperature=0,
+            echo=True,         # <-- CRITICAL
+            logprobs=True,
+        )
+
+        for choice in resp.choices:
+            # all returned tokens = input tokens + 1 generated token
+            lps = choice.logprobs.token_logprobs
+
+            # drop the final generated token
+            input_only = lps[:-1]
+
+            seq_lp = sum(lp for lp in input_only if lp is not None)
+            all_scores.append(seq_lp)
+
+    return all_scores
+
+
+
+
+
 # ==========================================================
 #  PREFERENCE SCORING FOR BINOMIALS
 # ==========================================================
@@ -141,17 +185,19 @@ def get_preferences(model, tokenizer, device,
 
     print(f"\n🔍 Running preferences for prompt {prompt_value}: {repr(prompt)}")
     print(f"    {len(df_binoms)} binomials")
-
+    USE_GPTOSS = (device == "api")
     prefix = prompt + " " if prompt and not prompt.endswith(" ") else prompt
 
     alpha_texts = (prefix + df_binoms["Word1"] + " and " + df_binoms["Word2"]).tolist()
     nonalpha_texts = (prefix + df_binoms["Word2"] + " and " + df_binoms["Word1"]).tolist()
 
     print("  • alpha ordering sequences")
-    alpha_logprobs = sequence_logprobs(model, tokenizer, alpha_texts, device, batch_size)
-
-    print("  • nonalpha ordering sequences")
-    nonalpha_logprobs = sequence_logprobs(model, tokenizer, nonalpha_texts, device, batch_size)
+    if USE_GPTOSS:
+        alpha_logprobs = sequence_logprobs_gptoss(alpha_texts)
+        nonalpha_logprobs = sequence_logprobs_gptoss(nonalpha_texts)
+    else:
+        alpha_logprobs = sequence_logprobs(model, tokenizer, alpha_texts, device, batch_size)
+        nonalpha_logprobs = sequence_logprobs(model, tokenizer, nonalpha_texts, device, batch_size)
 
     print("  • building result dataframe")
     out_df = pd.DataFrame({
@@ -177,13 +223,15 @@ def get_preferences(model, tokenizer, device,
 # ==========================================================
 if __name__ == "__main__":
 
-    df_binoms = pd.read_csv("../../Data/nonce_and_attested_binoms.csv")
+    df_binoms = pd.read_csv("nonce_and_attested_binoms.csv")
     print(f"📄 Loaded {len(df_binoms)} binomials from nonce_binoms.csv")
 
     list_of_models = {
+        "gpt2": "gpt2",
         "gpt2xl":   "gpt2-xl",
         "olmo2_1b": "allenai/OLMo-2-0425-1B",
-        "olmo7b":   "allenai/OLMo-7B-0424"
+        "olmo7b":   "allenai/OLMo-7B-0424",
+        "gptoss120b": "/opt/modeling/yzhou/llm/models/gpt/gpt-oss-120b"
     }
 
     list_of_prompts = [
@@ -206,7 +254,7 @@ if __name__ == "__main__":
     # ======================================================
     #  CRASH-SAFE OUTPUT FILE
     # ======================================================
-    out_path = "../../Data/ALL_MODELS_ALL_PREFIXES_NOVE_AND_ATTESTED.csv"
+    out_path = "ALL_MODELS_ALL_PREFIXES_NOVE_AND_ATTESTED.csv"
 
     # If exists → load & resume
     if os.path.exists(out_path):
@@ -231,20 +279,34 @@ if __name__ == "__main__":
     #  MAIN LOOPS
     # ======================================================
     for model_tag, model_name in list_of_models.items():
-
-        print("\n\n=====================================================")
+    
+        print("\n=====================================================")
         print(f"🚀 MODEL: {model_tag} → {model_name}")
         print("=====================================================")
-
+    
+        # ==== Early skip block: skip model if ALL prompts done ====
+        all_done = True
+        for pval in range(len(list_of_prompts)):
+            if not already_done(model_tag, pval):
+                all_done = False
+                break
+    
+        if all_done:
+            print(f"⏩ Skipping entire model {model_tag} — all prompts already done.")
+            continue
+        # ==========================================================
+    
+        # Load the model ONLY IF there is remaining work
         model, tokenizer, device = load_model_and_tokenizer(model_name)
-
+    
+        # Now run through prompts
         for pval, prompt in enumerate(tqdm(list_of_prompts, desc=f"Prompts for {model_tag}")):
-
-            # ----- SKIP IF ALREADY COMPLETED -----
+    
+            # Skip individual prompts that already exist
             if already_done(model_tag, pval):
                 print(f"⏩ Skipping {model_tag} — prompt {pval} (already done)")
                 continue
-
+    
             # ----- RUN COMPUTATION -----
             out_df = get_preferences(
                 model=model,
@@ -256,21 +318,23 @@ if __name__ == "__main__":
                 model_tag=model_tag,
                 batch_size=16,
             )
-
+    
             # ----- APPEND TO FILE SAFELY -----
             if final_df.empty:
                 out_df.to_csv(out_path, index=False)
             else:
                 out_df.to_csv(out_path, mode="a", header=False, index=False)
-
+    
             final_df = pd.concat([final_df, out_df], ignore_index=True)
-
+    
             print(f"💾 Saved progress — total rows: {len(final_df)}")
-
+    
+        # After finishing this model, clear memory
         print(f"🗑 Clearing {model_tag} from memory")
         del model, tokenizer
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         gc.collect()
+
 
     print(f"\n✨ DONE! Saved {len(final_df)} rows to {out_path}")
