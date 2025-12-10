@@ -235,21 +235,38 @@ if __name__ == "__main__":
     }
 
     list_of_prompts = [
-        "Next item: ", "example: ", "instance: ", "try this: ", " ",
-        "People often talk about ",
-        "The discussion centered around the ",
-        "Experts frequently mention the ",
-        "The topic today involves the ",
-        "The article referred to the ",
-        "The speaker mentioned the ",
-        "The report highlighted the ",
-        "Yesterday we talked about the ",
-        "Recently there has been debate about the ",
-        "The meeting addressed issues related to the ",
-        "The presentation focused on ",
-        "A common example involves the ",
-        "One familiar pairing is the ",
+        "Well, ",
+        "So, ",
+        "Then ",
+        "Maybe ",
+        "Perhaps ",
+        "Especially ",
+        "For instance ",
+        "In some cases ",
+        "At times ",
+        "Every now and then ",
+        "People sometimes mention ",
+        "I once heard someone bring up ",
+        "There was a moment involving a",
+        "I came across something about a",
+        "Someone pointed out the",
+        "A situation arose involving a",
+        "Occasionally you’ll find a",
+        "There can be examples like ",
+        "You might notice things like a",
+        "It’s easy to overlook the",
+        "Nothing specific comes to mind except the",
+        "It reminded me loosely of the",
+        "There was a vague reference to the",
+        "It somehow led back to the",
+        "The conversation drifted toward the",
+        "At one point we ended up discussing the",
+        "Things eventually turned toward the",
+        "Out of nowhere came a mention of the",
+        "We unexpectedly ran into the",
+        "What stood out most was the"
     ]
+
 
     # ======================================================
     #  CRASH-SAFE OUTPUT FILE
