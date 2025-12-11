@@ -1408,7 +1408,7 @@ fixefs_all_prompts_gpt2xl
 ```{r}
 corpus = read_csv('../Data/nonce_and_attested_binoms.csv')
 
-data_all_prefixes_all_models_attested_novel = read_csv('../Data/ALL_MODELS_ALL_PREFIXES_NOVE_AND_ATTESTED.csv') %>%
+data_all_prefixes_all_models_attested_novel = read_csv('../Data/ALL_MODELS_ALL_PREFIXES_NOVEL_AND_ATTESTED.csv') %>%
   mutate(log_odds = preference) %>%
   separate(binom, c('Word1', 'and', 'Word2'), remove = F, sep = ' ') %>%
   select(-and) %>%
@@ -1419,7 +1419,7 @@ data_all_prefixes_all_models_attested_novel = read_csv('../Data/ALL_MODELS_ALL_P
   mutate(GenPref = 1/(1+exp(-1*y_vals))) %>%
   mutate(GenPref = GenPref - 0.5)
 
-data_all_prefixes_all_models = read_csv('../Data/ALL_MODELS_ALL_PREFIXES_NOVE_AND_ATTESTED.csv') %>%
+data_all_prefixes_all_models = read_csv('../Data/ALL_MODELS_ALL_PREFIXES_NOVEL_AND_ATTESTED.csv') %>%
   mutate(log_odds = preference) %>%
   separate(binom, c('Word1', 'and', 'Word2'), remove = F, sep = ' ') %>%
   select(-and) %>%
@@ -1515,7 +1515,7 @@ data_all_prefixes_all_models_attested_novel_and_attested = data_all_prefixes_all
       Attested == 1 ~ OverallFreq,
       Attested == 0 ~ 0
   ))
-data_all_prefixes_all_models_attested_novel$Attested = factor(data_all_prefixes_all_models_attested_novel_and_attested$Attested)
+data_all_prefixes_all_models_attested_novel$Attested = factor(data_all_prefixes_all_models_attested_novel$Attested)
 
 
 
@@ -1754,8 +1754,8 @@ gpt2xl_all_prefixes_individual_constraints = brm(log_odds ~ (Culture + Power + F
 olmo2_1b_all_prefixes_individual_constraints = brm(log_odds ~ (Culture + Power + Freq + Len) + (Culture + Power + Freq + Len | prompt_value) + ( 1 | Alpha),
                        data = data_all_prefixes_olmo2_1b,
                        prior = prior_probs,
-                       iter = 6000,
-                       warmup = 3000,
+                       iter = 9000,
+                       warmup = 4500,
                        chains = 4,
                        cores = 4,
                        #control = list(adapt_delta=0.99, max_treedepth = 15),
@@ -1822,7 +1822,7 @@ fixef(gptoss_all_prefixes_individual_constraints)
 ```
 ```{r}
 # 1. reshape wide (all terms and all metrics)
-re_df = ranef(gpt2_all_prefixes_individual_constraints)$prompt_value
+re_df = ranef(all_models_all_prefixes_individual_constraints)$prompt_value
 
 re_df <- as.data.frame.table(re_df, responseName = "value")
 names(re_df) <- c("prompt_value", "metric", "term", "value")
