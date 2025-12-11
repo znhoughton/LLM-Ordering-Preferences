@@ -254,7 +254,6 @@ if __name__ == "__main__":
         "You might notice things like ",
         "People sometimes mention ",
         "Sometimes just ",
-        "Someone pointed out ",
         "Nothing specific comes to mind except the ",
         "It reminded me loosely of the ",
         "There was a vague reference to the ",
