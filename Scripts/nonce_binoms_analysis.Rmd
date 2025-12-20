@@ -771,6 +771,7 @@ Olmo_main_all_constraints = lm(log_odds ~ Percept + Culture + Power + Intense + 
 
 car::vif(Olmo_main_all_constraints)
 
+
 ```
 
 
@@ -1506,16 +1507,16 @@ all_models_all_prefixes = brm(log_odds ~ GenPref * model + (GenPref * model | pr
                        file = '../Data/all_models_all_prefixes'
                       )
 
-
-data_all_prefixes_all_models_attested_novel_and_attested = data_all_prefixes_all_models_attested_novel_and_attested %>%
-  mutate(RelFreq = case_when(
-    Attested == 1 ~ RelFreq,
-    Attested == 0 ~ 0),
-    OverallFreq = case_when(
-      Attested == 1 ~ OverallFreq,
-      Attested == 0 ~ 0
-  ))
-data_all_prefixes_all_models_attested_novel$Attested = factor(data_all_prefixes_all_models_attested_novel$Attested)
+# 
+# data_all_prefixes_all_models_attested_novel_and_attested = data_all_prefixes_all_models_attested_novel_and_attested %>%
+#   mutate(RelFreq = case_when(
+#     Attested == 1 ~ RelFreq,
+#     Attested == 0 ~ 0),
+#     OverallFreq = case_when(
+#       Attested == 1 ~ OverallFreq,
+#       Attested == 0 ~ 0
+#   ))
+# data_all_prefixes_all_models_attested_novel$Attested = factor(data_all_prefixes_all_models_attested_novel$Attested)
 
 
 
@@ -1549,6 +1550,13 @@ data_all_prefixes_gpt2 = data_all_prefixes_all_models %>%
 
 data_all_prefixes_gptoss = data_all_prefixes_all_models %>%
   filter(model == 'gptoss120b')
+
+data_all_prefixes_olmo3_32b = data_all_prefixes_all_models %>%
+  filter(model == 'olmo3_32b')
+
+data_all_prefixes_olmo3_7b = data_all_prefixes_all_models %>%
+  filter(model == 'olmo3_7b')
+
 
 all_models_gpt2xl = brm(log_odds ~ GenPref + (GenPref | prompt_value) + ( 1 | Alpha),
                        data = data_all_prefixes_gpt2xl,
@@ -1617,12 +1625,38 @@ all_models_gptoss = brm(log_odds ~ GenPref + (GenPref | prompt_value) + ( 1 | Al
                        file = '../Data/all_models_gptoss'
                       )
 
+all_models_olmo3_32b = brm(log_odds ~ GenPref + (GenPref | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_olmo3_32b,
+                       prior = prior_probs,
+                       iter = 30000,
+                       warmup = 15000,
+                       chains = 4,
+                       cores = 4,
+                       control = list(adapt_delta=0.999, max_treedepth = 20),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/all_models_olmo3_32b'
+                      )
+
+all_models_olmo3_7b = brm(log_odds ~ GenPref + (GenPref | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_olmo3_7b,
+                       prior = prior_probs,
+                       iter = 30000,
+                       warmup = 15000,
+                       chains = 4,
+                       cores = 4,
+                       control = list(adapt_delta=0.999, max_treedepth = 20),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/all_models_olmo3_7b'
+                      )
+
 fixef(all_models_all_prefixes)
 fixef(all_models_gpt2xl)
 fixef(all_models_olmo2_1b)
 fixef(all_models_olmo7b)
 fixef(all_models_gpt2)
 fixef(all_models_gptoss)
+fixef(all_models_olmo3_32b)
+fixef(all_models_olmo3_7b)
 
 ```
 
@@ -1725,6 +1759,55 @@ ggplot(plot_df_wide, aes(x = Estimate, y = prompt_value)) +
 
 ### individual constraints
 
+
+```{r}
+  
+data_all_prefixes_all_models = data_all_prefixes_all_models %>%
+  rename(no_final_stress = `*BStress`)
+
+all_models_all_prefixes_all_constraints = brm(log_odds ~ (Culture + Power + Freq + Len + no_final_stress + Intense + Percept + Lapse ) * model + (Culture + Power + Freq + Len + no_final_stress + Intense + Percept + Lapse | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_all_models,
+                       prior = prior_probs,
+                       iter = 6000,
+                       warmup = 3000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/all_models_all_prefixes_all_constraints'
+                      )
+
+library(car)
+
+lm_vif <- lm(
+  log_odds ~
+    (Culture + Power + Freq + Len + no_final_stress +
+     Intense + Percept + Lapse),
+  data = data_all_prefixes_all_models
+)
+
+car::vif(lm_vif)
+#drop lapse and no_final_stress
+all_models_all_prefixes_all_constraints_vif_dropped = brm(log_odds ~ (Culture + Power + Freq + Len + Intense + Percept) * model + (Culture + Power + Freq + Len + Intense + Percept | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_all_models,
+                       prior = prior_probs,
+                       iter = 6000,
+                       warmup = 3000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/all_models_all_prefixes_all_constraints_vif_dropped'
+                      )
+
+
+
+fixef(all_models_all_prefixes_all_constraints)
+## And now we do backward model selection
+
+```
+
+
 ```{r}
 
 all_models_all_prefixes_individual_constraints = brm(log_odds ~ (Culture + Power + Freq + Len) * model + (Culture + Power + Freq + Len | prompt_value) + ( 1 | Alpha),
@@ -1812,14 +1895,244 @@ gptoss_all_prefixes_individual_constraints = brm(log_odds ~ (Culture + Power + F
                        file = '../Data/gptoss_all_prefixes_individual_constraints'
                       )
 
+olmo3_32b_all_prefixes_individual_constraints = brm(log_odds ~ (Culture + Power + Freq + Len) + (Culture + Power + Freq + Len | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_olmo3_32b,
+                       prior = prior_probs,
+                       iter = 8000,
+                       warmup = 4000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/olmo3_32b_all_prefixes_individual_constraints'
+                      )
+
+olmo3_7b_all_prefixes_individual_constraints = brm(log_odds ~ (Culture + Power + Freq + Len) + (Culture + Power + Freq + Len | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_olmo3_7b,
+                       prior = prior_probs,
+                       iter = 8000,
+                       warmup = 4000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/olmo3_7b_all_prefixes_individual_constraints'
+                      )
+
 fixef(all_models_all_prefixes_individual_constraints)
 fixef(gpt2xl_all_prefixes_individual_constraints)
 fixef(olmo2_1b_all_prefixes_individual_constraints)
 fixef(olmo7b_all_prefixes_individual_constraints)
 fixef(gpt2_all_prefixes_individual_constraints)
 fixef(gptoss_all_prefixes_individual_constraints)
+fixef(olmo3_32b_all_prefixes_individual_constraints)
+fixef(olmo3_7b_all_prefixes_individual_constraints)
+
+
 
 ```
+
+## Model Selection
+
+```{r}
+
+##Lapse and no_final_stress droppped for having low vif for all models
+
+gpt2xl_all_prefixes_all_constraints = brm(log_odds ~ (Culture + Power + Freq + Len + Intense + Percept) + (Culture + Power + Freq + Len + Intense + Percept | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_gpt2xl,
+                       prior = prior_probs,
+                       iter = 6000,
+                       warmup = 3000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/gpt2xl_all_prefixes_all_constraints'
+                      )
+
+gpt2xl_all_prefixes_percept_power_dropped = brm(log_odds ~ (Culture + Freq + Len + Intense) + (Culture + Freq + Len + Intense | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_gpt2xl,
+                       prior = prior_probs,
+                       iter = 6000,
+                       warmup = 3000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/gpt2xl_all_prefixes_percept_power_dropped'
+                      )
+
+
+olmo2_1b_all_prefixes_all_constraints = brm(log_odds ~ (Culture + Power + Freq + Len + Intense + Percept) + (Culture + Power + Freq + Len + Intense + Percept | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_olmo2_1b,
+                       prior = prior_probs,
+                       iter = 9000,
+                       warmup = 4500,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/olmo2_1b_all_prefixes_all_constraints'
+                      )
+
+olmo2_1b_all_prefixes_freq_dropped = brm(log_odds ~ (Culture + Power + Len + Intense + Percept) + (Culture + Power + Len + Intense + Percept | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_olmo2_1b,
+                       prior = prior_probs,
+                       iter = 9000,
+                       warmup = 4500,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/olmo2_1b_all_prefixes_freq_dropped'
+                      )
+
+olmo7b_all_prefixes_all_constraints = brm(log_odds ~ (Culture + Power + Freq + Len + Intense + Percept) + (Culture + Power + Freq + Len + Intense + Percept | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_olmo7b,
+                       prior = prior_probs,
+                       iter = 8000,
+                       warmup = 4000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/olmo7b_all_prefixes_all_constraints'
+                      )
+
+olmo7b_all_prefixes_len_dropped = brm(log_odds ~ (Culture + Power + Freq + Intense + Percept) + (Culture + Power + Freq + Intense + Percept | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_olmo7b,
+                       prior = prior_probs,
+                       iter = 8000,
+                       warmup = 4000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/olmo7b_all_prefixes_len_dropped'
+                      )
+
+
+
+gpt2_all_prefixes_all_constraints = brm(log_odds ~ (Culture + Power + Freq + Len + Intense + Percept) + (Culture + Power + Freq + Len + Intense + Percept | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_gpt2,
+                       prior = prior_probs,
+                       iter = 8000,
+                       warmup = 4000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/gpt2_all_prefixes_all_constraints'
+                      )
+
+
+gpt2_all_prefixes_freq_intense_dropped = brm(log_odds ~ (Culture + Power + Len + Percept) + (Culture + Power + Len + Percept | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_gpt2,
+                       prior = prior_probs,
+                       iter = 8000,
+                       warmup = 4000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/gpt2_all_prefixes_freq_intense_dropped'
+                      )
+
+
+
+gptoss_all_prefixes_all_constraints = brm(log_odds ~ (Culture + Power + Freq + Len + Intense + Percept) + (Culture + Power + Freq + Len + Intense + Percept | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_gptoss,
+                       prior = prior_probs,
+                       iter = 8000,
+                       warmup = 4000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/gptoss_all_prefixes_all_constraints'
+                      )
+
+
+gptoss_all_prefixes_culture_percept_dropped = brm(log_odds ~ (Power + Freq + Len + Intense) + (Power + Freq + Len + Intense | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_gptoss,
+                       prior = prior_probs,
+                       iter = 8000,
+                       warmup = 4000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/gptoss_all_prefixes_culture_percept_dropped'
+                      )
+
+olmo3_32b_all_prefixes_all_constraints = brm(log_odds ~ (Culture + Power + Freq + Len + Intense + Percept) + (Culture + Power + Freq + Len + Intense + Percept | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_olmo3_32b,
+                       prior = prior_probs,
+                       iter = 8000,
+                       warmup = 4000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/olmo3_32b_all_prefixes_all_constraints'
+                      )
+
+olmo3_32b_all_prefixes_freq_dropped = brm(log_odds ~ (Culture + Power + Len + Intense + Percept) + (Culture + Power + Len + Intense + Percept | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_olmo3_32b,
+                       prior = prior_probs,
+                       iter = 8000,
+                       warmup = 4000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/olmo3_32b_all_prefixes_freq_dropped'
+                      )
+
+olmo3_7b_all_prefixes_all_constraints = brm(log_odds ~ (Culture + Power + Freq + Len + Intense + Percept) + (Culture + Power + Freq + Len + Intense + Percept | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_olmo3_7b,
+                       prior = prior_probs,
+                       iter = 8000,
+                       warmup = 4000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/olmo3_7b_all_prefixes_all_constraints'
+                      )
+
+olmo3_7b_all_prefixes_freq_percept_dropped = brm(log_odds ~ (Culture + Power + Len + Intense) + (Culture + Power + Len + Intense | prompt_value) + ( 1 | Alpha),
+                       data = data_all_prefixes_olmo3_7b,
+                       prior = prior_probs,
+                       iter = 8000,
+                       warmup = 4000,
+                       chains = 4,
+                       cores = 4,
+                       #control = list(adapt_delta=0.99, max_treedepth = 15),
+                       #control = list(max_treedepth = 20),
+                       file = '../Data/olmo3_7b_all_prefixes_freq_percept_dropped'
+                      )
+
+fixef(gpt2xl_all_prefixes_all_constraints)
+fixef(olmo2_1b_all_prefixes_all_constraints)
+fixef(olmo7b_all_prefixes_all_constraints)
+fixef(gpt2_all_prefixes_all_constraints)
+fixef(gptoss_all_prefixes_all_constraints)
+fixef(olmo3_32b_all_prefixes_all_constraints)
+fixef(olmo3_7b_all_prefixes_all_constraints)
+
+
+
+fixef(gpt2xl_all_prefixes_percept_power_dropped)
+fixef(olmo2_1b_all_prefixes_freq_dropped)
+fixef(olmo7b_all_prefixes_len_dropped)
+fixef(gpt2_all_prefixes_freq_intense_dropped)
+fixef(gptoss_all_prefixes_culture_percept_dropped)
+fixef(olmo3_32b_all_prefixes_freq_dropped)
+fixef(olmo3_7b_all_prefixes_freq_percept_dropped)
+
+```
+
 ```{r}
 # 1. reshape wide (all terms and all metrics)
 re_df = ranef(all_models_all_prefixes_individual_constraints)$prompt_value
